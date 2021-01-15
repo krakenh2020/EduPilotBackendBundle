@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DBP\API\StarterBundle\Entity;
+namespace VC4SM\Bundle\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;

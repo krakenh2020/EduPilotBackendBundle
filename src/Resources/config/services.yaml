@@ -1,19 +1,19 @@
 services:
-  DBP\API\StarterBundle\Command\TestCommand:
+ VC4SM\Bundle\Command\TestCommand:
     autowire: true
     autoconfigure: true
 
-  DBP\API\StarterBundle\DataProvider\PlaceCollectionDataProvider:
+ VC4SM\Bundle\DataProvider\PlaceCollectionDataProvider:
     tags: [{ name: 'api_platform.collection_data_provider'}]
     autowire: true
 
-  DBP\API\StarterBundle\DataProvider\PlaceItemDataProvider:
+ VC4SM\Bundle\DataProvider\PlaceItemDataProvider:
     tags: ['api_platform.item_data_provider']
     autowire: true
 
-  DBP\API\StarterBundle\Service\ExternalApi:
+ VC4SM\Bundle\Service\ExternalApi:
     autowire: true
     autoconfigure: true
 
-  DBP\API\StarterBundle\Service\PlaceProviderInterface:
-    '@DBP\API\StarterBundle\Service\ExternalApi'
+ VC4SM\Bundle\Service\PlaceProviderInterface:
+    '@DBP\API\Bundle\Service\ExternalApi'

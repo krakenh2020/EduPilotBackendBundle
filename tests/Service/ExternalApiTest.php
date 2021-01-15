@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DBP\API\StarterBundle\Tests\Service;
+namespace VC4SM\Bundle\Tests\Service;
 
-use DBP\API\StarterBundle\Service\ExternalApi;
+use VC4SM\Bundle\Service\ExternalApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ExternalApiTest extends WebTestCase

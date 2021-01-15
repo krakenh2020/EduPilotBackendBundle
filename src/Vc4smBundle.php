@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DBP\API\StarterBundle;
+namespace VC4SM\Bundle;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class DbpStarterBundle extends Bundle
+class DbpBundle extends Bundle
 {
     public function build(ContainerBuilder $container)
     {

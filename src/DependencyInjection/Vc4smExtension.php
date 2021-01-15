@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DBP\API\StarterBundle\DependencyInjection;
+namespace VC4SM\Bundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

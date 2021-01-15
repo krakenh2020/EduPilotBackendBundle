@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DBP\API\StarterBundle\DataProvider;
+namespace VC4SM\Bundle\DataProvider;
 
 use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
-use DBP\API\CoreBundle\Helpers\ArrayFullPaginator;
-use DBP\API\StarterBundle\Entity\Place;
-use DBP\API\StarterBundle\Service\PlaceProviderInterface;
+use VC4SM\CoreBundle\Helpers\ArrayFullPaginator;
+use VC4SM\Bundle\Entity\Place;
+use VC4SM\Bundle\Service\PlaceProviderInterface;
 
 final class PlaceCollectionDataProvider implements CollectionDataProviderInterface, RestrictedDataProviderInterface
 {

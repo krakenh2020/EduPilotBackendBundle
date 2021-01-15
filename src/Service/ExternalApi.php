@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DBP\API\StarterBundle\Service;
+namespace VC4SM\Bundle\Service;
 
-use DBP\API\StarterBundle\Entity\Place;
+use VC4SM\Bundle\Entity\Place;
 
 class ExternalApi implements PlaceProviderInterface
 {

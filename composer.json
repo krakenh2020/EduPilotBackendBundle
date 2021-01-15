@@ -1,5 +1,5 @@
 {
-    "name": "dbp/api-starter-bundle",
+    "name": "vc4sm-bundle",
     "type": "symfony-bundle",
     "license": "AGPL-3.0-or-later",
     "require": {
@@ -18,17 +18,17 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@gitlab.tugraz.at:dbp/middleware/dbp-api/api-core-bundle.git"
+            "url": "git@github.com:PeterTheOne/vc4sm-bundle.git"
         }
     ],
     "autoload": {
         "psr-4": {
-            "DBP\\API\\StarterBundle\\": "src/"
+            "VC4SM\\Bundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "DBP\\API\\StarterBundle\\Tests\\": "tests/"
+            "VC4SM\\Bundle\\Tests\\": "tests/"
         }
     },
     "config": {

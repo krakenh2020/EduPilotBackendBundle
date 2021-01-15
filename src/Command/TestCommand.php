@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DBP\API\StarterBundle\Command;
+namespace VC4SM\Bundle\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DBP\API\StarterBundle\DataProvider;
+namespace VC4SM\Bundle\DataProvider;
 
 use ApiPlatform\Core\DataProvider\ItemDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
-use DBP\API\StarterBundle\Entity\Place;
-use DBP\API\StarterBundle\Service\PlaceProviderInterface;
+use VC4SM\Bundle\Entity\Place;
+use VC4SM\Bundle\Service\PlaceProviderInterface;
 
 final class PlaceItemDataProvider implements ItemDataProviderInterface, RestrictedDataProviderInterface
 {
