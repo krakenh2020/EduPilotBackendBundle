@@ -1,0 +1,67 @@
+{
+    "name": "dbp/api-starter-bundle",
+    "type": "symfony-bundle",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "php": "^7.3",
+        "api-platform/core": "^2.5",
+        "symfony/framework-bundle": "^4.1.12",
+        "dbp/api-core-bundle": "@dev"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "phpstan/phpstan": "^0.12.33",
+        "phpstan/phpstan-phpunit": "^0.12.13",
+        "symfony/phpunit-bridge": "^4.4",
+        "vimeo/psalm": "^4.2.1"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@gitlab.tugraz.at:dbp/middleware/dbp-api/api-core-bundle.git"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "DBP\\API\\StarterBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DBP\\API\\StarterBundle\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "7.3"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@php vendor/bin/simple-phpunit"
+        ],
+        "phpstan": [
+            "@php vendor/bin/simple-phpunit --atleast-version 0",
+            "@php vendor/bin/phpstan analyze --ansi"
+        ],
+        "psalm": [
+            "@php vendor/bin/simple-phpunit --atleast-version 0",
+            "@php vendor/bin/psalm"
+        ],
+        "lint": [
+            "@composer run cs",
+            "@composer run phpstan",
+            "@composer run psalm"
+        ],
+        "cs-fix": [
+            "@php vendor/bin/php-cs-fixer --ansi fix"
+        ],
+        "cs": [
+            "@php vendor/bin/php-cs-fixer --ansi fix --dry-run --diff --diff-format=udiff"
+        ],
+        "coverage": [
+            "@php vendor/bin/simple-phpunit --coverage-html _coverage"
+        ]
+    }
+}

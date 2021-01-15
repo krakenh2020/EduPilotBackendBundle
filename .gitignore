@@ -1,0 +1,6 @@
+/vendor
+/var
+/.php_cs
+/.idea
+/*.cache
+/_coverage
