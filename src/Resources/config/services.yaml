@@ -3,11 +3,11 @@ services:
     autowire: true
     autoconfigure: true
 
- VC4SM\Bundle\DataProvider\PlaceCollectionDataProvider:
+ VC4SM\Bundle\DataProvider\CredentialCollectionDataProvider:
     tags: [{ name: 'api_platform.collection_data_provider'}]
     autowire: true
 
- VC4SM\Bundle\DataProvider\PlaceItemDataProvider:
+ VC4SM\Bundle\DataProvider\CredentialItemDataProvider:
     tags: ['api_platform.item_data_provider']
     autowire: true
 
@@ -15,5 +15,5 @@ services:
     autowire: true
     autoconfigure: true
 
- VC4SM\Bundle\Service\PlaceProviderInterface:
+ VC4SM\Bundle\Service\CredentialProviderInterface:
     '@VC4SM\Bundle\Service\ExternalApi'

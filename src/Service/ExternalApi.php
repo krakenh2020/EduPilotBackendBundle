@@ -4,40 +4,40 @@ declare(strict_types=1);
 
 namespace VC4SM\Bundle\Service;
 
-use VC4SM\Bundle\Entity\Place;
+use VC4SM\Bundle\Entity\Credential;
 
-class ExternalApi implements PlaceProviderInterface
+class ExternalApi implements CredentialProviderInterface
 {
-    private $places;
+    private $credentials;
 
     public function __construct()
     {
-        $this->places = [];
-        $place1 = new Place();
-        $place1->setIdentifier('graz');
-        $place1->setName('Graz');
+        $this->credentials = [];
+        $credential1 = new Credential();
+        $credential1->setIdentifier('graz');
+        $credential1->setName('Graz');
 
-        $place2 = new Place();
-        $place2->setIdentifier('vienna');
-        $place2->setName('Vienna');
+        $credential2 = new Credential();
+        $credential2->setIdentifier('vienna');
+        $credential2->setName('Vienna');
 
-        $this->places[] = $place1;
-        $this->places[] = $place2;
+        $this->credentials[] = $credential1;
+        $this->credentials[] = $credential2;
     }
 
-    public function getPlaceById(string $identifier): ?Place
+    public function getCredentialById(string $identifier): ?Credential
     {
-        foreach ($this->places as $place) {
-            if ($place->getIdentifier() === $identifier) {
-                return $place;
+        foreach ($this->credentials as $credential) {
+            if ($credential->getIdentifier() === $identifier) {
+                return $credential;
             }
         }
 
         return null;
     }
 
-    public function getPlaces(): array
+    public function getCredentials(): array
     {
-        return $this->places;
+        return $this->credentials;
     }
 }

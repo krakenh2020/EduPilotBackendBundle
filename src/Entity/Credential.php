@@ -8,16 +8,18 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+// todo: schema
 /**
  * @ApiResource(
+ *     attributes={"security"="is_granted()"},
  *     collectionOperations={"get"},
  *     itemOperations={"get", "put", "delete"},
  *     iri="https://schema.org/Place",
- *     normalizationContext={"groups"={"Place:output"}, "jsonld_embed_context"=true},
- *     denormalizationContext={"groups"={"Place:input"}, "jsonld_embed_context"=true}
+ *     normalizationContext={"groups"={"Credential:output"}, "jsonld_embed_context"=true},
+ *     denormalizationContext={"groups"={"Credential:input"}, "jsonld_embed_context"=true}
  * )
  */
-class Place
+class Credential
 {
     /**
      * @ApiProperty(identifier=true)
@@ -26,7 +28,7 @@ class Place
 
     /**
      * @ApiProperty(iri="https://schema.org/name")
-     * @Groups({"Place:output", "Place:input"})
+     * @Groups({"Credential:output", "Credential:input"})
      *
      * @var string
      */
