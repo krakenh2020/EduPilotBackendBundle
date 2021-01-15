@@ -16,4 +16,4 @@ services:
     autoconfigure: true
 
  VC4SM\Bundle\Service\PlaceProviderInterface:
-    '@DBP\API\Bundle\Service\ExternalApi'
+    '@VC4SM\Bundle\Service\ExternalApi'
