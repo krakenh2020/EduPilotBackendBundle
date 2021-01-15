@@ -7,7 +7,7 @@ namespace VC4SM\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class DbpBundle extends Bundle
+class Vc4smBundle extends Bundle
 {
     public function build(ContainerBuilder $container)
     {
