@@ -3,8 +3,8 @@ vc4sm-bundle
 
 a frontend for an API that provides education verifiable credentials to university students.
 
-Frontend is here https://github.com/PeterTheOne/vc4sm-frontend.
-Backend is here https://github.com/PeterTheOne/vc4sm-backend.
+- Frontend https://github.com/PeterTheOne/vc4sm-frontend
+- Backend https://github.com/PeterTheOne/vc4sm-backend
 
 Part of the **Verifiable Credentials for Student Mobility** project funded by TU Graz
 as a technologically enhanced administration (TEA) marketplace project.
