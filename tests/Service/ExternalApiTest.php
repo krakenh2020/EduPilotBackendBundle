@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace VC4SM\Bundle\Tests\Service;
 
-use VC4SM\Bundle\Service\ExternalApi;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use VC4SM\Bundle\Service\ExternalApi;
 
 class ExternalApiTest extends WebTestCase
 {
