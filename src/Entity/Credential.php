@@ -11,7 +11,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 // todo: schema
 /**
  * @ApiResource(
- *     attributes={"security"="is_granted()"},
  *     collectionOperations={"get"},
  *     itemOperations={"get", "put", "delete"},
  *     iri="https://schema.org/Place",
