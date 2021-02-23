@@ -3,8 +3,8 @@ services:
     autowire: true
     autoconfigure: true
 
- VC4SM\Bundle\DataProvider\CredentialCollectionDataProvider:
-    tags: [{ name: 'api_platform.collection_data_provider'}]
+ VC4SM\Bundle\DataProvider\DidConnectionCollectionDataProvider:
+    tags: [ { name: 'api_platform.collection_data_provider' } ]
     autowire: true
 
  VC4SM\Bundle\DataProvider\CourseGradeCollectionDataProvider:
@@ -15,7 +15,7 @@ services:
     tags: [ { name: 'api_platform.collection_data_provider' } ]
     autowire: true
 
- VC4SM\Bundle\DataProvider\CredentialItemDataProvider:
+ VC4SM\Bundle\DataProvider\DidConnectionItemDataProvider:
     tags: ['api_platform.item_data_provider']
     autowire: true
 
@@ -31,7 +31,7 @@ services:
     autowire: true
     autoconfigure: true
 
- VC4SM\Bundle\Service\CredentialProviderInterface:
+ VC4SM\Bundle\Service\DidConnectionProviderInterface:
    '@VC4SM\Bundle\Service\ExternalApi'
 
  VC4SM\Bundle\Service\CourseGradeProviderInterface:

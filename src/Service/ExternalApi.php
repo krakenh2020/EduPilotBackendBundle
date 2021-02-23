@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Service;
 
 use VC4SM\Bundle\Entity\CourseGrade;
-use VC4SM\Bundle\Entity\Credential;
+use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Entity\Diploma;
 
-class ExternalApi implements CredentialProviderInterface, DiplomaProviderInterface, CourseGradeProviderInterface
+class ExternalApi implements DidConnectionProviderInterface, DiplomaProviderInterface, CourseGradeProviderInterface
 {
     private $diplomas;
     private $courseGrades;
-    private $credentials;
+    private $DidConnections;
 
     public function __construct()
     {
@@ -54,18 +54,18 @@ class ExternalApi implements CredentialProviderInterface, DiplomaProviderInterfa
         $this->courseGrades[] = $grade3;
         $this->courseGrades[] = $grade4;
 
-        // credentials
-        $this->credentials = [];
-        $credential1 = new Credential();
-        $credential1->setIdentifier('graz');
-        $credential1->setName('Graz');
+        // DidConnections
+        $this->DidConnections = [];
+        $DidConnection1 = new DidConnection();
+        $DidConnection1->setIdentifier('graz');
+        $DidConnection1->setName('Graz');
 
-        $credential2 = new Credential();
-        $credential2->setIdentifier('vienna');
-        $credential2->setName('Vienna');
+        $DidConnection2 = new DidConnection();
+        $DidConnection2->setIdentifier('vienna');
+        $DidConnection2->setName('Vienna');
 
-        $this->credentials[] = $credential1;
-        $this->credentials[] = $credential2;
+        $this->DidConnections[] = $DidConnection1;
+        $this->DidConnections[] = $DidConnection2;
     }
 
     public function getDiplomaById(string $identifier): ?Diploma
@@ -100,19 +100,19 @@ class ExternalApi implements CredentialProviderInterface, DiplomaProviderInterfa
         return $this->diplomas;
     }
 
-    public function getCredentialById(string $identifier): ?Credential
+    public function getDidConnectionById(string $identifier): ?DidConnection
     {
-        foreach ($this->credentials as $credential) {
-            if ($credential->getIdentifier() === $identifier) {
-                return $credential;
+        foreach ($this->DidConnections as $DidConnection) {
+            if ($DidConnection->getIdentifier() === $identifier) {
+                return $DidConnection;
             }
         }
 
         return null;
     }
 
-    public function getCredentials(): array
+    public function getDidConnections(): array
     {
-        return $this->credentials;
+        return $this->DidConnections;
     }
 }

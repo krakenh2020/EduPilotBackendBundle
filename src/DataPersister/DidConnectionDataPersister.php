@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\DataPersister;
 
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
-use VC4SM\Bundle\Entity\Credential;
-use VC4SM\Bundle\Service\CredentialProviderInterface;
+use VC4SM\Bundle\Entity\DidConnection;
+use VC4SM\Bundle\Service\DidConnectionProviderInterface;
 
-class CredentialDataPersister implements DataPersisterInterface
+class DidConnectionDataPersister implements DataPersisterInterface
 {
     private $api;
 
-    public function __construct(CredentialProviderInterface $api)
+    public function __construct(DidConnectionProviderInterface $api)
     {
         $this->api = $api;
     }
 
     public function supports($data): bool
     {
-        return $data instanceof Credential;
+        return $data instanceof DidConnection;
     }
 
     public function persist($data)

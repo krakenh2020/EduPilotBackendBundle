@@ -7,21 +7,21 @@ namespace VC4SM\Bundle\DataProvider;
 use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use DBP\API\CoreBundle\Helpers\ArrayFullPaginator;
-use VC4SM\Bundle\Entity\Credential;
-use VC4SM\Bundle\Service\CredentialProviderInterface;
+use VC4SM\Bundle\Entity\DidConnection;
+use VC4SM\Bundle\Service\DidConnectionProviderInterface;
 
-final class CredentialCollectionDataProvider implements CollectionDataProviderInterface, RestrictedDataProviderInterface
+final class DidConnectionCollectionDataProvider implements CollectionDataProviderInterface, RestrictedDataProviderInterface
 {
     private $api;
 
-    public function __construct(CredentialProviderInterface $api)
+    public function __construct(DidConnectionProviderInterface $api)
     {
         $this->api = $api;
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
-        return Credential::class === $resourceClass;
+        return DidConnection::class === $resourceClass;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = []): ArrayFullPaginator
@@ -37,6 +37,6 @@ final class CredentialCollectionDataProvider implements CollectionDataProviderIn
             $perPage = (int) $filters['perPage'];
         }
 
-        return new ArrayFullPaginator($this->api->getCredentials(), $page, $perPage);
+        return new ArrayFullPaginator($this->api->getDidConnections(), $page, $perPage);
     }
 }

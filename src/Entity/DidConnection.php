@@ -14,11 +14,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     collectionOperations={"get"},
  *     itemOperations={"get", "put", "delete"},
  *     iri="https://schema.org/Place",
- *     normalizationContext={"groups"={"Credential:output"}, "jsonld_embed_context"=true},
- *     denormalizationContext={"groups"={"Credential:input"}, "jsonld_embed_context"=true}
+ *     normalizationContext={"groups"={"DidConnection:output"}, "jsonld_embed_context"=true},
+ *     denormalizationContext={"groups"={"DidConnection:input"}, "jsonld_embed_context"=true}
  * )
  */
-class Credential
+class DidConnection
 {
     /**
      * @ApiProperty(identifier=true)
@@ -27,7 +27,7 @@ class Credential
 
     /**
      * @ApiProperty(iri="https://schema.org/name")
-     * @Groups({"Credential:output", "Credential:input"})
+     * @Groups({"DidConnection:output", "DidConnection:input"})
      *
      * @var string
      */
