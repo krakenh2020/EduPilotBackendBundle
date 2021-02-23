@@ -7,13 +7,24 @@ services:
     tags: [{ name: 'api_platform.collection_data_provider'}]
     autowire: true
 
+ VC4SM\Bundle\DataProvider\DiplomaCollectionDataProvider:
+    tags: [ { name: 'api_platform.collection_data_provider' } ]
+    autowire: true
+
  VC4SM\Bundle\DataProvider\CredentialItemDataProvider:
     tags: ['api_platform.item_data_provider']
     autowire: true
+
+ VC4SM\Bundle\DataProvider\DiplomaItemDataProvider:
+   tags: ['api_platform.item_data_provider']
+   autowire: true
 
  VC4SM\Bundle\Service\ExternalApi:
     autowire: true
     autoconfigure: true
 
  VC4SM\Bundle\Service\CredentialProviderInterface:
-    '@VC4SM\Bundle\Service\ExternalApi'
+   '@VC4SM\Bundle\Service\ExternalApi'
+
+ VC4SM\Bundle\Service\DiplomaProviderInterface:
+   '@VC4SM\Bundle\Service\ExternalApi'
