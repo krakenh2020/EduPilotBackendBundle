@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     collectionOperations={"get"},
  *     itemOperations={"get"},
- *     iri="https://schema.org/Place",
+ *     iri="https://schema.org/EducationalOccupationalCredential",
  *     normalizationContext={"groups"={"Diploma:output"}, "jsonld_embed_context"=true},
  *     denormalizationContext={"groups"={"Diploma:input"}, "jsonld_embed_context"=true}
  * )
@@ -33,6 +33,40 @@ class Diploma
      */
     private $name;
 
+    /**
+     * @ApiProperty(iri="https://schema.org/EducationalOccupationalProgram")
+     * @Groups({"Diploma:output", "Diploma:input"})
+     *
+     * @var string
+     */
+    private $studyName;
+
+    /**
+     * @ApiProperty(iri="https://schema.org/dateCreated")
+     * @Groups({"Diploma:output", "Diploma:input"})
+     *
+     * @var string
+     */
+    private $achievenmentDate;
+
+    /**
+     * @ApiProperty(iri="https://schema.org/credentialCategory")
+     * @Groups({"Diploma:output", "Diploma:input"})
+     *
+     * @var string
+     */
+    private $academicDegree;
+
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
+
+    public function setIdentifier(string $identifier): void
+    {
+        $this->identifier = $identifier;
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -43,13 +77,33 @@ class Diploma
         $this->name = $name;
     }
 
-    public function getIdentifier(): string
+    public function getStudyName(): string
     {
-        return $this->identifier;
+        return $this->studyName;
     }
 
-    public function setIdentifier(string $identifier): void
+    public function setStudyName(string $studyName): void
     {
-        $this->identifier = $identifier;
+        $this->studyName = $studyName;
+    }
+
+    public function getAchievenmentDate(): string
+    {
+        return $this->achievenmentDate;
+    }
+
+    public function setAchievenmentDate(string $achievenmentDate): void
+    {
+        $this->achievenmentDate = $achievenmentDate;
+    }
+
+    public function getAcademicDegree(): string
+    {
+        return $this->academicDegree;
+    }
+
+    public function setAcademicDegree(string $academicDegree): void
+    {
+        $this->academicDegree = $academicDegree;
     }
 }
