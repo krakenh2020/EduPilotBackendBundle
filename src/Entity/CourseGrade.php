@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiResource(
  *     collectionOperations={"get"},
  *     itemOperations={"get"},
- *     iri="https://schema.org/Place",
+ *     iri="https://schema.org/Thing",
  *     normalizationContext={"groups"={"CourseGrade:output"}, "jsonld_embed_context"=true},
  *     denormalizationContext={"groups"={"CourseGrade:input"}, "jsonld_embed_context"=true}
  * )
@@ -43,7 +43,7 @@ class CourseGrade
 
     /**
      * @ApiProperty(iri="https://schema.org/dateCreated")
-     * @Groups({"Diploma:output", "Diploma:input"})
+     * @Groups({"CourseGrade:output", "CourseGrade:input"})
      *
      * @var string
      */
@@ -52,7 +52,7 @@ class CourseGrade
 
     /**
      * @ApiProperty(iri="https://schema.org/Thing")
-     * @Groups({"Diploma:output", "Diploma:input"})
+     * @Groups({"CourseGrade:output", "CourseGrade:input"})
      *
      * @var string
      */
@@ -61,7 +61,7 @@ class CourseGrade
 
     /**
      * @ApiProperty(iri="https://schema.org/Thing")
-     * @Groups({"Diploma:output", "Diploma:input"})
+     * @Groups({"CourseGrade:output", "CourseGrade:input"})
      *
      * @var string
      */
