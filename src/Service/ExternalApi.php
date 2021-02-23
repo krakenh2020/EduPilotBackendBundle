@@ -97,7 +97,7 @@ class ExternalApi implements DidConnectionProviderInterface, DiplomaProviderInte
 
     public function getCourseGrades(): array
     {
-        return $this->diplomas;
+        return $this->courseGrades;
     }
 
     public function getDidConnectionById(string $identifier): ?DidConnection
