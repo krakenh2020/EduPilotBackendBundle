@@ -29,9 +29,9 @@ class ExternalApi implements DidConnectionProviderInterface, DiplomaProviderInte
         $diploma2 = new Diploma();
         $diploma2->setIdentifier('bed1');
         $diploma2->setName('Unterrichtsfach Darstellende Geometrie');
-        $diploma1->setStudyName('Unterrichtsfach Darstellende Geometrie');
-        $diploma1->setAchievenmentDate('2018-01-01');
-        $diploma1->setAcademicDegree('Bachelor of Education (BEd)');
+        $diploma2->setStudyName('Unterrichtsfach Darstellende Geometrie');
+        $diploma2->setAchievenmentDate('2018-01-01');
+        $diploma2->setAcademicDegree('Bachelor of Education (BEd)');
 
         $this->diplomas[] = $diploma1;
         $this->diplomas[] = $diploma2;
