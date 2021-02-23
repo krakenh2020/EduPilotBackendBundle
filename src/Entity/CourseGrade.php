@@ -33,6 +33,50 @@ class CourseGrade
      */
     private $name;
 
+    /**
+     * @ApiProperty(iri="https://schema.org/Course")
+     * @Groups({"CourseGrade:output", "CourseGrade:input"})
+     *
+     * @var string
+     */
+    private $courseTitle;
+
+    /**
+     * @ApiProperty(iri="https://schema.org/dateCreated")
+     * @Groups({"Diploma:output", "Diploma:input"})
+     *
+     * @var string
+     */
+    private $achievenmentDate;
+
+
+    /**
+     * @ApiProperty(iri="https://schema.org/Thing")
+     * @Groups({"Diploma:output", "Diploma:input"})
+     *
+     * @var string
+     */
+    private $grade;
+
+
+    /**
+     * @ApiProperty(iri="https://schema.org/Thing")
+     * @Groups({"Diploma:output", "Diploma:input"})
+     *
+     * @var string
+     */
+    private $credits;
+
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
+
+    public function setIdentifier(string $identifier): void
+    {
+        $this->identifier = $identifier;
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -43,13 +87,43 @@ class CourseGrade
         $this->name = $name;
     }
 
-    public function getIdentifier(): string
+    public function getCourseTitle(): string
     {
-        return $this->identifier;
+        return $this->courseTitle;
     }
 
-    public function setIdentifier(string $identifier): void
+    public function setCourseTitle(string $courseTitle): void
     {
-        $this->identifier = $identifier;
+        $this->courseTitle = $courseTitle;
+    }
+
+    public function getAchievenmentDate(): string
+    {
+        return $this->achievenmentDate;
+    }
+
+    public function setAchievenmentDate(string $achievenmentDate): void
+    {
+        $this->achievenmentDate = $achievenmentDate;
+    }
+
+    public function getGrade(): string
+    {
+        return $this->grade;
+    }
+
+    public function setGrade(string $grade): void
+    {
+        $this->grade = $grade;
+    }
+
+    public function getCredits(): string
+    {
+        return $this->credits;
+    }
+
+    public function setCredits(string $credits): void
+    {
+        $this->credits = $credits;
     }
 }

@@ -42,18 +42,34 @@ class ExternalApi implements DidConnectionProviderInterface, DiplomaProviderInte
         $grade1 = new CourseGrade();
         $grade1->setIdentifier('os');
         $grade1->setName('Operating Systems');
+        $grade1->setCourseTitle('Operating Systems');
+        $grade1->setAchievenmentDate('2017-01-01');
+        $grade1->setGrade('1');
+        $grade1->setCredits('5');
 
         $grade2 = new CourseGrade();
         $grade2->setIdentifier('hcivc');
         $grade2->setName('Human-Computer Interaction and Visual Computing');
+        $grade2->setCourseTitle('Human-Computer Interaction and Visual Computing');
+        $grade2->setAchievenmentDate('2017-02-01');
+        $grade2->setGrade('2');
+        $grade2->setCredits('4');
 
         $grade3 = new CourseGrade();
         $grade3->setIdentifier('dmds');
         $grade3->setName('Data Management and Data Science');
+        $grade3->setCourseTitle('Data Management and Data Science');
+        $grade3->setAchievenmentDate('2017-03-01');
+        $grade3->setGrade('3');
+        $grade3->setCredits('3');
 
         $grade4 = new CourseGrade();
         $grade4->setIdentifier('tcs');
         $grade4->setName('Theoretical Computer Science');
+        $grade4->setCourseTitle('Theoretical Computer Science');
+        $grade4->setAchievenmentDate('2017-04-01');
+        $grade4->setGrade('4');
+        $grade4->setCredits('2');
 
         $this->courseGrades[] = $grade1;
         $this->courseGrades[] = $grade2;
