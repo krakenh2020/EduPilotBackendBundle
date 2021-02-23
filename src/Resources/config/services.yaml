@@ -7,12 +7,20 @@ services:
     tags: [{ name: 'api_platform.collection_data_provider'}]
     autowire: true
 
+ VC4SM\Bundle\DataProvider\CourseGradeCollectionDataProvider:
+    tags: [ { name: 'api_platform.collection_data_provider' } ]
+    autowire: true
+
  VC4SM\Bundle\DataProvider\DiplomaCollectionDataProvider:
     tags: [ { name: 'api_platform.collection_data_provider' } ]
     autowire: true
 
  VC4SM\Bundle\DataProvider\CredentialItemDataProvider:
     tags: ['api_platform.item_data_provider']
+    autowire: true
+
+ VC4SM\Bundle\DataProvider\CourseGradeItemDataProvider:
+    tags: [ 'api_platform.item_data_provider' ]
     autowire: true
 
  VC4SM\Bundle\DataProvider\DiplomaItemDataProvider:
@@ -24,6 +32,9 @@ services:
     autoconfigure: true
 
  VC4SM\Bundle\Service\CredentialProviderInterface:
+   '@VC4SM\Bundle\Service\ExternalApi'
+
+ VC4SM\Bundle\Service\CourseGradeProviderInterface:
    '@VC4SM\Bundle\Service\ExternalApi'
 
  VC4SM\Bundle\Service\DiplomaProviderInterface:
