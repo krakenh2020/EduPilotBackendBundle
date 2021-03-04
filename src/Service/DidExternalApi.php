@@ -51,14 +51,13 @@ class DidExternalApi implements DidConnectionProviderInterface
     {
         $PATH_CONNECTIONS = '/connections';
         $url = $baseUrl.$PATH_CONNECTIONS;
-        try {
-            // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url);
+        // todo: unsecure
+        $res = DidExternalApi::requestInsecure($url);
 
-            return $res['status_code'] === 200;
-        } catch (Exception $exception) {
-            return false;
+        if ($res['status_code'] === 200) {
+            throw new Exception('Check connection, status code '. $res['status_code']);
         }
+        return true;
     }
 
     private static function createInvitation(string $baseUrl): string
