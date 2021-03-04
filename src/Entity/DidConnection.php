@@ -33,6 +33,13 @@ class DidConnection
      */
     private $name;
 
+    /**
+     * todo: schema.
+     *
+     * @var string
+     */
+    private $invitation;
+
     public function getName(): string
     {
         return $this->name;
@@ -51,5 +58,15 @@ class DidConnection
     public function setIdentifier(string $identifier): void
     {
         $this->identifier = $identifier;
+    }
+
+    public function getInvitation(): string
+    {
+        return $this->invitation;
+    }
+
+    public function setInvitation(string $invitation): void
+    {
+        $this->invitation = $invitation;
     }
 }
