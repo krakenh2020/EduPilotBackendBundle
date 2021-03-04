@@ -31,11 +31,15 @@ services:
     autowire: true
     autoconfigure: true
 
- VC4SM\Bundle\Service\DidConnectionProviderInterface:
-   '@VC4SM\Bundle\Service\ExternalApi'
-
  VC4SM\Bundle\Service\CourseGradeProviderInterface:
-   '@VC4SM\Bundle\Service\ExternalApi'
+    '@VC4SM\Bundle\Service\ExternalApi'
 
  VC4SM\Bundle\Service\DiplomaProviderInterface:
-   '@VC4SM\Bundle\Service\ExternalApi'
+    '@VC4SM\Bundle\Service\ExternalApi'
+
+ VC4SM\Bundle\Service\DidExternalApi:
+    autowire: true
+    autoconfigure: true
+
+ VC4SM\Bundle\Service\DidConnectionProviderInterface:
+   '@VC4SM\Bundle\Service\DidExternalApi'

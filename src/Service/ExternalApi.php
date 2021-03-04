@@ -8,11 +8,10 @@ use VC4SM\Bundle\Entity\CourseGrade;
 use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Entity\Diploma;
 
-class ExternalApi implements DidConnectionProviderInterface, DiplomaProviderInterface, CourseGradeProviderInterface
+class ExternalApi implements DiplomaProviderInterface, CourseGradeProviderInterface
 {
     private $diplomas;
     private $courseGrades;
-    private $DidConnections;
 
     public function __construct()
     {
@@ -75,19 +74,6 @@ class ExternalApi implements DidConnectionProviderInterface, DiplomaProviderInte
         $this->courseGrades[] = $grade2;
         $this->courseGrades[] = $grade3;
         $this->courseGrades[] = $grade4;
-
-        // DidConnections
-        $this->DidConnections = [];
-        $DidConnection1 = new DidConnection();
-        $DidConnection1->setIdentifier('graz');
-        $DidConnection1->setName('Graz');
-
-        $DidConnection2 = new DidConnection();
-        $DidConnection2->setIdentifier('vienna');
-        $DidConnection2->setName('Vienna');
-
-        $this->DidConnections[] = $DidConnection1;
-        $this->DidConnections[] = $DidConnection2;
     }
 
     public function getDiplomaById(string $identifier): ?Diploma
@@ -120,21 +106,5 @@ class ExternalApi implements DidConnectionProviderInterface, DiplomaProviderInte
     public function getCourseGrades(): array
     {
         return $this->courseGrades;
-    }
-
-    public function getDidConnectionById(string $identifier): ?DidConnection
-    {
-        foreach ($this->DidConnections as $DidConnection) {
-            if ($DidConnection->getIdentifier() === $identifier) {
-                return $DidConnection;
-            }
-        }
-
-        return null;
-    }
-
-    public function getDidConnections(): array
-    {
-        return $this->DidConnections;
     }
 }
