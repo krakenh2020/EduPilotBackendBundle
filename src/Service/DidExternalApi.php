@@ -86,8 +86,11 @@ class DidExternalApi implements DidConnectionProviderInterface
         $didConnection1->setIdentifier('graz');
         $didConnection1->setName('Graz');
 
+        $didConnection1->setInvitation('try');
         if (DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
+            $didConnection1->setInvitation('conn');
             $invitation = DidExternalApi::createInvitation(DidExternalApi::$UNI_AGENT_URL);
+            $didConnection1->setInvitation('inv?');
             if ($invitation) {
                 $didConnection1->setInvitation($invitation);
             }
