@@ -10,7 +10,7 @@ use VC4SM\Bundle\Entity\DidConnection;
 class DidExternalApi implements DidConnectionProviderInterface
 {
     // todo: make this configurable
-    private static $UNI_AGENT_URL = 'https://localhost:8082';
+    private static $UNI_AGENT_URL = 'https://agent.university-agent.demo:8082';
 
     private $didConnections;
 
