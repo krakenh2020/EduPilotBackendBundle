@@ -69,12 +69,12 @@ class DidExternalApi implements DidConnectionProviderInterface
             // todo: unsecure
             $res = DidExternalApi::requestInsecure($url, 'POST');
             if ($res['status_code'] !== 200) {
-                return false;
+                return '';
             }
 
             return $res['contents'];
         } catch (Exception $exception) {
-            return false;
+            return '';
         }
     }
 
@@ -86,16 +86,12 @@ class DidExternalApi implements DidConnectionProviderInterface
         $didConnection1->setIdentifier('graz');
         $didConnection1->setName('Graz');
 
-        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
-            exit();
+        if (DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
+            $invitation = DidExternalApi::createInvitation(DidExternalApi::$UNI_AGENT_URL);
+            if ($invitation) {
+                $didConnection1->setInvitation($invitation);
+            }
         }
-
-        $invitation = DidExternalApi::createInvitation(DidExternalApi::$UNI_AGENT_URL);
-        if (!$invitation) {
-            exit();
-        }
-        $didConnection1->setInvitation($invitation);
-
 
         $this->didConnections[] = $didConnection1;
     }
