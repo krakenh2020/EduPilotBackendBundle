@@ -13,17 +13,17 @@ class DidExternalApi implements DidConnectionProviderInterface
     public function __construct()
     {
         // DidConnections
-        $this->DidConnections = [];
-        $DidConnection1 = new DidConnection();
-        $DidConnection1->setIdentifier('graz');
-        $DidConnection1->setName('Graz');
+        $this->didConnections = [];
+        $didConnection1 = new DidConnection();
+        $didConnection1->setIdentifier('graz');
+        $didConnection1->setName('Graz');
 
-        $DidConnection2 = new DidConnection();
-        $DidConnection2->setIdentifier('vienna');
-        $DidConnection2->setName('Vienna');
+        $didConnection2 = new DidConnection();
+        $didConnection2->setIdentifier('vienna');
+        $didConnection2->setName('Vienna');
 
-        $this->DidConnections[] = $DidConnection1;
-        $this->DidConnections[] = $DidConnection2;
+        $this->didConnections[] = $didConnection1;
+        $this->didConnections[] = $didConnection2;
     }
 
     public function getDidConnectionById(string $identifier): ?DidConnection
