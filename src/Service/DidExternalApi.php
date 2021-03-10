@@ -54,9 +54,10 @@ class DidExternalApi implements DidConnectionProviderInterface
         // todo: unsecure
         $res = DidExternalApi::requestInsecure($url);
 
-        if ($res['status_code'] === 200) {
-            throw new Exception('Check connection, status code '. $res['status_code']);
+        if ($res['status_code'] !== 200) {
+            throw new Exception('Check connection, status code '.$res['status_code']);
         }
+
         return true;
     }
 
