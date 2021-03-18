@@ -102,9 +102,26 @@ class DidExternalApi implements DidConnectionProviderInterface
         $this->didConnections[] = $didConnection1;
     }
 
-    private static function listInvites(string $baseUrl): string
+    private static function listConnections(string $baseUrl): string
     {
         $PATH_CREATE_INVITATION = '/connections';
+        $url = $baseUrl.$PATH_CREATE_INVITATION;
+        try {
+            // todo: unsecure
+            $res = DidExternalApi::requestInsecure($url, 'GET');
+            if ($res['status_code'] !== 200) {
+                return '';
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            return '';
+        }
+    }
+
+    private static function getConnectionById(string $baseUrl, string $id): string
+    {
+        $PATH_CREATE_INVITATION = '/connections/'.$id;
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             // todo: unsecure
@@ -125,6 +142,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             // todo: unsecure
+            // todo: shouldnt this be POST?
             $res = DidExternalApi::requestInsecure($url, 'GET');
             if ($res['status_code'] !== 200) {
                 return '';
@@ -149,7 +167,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             throw new Exception('No Connection');
             return null;
         }
-        $inviteContents = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
+        $inviteContents = DidExternalApi::listConnections(DidExternalApi::$UNI_AGENT_URL);
         $invites = json_decode($inviteContents);
         foreach ($invites->results as $invite) {
             if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
@@ -167,6 +185,14 @@ class DidExternalApi implements DidConnectionProviderInterface
             throw new Exception('Non accepted');
             return null;
         }
+        // todo: replace this with a specific request with connectionId
+        $connContents = DidExternalApi::getConnectionById(DidExternalApi::$UNI_AGENT_URL, $connectionId);
+        $conn = json_decode($connContents);
+        if ($conn->result->State === 'responded' || $conn->result->State === 'completed') {
+            $didConnection->setInvitation(json_encode($conn->result, 0, 512));
+            return $didConnection;
+        }
+        /*
         $inviteContents2 = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
         $invites2 = json_decode($inviteContents2);
         foreach ($invites2->results as $invite2) {
@@ -175,6 +201,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                 return $didConnection;
             }
         }
+        */
 
         throw new Exception('Accepted connection not found');
         return null;
