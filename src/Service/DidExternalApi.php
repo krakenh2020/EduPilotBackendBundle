@@ -136,9 +136,9 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
     }
 
-    private static function acceptInvite(string $baseUrl, string $identifier): string
+    private static function acceptInviteRequest(string $baseUrl, string $identifier): string
     {
-        $PATH_CREATE_INVITATION = '/connections/'.$identifier.'/accept-invitation';
+        $PATH_CREATE_INVITATION = '/connections/'.$identifier.'/accept-request';
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             // todo: unsecure
@@ -171,7 +171,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         foreach ($invites->results as $invite) {
             if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
                 $connectionId = $invite->ConnectionID;
-                $acceptRes = DidExternalApi::acceptInvite(DidExternalApi::$UNI_AGENT_URL, $connectionId);
+                $acceptRes = DidExternalApi::acceptInviteRequest(DidExternalApi::$UNI_AGENT_URL, $connectionId);
                 if ($acceptRes === '') {
                     throw new Exception('Accept failed');
                     return null;
