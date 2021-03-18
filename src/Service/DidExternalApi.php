@@ -143,22 +143,29 @@ class DidExternalApi implements DidConnectionProviderInterface
         // todo: change
         $didConnection->setName('Graz');
 
+        $oneAccepted = false;
+        $connectionId = '';
         if (DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
             $inviteContents = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
             $invites = json_decode($inviteContents);
-            foreach ($invites['results'] as $invite) {
-                if ($invite['InvitationID'] === $identifier && $invite['State'] === 'requested') {
-                    $acceptRes = DidExternalApi::acceptInvite(DidExternalApi::$UNI_AGENT_URL, $identifier);
+            foreach ($invites->results as $invite) {
+                if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
+                    $connectionId = $invite->ConnectionID;
+                    $acceptRes = DidExternalApi::acceptInvite(DidExternalApi::$UNI_AGENT_URL, $connectionId);
                     if ($acceptRes === '') {
                         return null;
                     }
+                    $oneAccepted = true;
                     break;
                 }
             }
+            if (!$oneAccepted) {
+                return null;
+            }
             $inviteContents = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
             $invites = json_decode($inviteContents);
-            foreach ($invites['results'] as $invite) {
-                if ($invite['InvitationID'] === $identifier && $invite['State'] === 'requested') {
+            foreach ($invites->results as $invite) {
+                if ($invite->ConnectionID === $connectionId) {
                     $didConnection->setInvitation(json_encode($invite, 0, 512));
                     return $didConnection;
                 }
