@@ -138,7 +138,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
     private static function acceptInvite(string $baseUrl, string $identifier): string
     {
-        $PATH_CREATE_INVITATION = '/connections/'.$identifier;
+        $PATH_CREATE_INVITATION = '/connections/'.$identifier.'/accept-invitation';
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             // todo: unsecure
