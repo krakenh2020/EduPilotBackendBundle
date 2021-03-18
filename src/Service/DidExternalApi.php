@@ -164,16 +164,19 @@ class DidExternalApi implements DidConnectionProviderInterface
         $connectionId = '';
         if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
             throw new Exception('No Connection');
+
             return null;
         }
         $inviteContents = DidExternalApi::listConnections(DidExternalApi::$UNI_AGENT_URL);
         $invites = json_decode($inviteContents);
         foreach ($invites->results as $invite) {
+            // todo: skip accept and return good result if State === responded or completed.
             if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
                 $connectionId = $invite->ConnectionID;
                 $acceptRes = DidExternalApi::acceptInviteRequest(DidExternalApi::$UNI_AGENT_URL, $connectionId);
                 if ($acceptRes === '') {
                     throw new Exception('Accept failed');
+
                     return null;
                 }
                 $oneAccepted = true;
@@ -182,26 +185,19 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
         if (!$oneAccepted) {
             throw new Exception('Non accepted');
+
             return null;
         }
         $connContents = DidExternalApi::getConnectionById(DidExternalApi::$UNI_AGENT_URL, $connectionId);
         $conn = json_decode($connContents);
-        // if ($conn->result->State === 'responded' || $conn->result->State === 'completed') {
+        if ($conn->result->State === 'responded' || $conn->result->State === 'completed') {
             $didConnection->setInvitation(json_encode($conn->result, 0, 512));
+
             return $didConnection;
-        // }
-        /*
-        $inviteContents2 = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
-        $invites2 = json_decode($inviteContents2);
-        foreach ($invites2->results as $invite2) {
-            if ($invite2->ConnectionID === $connectionId) {
-                $didConnection->setInvitation(json_encode($invite2, 0, 512));
-                return $didConnection;
-            }
         }
-        */
 
         throw new Exception('Accepted connection not found');
+
         return null;
     }
 
