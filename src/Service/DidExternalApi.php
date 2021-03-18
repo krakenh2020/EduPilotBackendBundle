@@ -142,8 +142,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             // todo: unsecure
-            // todo: shouldnt this be POST?
-            $res = DidExternalApi::requestInsecure($url, 'GET');
+            $res = DidExternalApi::requestInsecure($url, 'POST');
             if ($res['status_code'] !== 200) {
                 return '';
             }
