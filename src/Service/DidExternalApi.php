@@ -185,13 +185,12 @@ class DidExternalApi implements DidConnectionProviderInterface
             throw new Exception('Non accepted');
             return null;
         }
-        // todo: replace this with a specific request with connectionId
         $connContents = DidExternalApi::getConnectionById(DidExternalApi::$UNI_AGENT_URL, $connectionId);
         $conn = json_decode($connContents);
-        if ($conn->result->State === 'responded' || $conn->result->State === 'completed') {
+        // if ($conn->result->State === 'responded' || $conn->result->State === 'completed') {
             $didConnection->setInvitation(json_encode($conn->result, 0, 512));
             return $didConnection;
-        }
+        // }
         /*
         $inviteContents2 = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
         $invites2 = json_decode($inviteContents2);
