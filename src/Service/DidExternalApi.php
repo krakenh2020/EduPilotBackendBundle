@@ -145,7 +145,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $oneAccepted = false;
         $connectionId = '';
-        if (DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
+        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
             throw new Exception('No Connection');
             return null;
         }
