@@ -146,32 +146,37 @@ class DidExternalApi implements DidConnectionProviderInterface
         $oneAccepted = false;
         $connectionId = '';
         if (DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
-            $inviteContents = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
-            $invites = json_decode($inviteContents);
-            foreach ($invites->results as $invite) {
-                if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
-                    $connectionId = $invite->ConnectionID;
-                    $acceptRes = DidExternalApi::acceptInvite(DidExternalApi::$UNI_AGENT_URL, $connectionId);
-                    if ($acceptRes === '') {
-                        return null;
-                    }
-                    $oneAccepted = true;
-                    break;
+            throw new Exception('No Connection');
+            return null;
+        }
+        $inviteContents = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
+        $invites = json_decode($inviteContents);
+        foreach ($invites->results as $invite) {
+            if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
+                $connectionId = $invite->ConnectionID;
+                $acceptRes = DidExternalApi::acceptInvite(DidExternalApi::$UNI_AGENT_URL, $connectionId);
+                if ($acceptRes === '') {
+                    throw new Exception('Accept failed');
+                    return null;
                 }
+                $oneAccepted = true;
+                break;
             }
-            if (!$oneAccepted) {
-                return null;
-            }
-            $inviteContents = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
-            $invites = json_decode($inviteContents);
-            foreach ($invites->results as $invite) {
-                if ($invite->ConnectionID === $connectionId) {
-                    $didConnection->setInvitation(json_encode($invite, 0, 512));
-                    return $didConnection;
-                }
+        }
+        if (!$oneAccepted) {
+            throw new Exception('Non accepted');
+            return null;
+        }
+        $inviteContents2 = DidExternalApi::listInvites(DidExternalApi::$UNI_AGENT_URL);
+        $invites2 = json_decode($inviteContents2);
+        foreach ($invites2->results as $invite2) {
+            if ($invite2->ConnectionID === $connectionId) {
+                $didConnection->setInvitation(json_encode($invite2, 0, 512));
+                return $didConnection;
             }
         }
 
+        throw new Exception('Accepted connection not found');
         return null;
     }
 
