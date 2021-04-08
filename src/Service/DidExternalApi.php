@@ -208,6 +208,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
     public function sendOffer(DidConnection $data): DidConnection
     {
+        $data->setIdentifier('some id');
         $data->setInvitation('offer!');
         return $data;
     }
