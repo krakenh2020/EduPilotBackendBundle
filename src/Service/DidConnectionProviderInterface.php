@@ -13,5 +13,7 @@ interface DidConnectionProviderInterface
 
     public function getDidConnections(): array;
 
+    public function getCredentialById(string $identifier): ?Credential;
+
     public function sendOffer(Credential $data): Credential;
 }

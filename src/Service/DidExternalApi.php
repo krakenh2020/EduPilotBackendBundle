@@ -207,6 +207,16 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $this->didConnections;
     }
 
+    public function getCredentialById(string $identifier): ?Credential
+    {
+        $credential = new Credential();
+        $credential->setMyDid('asdf');
+        $credential->setTheirDid('asdf');
+        $credential->setStatus('asdf');
+
+        return $credential;
+    }
+
     public function sendOffer(Credential $data): Credential
     {
         $data->setIdentifier('some id');

@@ -20,6 +20,7 @@ use VC4SM\Bundle\Controller\SendOffer;
  *       }
  *     },
  *     itemOperations={
+ *       "get"
  *     },
  *     iri="https://schema.org/Place",
  *     normalizationContext={"groups"={"Credential:output"}, "jsonld_embed_context"=true},
