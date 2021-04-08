@@ -14,8 +14,8 @@ class SendOffer
         $this->api = $api;
     }
 
-    public function __invoke(): DidConnection
+    public function __invoke(DidConnection $data): DidConnection
     {
-        return $this->api->sendOffer();
+        return $this->api->sendOffer($data);
     }
 }

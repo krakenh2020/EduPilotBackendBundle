@@ -12,5 +12,5 @@ interface DidConnectionProviderInterface
 
     public function getDidConnections(): array;
 
-    public function sendOffer(): DidConnection;
+    public function sendOffer(DidConnection $data): DidConnection;
 }
