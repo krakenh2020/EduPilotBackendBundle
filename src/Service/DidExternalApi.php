@@ -45,6 +45,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             $options['http']['header'] = 'Content-type: application/json';
             $options['http']['content'] = json_encode($data);
         }
+
         return [
             'contents' => file_get_contents($url, false, stream_context_create($options)),
             'status_code' => DidExternalApi::getHttpCode($http_response_header),
@@ -227,9 +228,9 @@ class DidExternalApi implements DidConnectionProviderInterface
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             $credoffer = [
-                "my_did" => $myDid,
-                "their_did" => $theirDid,
-                "offer_credential" => []
+                'my_did' => $myDid,
+                'their_did' => $theirDid,
+                'offer_credential' => json_decode('{}'), // todo: clean up weird hack
             ];
             // todo: unsecure
             $res = DidExternalApi::requestInsecure($url, 'POST', $credoffer);
