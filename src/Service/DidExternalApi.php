@@ -210,6 +210,7 @@ class DidExternalApi implements DidConnectionProviderInterface
     public function getCredentialById(string $identifier): ?Credential
     {
         $credential = new Credential();
+        $credential->setIdentifier($identifier);
         $credential->setMyDid('asdf');
         $credential->setTheirDid('asdf');
         $credential->setStatus('asdf');
