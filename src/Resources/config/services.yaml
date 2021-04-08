@@ -11,6 +11,10 @@ services:
    tags: [ 'controller.service_arguments' ]
    autowire: true
 
+ VC4SM\Bundle\Controller\AcceptRequest:
+   tags: [ 'controller.service_arguments' ]
+   autowire: true
+
  VC4SM\Bundle\DataProvider\CourseGradeCollectionDataProvider:
     tags: [ { name: 'api_platform.collection_data_provider' } ]
     autowire: true

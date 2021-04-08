@@ -262,4 +262,75 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         return $data;
     }
+
+    private static function acceptRequestRequest(string $baseUrl, string $credoffer_piid): string
+    {
+        $PATH_CREATE_INVITATION = '/issuecredential/'.$credoffer_piid.'/accept-request';
+        $url = $baseUrl.$PATH_CREATE_INVITATION;
+        try {
+            $testcred1 = [
+                'issue_credential' => [
+                    'credentials~attach' => [
+                        [
+                            'lastmod_time' => '0001-01-01T00:00:00Z',
+                                'data' => [
+                                    'json' => [
+                                        '@context' => [
+                                            'https://www.w3.org/2018/credentials/v1',
+                                            'https://www.w3.org/2018/credentials/examples/v1',
+                                        ],
+                                        'credentialSubject' => [
+                                            'id' => 'sample-student-id2',
+                                        ],
+                                        'id' => 'https://ssi.tugraz.at/credentials/18',
+                                        'issuanceDate' => '2021-01-01T19:23:24Z',
+                                        'issuer' => [
+                                            'id' => 'todo: uni didi', // todo: DID_AGENT1,
+                                            'name' => 'Example University',
+                                        ],
+                                    'referenceNumber' => 83294841,
+                                    'type' => [
+                                        'VerifiableCredential',
+                                        'UniversityDegreeCredential',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+            // todo: unsecure
+            $res = DidExternalApi::requestInsecure($url, 'POST', $testcred1);
+            if ($res['status_code'] !== 200) {
+                return '';
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            return '';
+        }
+    }
+
+    public function acceptRequest(Credential $data): ?Credential
+    {
+        $data->setIdentifier('some id');
+        $data->setStatus('try accept request...');
+
+        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
+            throw new Exception('No Connection');
+
+            return null;
+        }
+
+        // todo: fix naming
+        $credoffer_piid = $data->getMyDid();
+
+        $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid);
+
+        // todo: remove this temp thing.
+        $data->setMyDid($response);
+        $data->setStatus('offer!');
+
+        return $data;
+    }
 }

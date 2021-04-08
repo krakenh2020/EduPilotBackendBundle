@@ -8,6 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use VC4SM\Bundle\Controller\SendOffer;
+use VC4SM\Bundle\Controller\AcceptRequest;
 
 // todo: schema
 /**
@@ -17,6 +18,11 @@ use VC4SM\Bundle\Controller\SendOffer;
  *         "method"="POST",
  *         "path"="/credential/send_offer",
  *         "controller"=SendOffer::class,
+ *       },
+ *       "accept_request"={
+ *         "method"="POST",
+ *         "path"="/credential/accept_request",
+ *         "controller"=AcceptRequest::class,
  *       }
  *     },
  *     itemOperations={
