@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Service;
 
 use Exception;
+use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
 
 class DidExternalApi implements DidConnectionProviderInterface
@@ -206,10 +207,10 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $this->didConnections;
     }
 
-    public function sendOffer(DidConnection $data): DidConnection
+    public function sendOffer(Credential $data): Credential
     {
         $data->setIdentifier('some id');
-        $data->setInvitation('offer!');
+        $data->setStatus('offer!');
         return $data;
     }
 }
