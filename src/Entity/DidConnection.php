@@ -7,12 +7,24 @@ namespace VC4SM\Bundle\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use VC4SM\Bundle\Controller\SendOffer;
 
 // todo: schema
 /**
  * @ApiResource(
- *     collectionOperations={"get"},
- *     itemOperations={"get", "put", "delete"},
+ *     collectionOperations={
+ *       "get"
+ *       "send_offer" => {
+ *         "method" => "POST",
+ *         "path" => "/did_connections/send_offer",
+ *         "controller" => SendOffer::class,
+ *       }
+ *     },
+ *     itemOperations={
+ *       "get",
+ *       "put",
+ *       "delete"
+ *     },
  *     iri="https://schema.org/Place",
  *     normalizationContext={"groups"={"DidConnection:output"}, "jsonld_embed_context"=true},
  *     denormalizationContext={"groups"={"DidConnection:input"}, "jsonld_embed_context"=true}
