@@ -205,4 +205,14 @@ class DidExternalApi implements DidConnectionProviderInterface
     {
         return $this->didConnections;
     }
+
+    public function sendOffer(): DidConnection
+    {
+        $didConnection = new DidConnection();
+        $didConnection->setIdentifier('asdf');
+        $didConnection->setName('Graz');
+        $didConnection->setInvitation('offer!');
+
+        return $didConnection;
+    }
 }

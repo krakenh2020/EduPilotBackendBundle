@@ -3,26 +3,19 @@
 namespace VC4SM\Bundle\Controller;
 
 use VC4SM\Bundle\Entity\DidConnection;
+use VC4SM\Bundle\Service\DidConnectionProviderInterface;
 
 class SendOffer
 {
-    //private $bookPublishingHandler;
+    private $api;
 
-    public function __construct(/*BookPublishingHandler $bookPublishingHandler*/)
+    public function __construct(DidConnectionProviderInterface $api)
     {
-        //$this->bookPublishingHandler = $bookPublishingHandler;
+        $this->api = $api;
     }
 
-    public function __invoke(/*Book $data*/): DidConnection
+    public function __invoke(): DidConnection
     {
-        //$this->bookPublishingHandler->handle($data);
-
-
-        $didConnection = new DidConnection();
-        $didConnection->setIdentifier('asdf');
-        $didConnection->setName('Graz');
-        $didConnection->setInvitation('offer!');
-
-        return $didConnection;
+        return $this->api->sendOffer();
     }
 }
