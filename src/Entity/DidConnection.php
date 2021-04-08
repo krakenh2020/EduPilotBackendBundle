@@ -14,10 +14,10 @@ use VC4SM\Bundle\Controller\SendOffer;
  * @ApiResource(
  *     collectionOperations={
  *       "get",
- *       "send_offer" => {
- *         "method" => "POST",
- *         "path" => "/did_connections/send_offer",
- *         "controller" => SendOffer::class,
+ *       "send_offer"={
+ *         "method"="POST",
+ *         "path"="/did_connections/send_offer",
+ *         "controller"=SendOffer::class,
  *       }
  *     },
  *     itemOperations={
