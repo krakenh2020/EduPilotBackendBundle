@@ -253,8 +253,10 @@ class DidExternalApi implements DidConnectionProviderInterface
 
             return null;
         }
-        DidExternalApi::sendOfferRequest(DidExternalApi::$UNI_AGENT_URL, $data->getMyDid(), $data->getTheirDid());
+        $response = DidExternalApi::sendOfferRequest(DidExternalApi::$UNI_AGENT_URL, $data->getMyDid(), $data->getTheirDid());
 
+        // todo: remove this temp thing.
+        $data->setMyDid($response);
         $data->setStatus('offer!');
 
         return $data;
