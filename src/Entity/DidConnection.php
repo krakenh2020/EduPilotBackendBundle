@@ -13,7 +13,7 @@ use VC4SM\Bundle\Controller\SendOffer;
 /**
  * @ApiResource(
  *     collectionOperations={
- *       "get"
+ *       "get",
  *       "send_offer" => {
  *         "method" => "POST",
  *         "path" => "/did_connections/send_offer",
