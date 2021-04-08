@@ -14,7 +14,7 @@ class SendOffer
         $this->api = $api;
     }
 
-    public function __invoke(Credential $data): Credential
+    public function __invoke(Credential $data): ?Credential
     {
         return $this->api->sendOffer($data);
     }

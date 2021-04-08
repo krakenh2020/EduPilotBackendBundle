@@ -15,5 +15,5 @@ interface DidConnectionProviderInterface
 
     public function getCredentialById(string $identifier): ?Credential;
 
-    public function sendOffer(Credential $data): Credential;
+    public function sendOffer(Credential $data): ?Credential;
 }

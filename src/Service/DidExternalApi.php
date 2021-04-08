@@ -30,7 +30,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         return 0;
     }
 
-    private static function requestInsecure(string $url, string $method = 'GET'): array
+    private static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
     {
         $options = [
             'http' => [
@@ -41,7 +41,10 @@ class DidExternalApi implements DidConnectionProviderInterface
                 'verify_peer_name' => false,
             ],
         ];
-
+        if ($data) {
+            $options['http']['header'] = 'Content-type: application/json';
+            $options['http']['content'] = json_encode($data);
+        }
         return [
             'contents' => file_get_contents($url, false, stream_context_create($options)),
             'status_code' => DidExternalApi::getHttpCode($http_response_header),
@@ -218,10 +221,42 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $credential;
     }
 
-    public function sendOffer(Credential $data): Credential
+    private static function sendOfferRequest(string $baseUrl, string $myDid, string $theirDid): string
+    {
+        $PATH_CREATE_INVITATION = '/issuecredential/send-offer';
+        $url = $baseUrl.$PATH_CREATE_INVITATION;
+        try {
+            $credoffer = [
+                "my_did" => $myDid,
+                "their_did" => $theirDid,
+                "offer_credential" => []
+            ];
+            // todo: unsecure
+            $res = DidExternalApi::requestInsecure($url, 'POST', $credoffer);
+            if ($res['status_code'] !== 200) {
+                return '';
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            return '';
+        }
+    }
+
+    public function sendOffer(Credential $data): ?Credential
     {
         $data->setIdentifier('some id');
+        $data->setStatus('try offer...');
+
+        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
+            throw new Exception('No Connection');
+
+            return null;
+        }
+        DidExternalApi::sendOfferRequest(DidExternalApi::$UNI_AGENT_URL, $data->getMyDid(), $data->getTheirDid());
+
         $data->setStatus('offer!');
+
         return $data;
     }
 }
