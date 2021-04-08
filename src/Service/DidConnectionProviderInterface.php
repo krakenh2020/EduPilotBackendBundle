@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Service;
 
 use VC4SM\Bundle\Entity\DidConnection;
+use VC4SM\Bundle\Entity\Credential;
 
 interface DidConnectionProviderInterface
 {
@@ -12,5 +13,5 @@ interface DidConnectionProviderInterface
 
     public function getDidConnections(): array;
 
-    public function sendOffer(DidConnection $data): DidConnection;
+    public function sendOffer(Credential $data): Credential;
 }

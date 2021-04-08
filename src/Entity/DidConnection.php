@@ -7,18 +7,12 @@ namespace VC4SM\Bundle\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
-use VC4SM\Bundle\Controller\SendOffer;
 
 // todo: schema
 /**
  * @ApiResource(
  *     collectionOperations={
- *       "get",
- *       "send_offer"={
- *         "method"="POST",
- *         "path"="/did_connections/send_offer",
- *         "controller"=SendOffer::class,
- *       }
+ *       "get"
  *     },
  *     itemOperations={
  *       "get",
