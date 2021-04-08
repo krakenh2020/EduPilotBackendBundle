@@ -19,6 +19,9 @@ services:
     tags: ['api_platform.item_data_provider']
     autowire: true
 
+ VC4SM\Bundle\Controller\SendOffer:
+   autowire: true
+
  VC4SM\Bundle\DataProvider\CourseGradeItemDataProvider:
     tags: [ 'api_platform.item_data_provider' ]
     autowire: true
