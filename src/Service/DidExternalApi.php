@@ -329,7 +329,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         // todo: remove this temp thing.
         $data->setMyDid($response);
-        $data->setStatus('offer!');
+        $data->setStatus('accept request!');
 
         return $data;
     }
