@@ -7,6 +7,7 @@ namespace VC4SM\Bundle\Service;
 use Exception;
 use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
+use VC4SM\Bundle\Entity\Diploma;
 
 class DidExternalApi implements DidConnectionProviderInterface
 {
@@ -14,6 +15,8 @@ class DidExternalApi implements DidConnectionProviderInterface
     private static $UNI_AGENT_URL = 'https://agent.university-agent.demo:8082';
 
     private $didConnections;
+    private $courseApi;
+    private $diplomaApi;
 
     /**
      * see: https://stackoverflow.com/a/49299689/782920 .
@@ -83,8 +86,11 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
     }
 
-    public function __construct()
+    public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi)
     {
+        $this->courseApi = $courseApi;
+        $this->diplomaApi = $diplomaApi;
+
         // DidConnections
         $this->didConnections = [];
         $didConnection1 = new DidConnection();
@@ -263,36 +269,37 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $data;
     }
 
-    private static function acceptRequestRequest(string $baseUrl, string $credoffer_piid): string
+    // todo: accept diploma or coursegrade
+    private static function acceptRequestRequest(string $baseUrl, string $credoffer_piid, Diploma $diploma): string
     {
         $PATH_CREATE_INVITATION = '/issuecredential/'.$credoffer_piid.'/accept-request';
         $url = $baseUrl.$PATH_CREATE_INVITATION;
+
+        // todo: add diploma
         try {
             $testcred1 = [
                 'issue_credential' => [
                     'credentials~attach' => [
                         [
                             'lastmod_time' => '0001-01-01T00:00:00Z',
-                                'data' => [
-                                    'json' => [
-                                        '@context' => [
-                                            'https://www.w3.org/2018/credentials/v1',
-                                            'https://www.w3.org/2018/credentials/examples/v1',
-                                        ],
-                                        'credentialSubject' => [
-                                            'id' => 'sample-student-id2',
-                                        ],
-                                        'id' => 'https://ssi.tugraz.at/credentials/18',
-                                        'issuanceDate' => '2021-01-01T19:23:24Z',
-                                        'issuer' => [
-                                            'id' => 'todo: uni didi', // todo: DID_AGENT1,
-                                            'name' => 'Example University',
-                                        ],
-                                    'referenceNumber' => 83294841,
+                            'data' => [
+                                'json' => [
+                                    '@context' => [
+                                        'https://www.w3.org/2018/credentials/v1',
+                                        'https://www.w3.org/2018/credentials/examples/v1',
+                                    ],
                                     'type' => [
                                         'VerifiableCredential',
                                         'UniversityDegreeCredential',
                                     ],
+                                    'id' => $diploma->getIdentifier(),
+                                    'credentialSubject' => [
+                                        'id' => 'sample-student-id2',
+                                        'name' => $diploma->getName(),
+                                        'achievenmentDate' => $diploma->getAchievenmentDate(),
+                                        'academicDegree' => $diploma->getAcademicDegree(),
+                                    ],
+                                    'issuanceDate' => '2021-01-01T19:23:24Z',
                                 ],
                             ],
                         ],
@@ -325,7 +332,11 @@ class DidExternalApi implements DidConnectionProviderInterface
         // todo: fix naming
         $credoffer_piid = $data->getMyDid();
 
-        $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid);
+
+        // todo: add id from request!
+        $diploma = $this->diplomaApi->getDiplomaById('bsc1');
+
+        $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid, $diploma);
 
         // todo: remove this temp thing.
         $data->setMyDid($response);
