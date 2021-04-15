@@ -270,14 +270,47 @@ class DidExternalApi implements DidConnectionProviderInterface
     }
 
     // todo: accept diploma or coursegrade
-    private static function acceptRequestRequest(string $baseUrl, string $credoffer_piid, Diploma $diploma): string
+    private static function acceptRequestRequest(string $baseUrl, string $credoffer_piid, array $cred): string
     {
         $PATH_CREATE_INVITATION = '/issuecredential/'.$credoffer_piid.'/accept-request';
         $url = $baseUrl.$PATH_CREATE_INVITATION;
 
         // todo: add diploma
         try {
-            $testcred1 = [
+            // todo: unsecure
+            $res = DidExternalApi::requestInsecure($url, 'POST', $cred);
+            if ($res['status_code'] !== 200) {
+                return '';
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            return '';
+        }
+    }
+
+    public function acceptRequest(Credential $data): ?Credential
+    {
+        // todo: don't pass id via status..
+        $id = $data->getStatus();
+        $data->setIdentifier('some id');
+        $data->setStatus('try accept request...');
+
+        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
+            throw new Exception('No Connection');
+
+            return null;
+        }
+
+        // todo: fix naming
+        $credoffer_piid = $data->getMyDid();
+
+        $type = explode('/', $id)[1];
+        $id = explode('/', $id)[2];
+        if ($type === 'diplomas') {
+            $diploma = $this->diplomaApi->getDiplomaById($id);
+
+            $cred = [
                 'issue_credential' => [
                     'credentials~attach' => [
                         [
@@ -296,6 +329,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                                     'credentialSubject' => [
                                         'id' => 'sample-student-id2',
                                         'name' => $diploma->getName(),
+                                        // todo: fix typo
                                         'achievenmentDate' => $diploma->getAchievenmentDate(),
                                         'academicDegree' => $diploma->getAcademicDegree(),
                                     ],
@@ -306,37 +340,43 @@ class DidExternalApi implements DidConnectionProviderInterface
                     ],
                 ],
             ];
-            // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url, 'POST', $testcred1);
-            if ($res['status_code'] !== 200) {
-                return '';
-            }
+        } elseif ($type === 'course_grades') {
+            $courseGrade = $this->courseApi->getCourseGradeById($id);
 
-            return $res['contents'];
-        } catch (Exception $exception) {
-            return '';
+            $cred = [
+                'issue_credential' => [
+                    'credentials~attach' => [
+                        [
+                            'lastmod_time' => '0001-01-01T00:00:00Z',
+                            'data' => [
+                                'json' => [
+                                    '@context' => [
+                                        'https://www.w3.org/2018/credentials/v1',
+                                        'https://www.w3.org/2018/credentials/examples/v1',
+                                    ],
+                                    'type' => [
+                                        'VerifiableCredential',
+                                        'UniversityDegreeCredential',
+                                    ],
+                                    'id' => $courseGrade->getIdentifier(),
+                                    'credentialSubject' => [
+                                        'id' => 'sample-student-id2',
+                                        'name' => $courseGrade->getName(),
+                                        // todo: fix typo
+                                        'achievenmentDate' => $courseGrade->getAchievenmentDate(),
+                                        'grade' => $courseGrade->getGrade(),
+                                        'credits' => $courseGrade->getCredits(),
+                                    ],
+                                    'issuanceDate' => '2021-01-01T19:23:24Z',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
         }
-    }
 
-    public function acceptRequest(Credential $data): ?Credential
-    {
-        $data->setIdentifier('some id');
-        $data->setStatus('try accept request...');
-
-        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
-            throw new Exception('No Connection');
-
-            return null;
-        }
-
-        // todo: fix naming
-        $credoffer_piid = $data->getMyDid();
-
-
-        // todo: add id from request!
-        $diploma = $this->diplomaApi->getDiplomaById('bsc1');
-
-        $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid, $diploma);
+        $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid, $cred);
 
         // todo: remove this temp thing.
         $data->setMyDid($response);
