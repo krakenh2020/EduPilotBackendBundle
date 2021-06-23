@@ -180,6 +180,14 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
         $inviteContents = DidExternalApi::listConnections(DidExternalApi::$UNI_AGENT_URL);
         $invites = json_decode($inviteContents);
+        
+        // check if request actually returned something:
+        if($invites->results === NULL) {
+            throw new Exception('Agent did not return any connections.');
+            // in this case, the user's browser might use cookies which were generated before the agent was restarted the last time
+            // FIX: if this happens, the frontend needs to reset the corresponding cookie 
+        }
+
         foreach ($invites->results as $invite) {
             // todo: skip accept and return good result if State === responded or completed.
             if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
