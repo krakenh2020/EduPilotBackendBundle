@@ -54,12 +54,12 @@ class DidExternalApi implements DidConnectionProviderInterface
         try {
             $body = @file_get_contents($url, false, stream_context_create($options));
         } catch (Exception $e) {  
-            DidExternalApi::classLogger->error("$e");
+            DidExternalApi::$classLogger->error("$e");
             $body = FALSE;
         }  
 
         if($body === FALSE) {
-            DidExternalApi::classLogger->error("Error while connecting to $url");
+            DidExternalApi::$classLogger->error("Error while connecting to $url");
             return [
                 'contents' => '',
                 'status_code' => -1,
@@ -80,7 +80,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $res = DidExternalApi::requestInsecure($url);
 
         if ($res['status_code'] !== 200) {
-            DidExternalApi::classLogger->error("Check connection to $baseUrl, status code: ".$res['status_code']);
+            DidExternalApi::$classLogger->error("Check connection to $baseUrl, status code: ".$res['status_code']);
             return false;
         }
 
@@ -108,7 +108,7 @@ class DidExternalApi implements DidConnectionProviderInterface
     {
         $logger->info('I just got the logger');
         $this->logger = $logger;
-        DidExternalApi::classLogger = $logger;
+        DidExternalApi::$classLogger = $logger;
         $this->container = $container;
 
         $agent1 = $container->getParameter('vc4sm.aries_agent_university');
