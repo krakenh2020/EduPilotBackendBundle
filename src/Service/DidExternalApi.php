@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Service;
 
 use Exception;
+use Psr\Log\LoggerInterface;
 use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Entity\Diploma;
@@ -86,8 +87,10 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
     }
 
-    public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi)
+    public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi, LoggerInterface $logger)
     {
+        $logger->info('I just got the logger');
+        $this->logger = $logger;
         $this->courseApi = $courseApi;
         $this->diplomaApi = $diplomaApi;
 
@@ -111,6 +114,8 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
 
         $this->didConnections[] = $didConnection1;
+
+        $this->logger->info('DidExternalApi initialized!');
     }
 
     private static function listConnections(string $baseUrl): string
@@ -166,6 +171,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
     public function getDidConnectionById(string $identifier): ?DidConnection
     {
+        $this->logger->info('getDidConnectionById ...');
         $didConnection = new DidConnection();
         $didConnection->setIdentifier($identifier);
         // todo: change
@@ -183,6 +189,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         
         // check if request actually returned something:
         if($invites->results === NULL) {
+            $this->logger->error('Agent did not return any connections?');
             throw new Exception("Agent did not return any connections.");
             return null; // ?
             // in this case, the user's browser might use cookies which were generated before the agent was restarted the last time
