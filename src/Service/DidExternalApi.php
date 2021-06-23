@@ -207,7 +207,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $invites = json_decode($inviteContents);
         
         // check if request actually returned something:
-        if($invites->results === NULL) {
+        if(!property_exists($invites, 'results')) { 
             $this->logger->error('Agent did not return any connections?');
             throw new Exception("Agent did not return any connections.");
             return null; // ?
