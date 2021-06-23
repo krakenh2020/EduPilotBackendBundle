@@ -1,17 +1,20 @@
-vc4sm-bundle
-============
+# KRAKEN Education Pilot - Uni API Backend Bundle
 
-a frontend for an API that provides education verifiable credentials to university students.
+A API for a frontend that provides education verifiable credentials to university students.
 
-- Frontend https://github.com/PeterTheOne/vc4sm-frontend
-- Backend https://github.com/PeterTheOne/vc4sm-backend
+- Deployment: https://github.com/krakenh2020/EduPilotDeploymentDocker
+- Frontend: https://github.com/krakenh2020/EduPilotFrontend
+- API Backend: https://github.com/krakenh2020/EduPilotBackend
 
-Part of the **Verifiable Credentials for Student Mobility** project funded by TU Graz
+Part of the [**H2020 Project KRAKEN**](https://krakenh2020.eu/) and the [**Verifiable Credentials for Student Mobility**](https://api.ltb.io/show/BLUOR) project funded by TU Graz 
 as a technologically enhanced administration (TEA) marketplace project.
 
 Based on https://gitlab.tugraz.at/dbp/middleware/dbp-api/api-starter-bundle, a 
 Symfony bundle that can be used as a template for creating new bundles for the
 DBP API project.
+
+
+## Development
 
 When including this bundle into your DBP API server it will gain the following
 features:
@@ -20,34 +23,26 @@ features:
 * An example entity
 * Various HTTP methods implemented for that entity
 
-Using the Bundle as a Template
-------------------------------
 
-* Copy the repo contents
-* Adjust the project name in `composer.json`
-* Invent a new PHP namespace and adjust it in all PHP files
-* Rename `src/DbpStarterBundle` and `DependencyInjection/DbpStarterExtension` to match the new project name
+### Integration into the API Server
 
-Integration into the API Server
--------------------------------
-
-* Add the repository to your composer.json:
+* Add the repository to your `composer.json`:
 
 ```json
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@gitlab.tugraz.at:dbp/middleware/dbp-api/api-starter-bundle.git"
+            "url": "git@github.com:krakenh2020/EduPilotBackendBundle.git"
         }
     ],
 ```
 
-* Add the package to as a dependency:
+* Add the package as a dependency:
 
 ```json
     "require": {
         ...
-        "dbp/api-starter-bundle": "@dev",
+        "kraken/vc4sm-bundle": "dev-master",
         ...
     },
 ```
@@ -56,36 +51,21 @@ Integration into the API Server
 
 ```php
 ...
-DBP\API\StarterBundle\DbpStarterBundle::class => ['all' => true],
+VC4SM\Bundle\Vc4smBundle::class => ['all' => true],
 DBP\API\CoreBundle\DbpCoreBundle::class => ['all' => true],
 ];
 ```
 
-Development & Testing
----------------------
+### Development & Testing
 
 * Install dependencies: `composer install`
 * Run tests: `composer test`
 * Run linters: `composer run lint`
 * Run cs-fixer: `composer run cs-fix`
 
-license
--------
 
-AGPL-3.0-or-later License, Copyright (c) 2021 Peter Grassberger
+## License
 
-Peter Grassberger <p.grassberger@student.tugraz.at> is the Author.
+AGPL-3.0-or-later License, Copyright (c) 2020-2021 Peter Grassberger & KRAKEN consortium
 
-TU Graz has exclusive right of use and the right to grant usage rights and does so as `LGPL-2.1-or-later`,
-also see agreement in german below.
-
-> Der/Die Auftragnehmer/in überträgt der TU Graz an den von ihm/ihr erzielten
-Arbeitsergebnissen sämtliche wie immer gearteten unbeschränkten,
-ausschließlichen und übertragbaren Werknutzungsrechte, welche das Recht
-beinhalteten, die Arbeitsergebnisse auf alle dem Urheber/der Urheberin
-vorbehaltenen Arten zu benutzen oder benutzen zu lassen. Die TU Graz ist zur
-uneingeschränkten Ausübung der Rechte an den Arbeitsergebnissen berechtigt und
-hat das Recht, Dritten diese ausschließliche Nutzungsbefugnis zu übertragen oder
-diesen ein einfaches Nutzungsrecht einzuräumen. Die Übertragung oben genannter
-Rechte ist mit der Bezahlung des vereinbarten Entgelts abgegolten. Ein darüber
-hinaus gehendes Entgelt gebührt ausdrücklich nicht.
+Peter Grassberger <p.grassberger@student.tugraz.at> is [the original](https://github.com/PeterTheOne/vc4sm-backend) Author.
