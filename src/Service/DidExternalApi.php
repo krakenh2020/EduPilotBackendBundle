@@ -183,7 +183,8 @@ class DidExternalApi implements DidConnectionProviderInterface
         
         // check if request actually returned something:
         if($invites->results === NULL) {
-            throw new Exception('Agent did not return any connections.');
+            throw new Exception("Agent did not return any connections.");
+            return null; // ?
             // in this case, the user's browser might use cookies which were generated before the agent was restarted the last time
             // FIX: if this happens, the frontend needs to reset the corresponding cookie 
         }
