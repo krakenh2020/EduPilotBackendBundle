@@ -24,6 +24,9 @@ class Vc4smExtension extends Extension
 
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+
+        $container->setParameter('vc4sm.aries_agent_university', $config['aries_agent_university']);
+        $container->setParameter('vc4sm.aries_agent_university2', $config['aries_agent_university2']);
     }
 
     private function extendArrayParameter(ContainerBuilder $container, string $parameter, array $values)
