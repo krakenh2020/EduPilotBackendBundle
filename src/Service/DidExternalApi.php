@@ -6,6 +6,7 @@ namespace VC4SM\Bundle\Service;
 
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Entity\Diploma;
@@ -87,10 +88,17 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
     }
 
-    public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi, LoggerInterface $logger)
+    public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi, ContainerInterface $container, LoggerInterface $logger)
     {
         $logger->info('I just got the logger');
         $this->logger = $logger;
+        $this->container = $container;
+
+        $agent = $container->getParameter('vc4sm.aries_agent_university');
+        $logger->info("Using Aries agent at $agent.");
+
+        // DidExternalApi::$UNI_AGENT_URL = $agent;
+
         $this->courseApi = $courseApi;
         $this->diplomaApi = $diplomaApi;
 

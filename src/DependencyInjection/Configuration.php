@@ -11,7 +11,7 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder('vc4edu');
+        $treeBuilder = new TreeBuilder('vc4sm');
 
         $treeBuilder->getRootNode()
             ->children()
