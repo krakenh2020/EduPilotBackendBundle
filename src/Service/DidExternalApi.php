@@ -54,12 +54,12 @@ class DidExternalApi implements DidConnectionProviderInterface
         try {
             $body = @file_get_contents($url, false, stream_context_create($options));
         } catch (Exception $e) {  
-            DidExternalApi::$classLogger->error("$e");
+            DidExternalApi::$classLogger->warning("$e");
             $body = FALSE;
         }  
 
         if($body === FALSE) {
-            DidExternalApi::$classLogger->error("Error while connecting to $url");
+            DidExternalApi::$classLogger->warning("Error while connecting to $url");
             return [
                 'contents' => '',
                 'status_code' => -1,
@@ -80,7 +80,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $res = DidExternalApi::requestInsecure($url);
 
         if ($res['status_code'] !== 200) {
-            DidExternalApi::$classLogger->error("Check connection to $baseUrl, status code: ".$res['status_code']);
+            DidExternalApi::$classLogger->warning("Check connection to $baseUrl, status code: ".$res['status_code']);
             return false;
         }
 
