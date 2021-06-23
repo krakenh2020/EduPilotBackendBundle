@@ -50,7 +50,12 @@ class DidExternalApi implements DidConnectionProviderInterface
             $options['http']['content'] = json_encode($data);
         }
 
-        $body = @file_get_contents($url, false, stream_context_create($options));
+        try {
+            $body = @file_get_contents($url, false, stream_context_create($options));
+        } catch (Exception $e) {  
+            $logger->error("$e");
+            $body = FALSE;
+        }  
 
         if($body === FALSE) {
             $logger->error("Error while connecting to $url");
