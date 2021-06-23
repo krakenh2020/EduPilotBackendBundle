@@ -13,8 +13,7 @@ use VC4SM\Bundle\Entity\Diploma;
 
 class DidExternalApi implements DidConnectionProviderInterface
 {
-    // todo: make this configurable
-    private static $UNI_AGENT_URL = 'https://agent.university-agent.demo:8082';
+    private static $UNI_AGENT_URL = ''; //'https://agent.university-agent.demo:8082';
 
     private $didConnections;
     private $courseApi;
@@ -65,7 +64,8 @@ class DidExternalApi implements DidConnectionProviderInterface
         $res = DidExternalApi::requestInsecure($url);
 
         if ($res['status_code'] !== 200) {
-            throw new Exception('Check connection, status code '.$res['status_code']);
+            $logger->error("Check connection to $baseUrl, status code: ".$res['status_code']);
+            return false;
         }
 
         return true;
@@ -94,10 +94,21 @@ class DidExternalApi implements DidConnectionProviderInterface
         $this->logger = $logger;
         $this->container = $container;
 
-        $agent = $container->getParameter('vc4sm.aries_agent_university');
-        $logger->info("Using Aries agent at $agent.");
+        $agent1 = $container->getParameter('vc4sm.aries_agent_university');
+        $agent2 = $container->getParameter('vc4sm.aries_agent_university2');
 
-        // DidExternalApi::$UNI_AGENT_URL = $agent;
+        $logger->info("agent1: $agent1");
+        $logger->info("agent2: $agent2");
+        if(DidExternalApi::checkConnection($agent1)) {
+            $agent = $agent1;
+        } elseif (DidExternalApi::checkConnection($agent2)) {
+            $agent = $agent2;
+        } else {
+            throw new Exception('None of the two configured agents is reachable ...');
+        }
+
+        DidExternalApi::$UNI_AGENT_URL = $agent;
+        $logger->info("Using Aries agent at $agent.");
 
         $this->courseApi = $courseApi;
         $this->diplomaApi = $diplomaApi;
