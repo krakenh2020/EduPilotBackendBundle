@@ -18,7 +18,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@github.com:PeterTheOne/vc4sm-bundle.git"
+            "url": "git@github.com:krakenh2020/EduPilotBackendBundle.git"
         }
     ],
     "autoload": {
