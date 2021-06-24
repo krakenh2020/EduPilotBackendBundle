@@ -350,7 +350,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         try {
             $res = DidExternalApi::requestInsecure($url, 'POST', $cred);
             if ($res['status_code'] !== 200) {
-                DidExternalApi::$classLogger->error("Credential signing failed: HTTP $res['status_code']");
+                DidExternalApi::$classLogger->error("Credential signing failed ...");
             }
 
             return $res['contents'];
