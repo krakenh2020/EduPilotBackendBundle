@@ -348,7 +348,8 @@ class DidExternalApi implements DidConnectionProviderInterface
     {
         $PATH_SIGN_CRED = '/verifiable/signcredential';
         $url = $baseUrl.$PATH_SIGN_CRED;
-        DidExternalApi::$classLogger->info("Signing a credential using $url: $cred");
+        $credJson = json_encode($cred);
+        DidExternalApi::$classLogger->info("Signing a credential using $url: $credJson");
 
         try {
             $res = DidExternalApi::requestInsecure($url, 'POST', $cred);
