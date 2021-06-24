@@ -151,6 +151,9 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $this->didConnections[] = $didConnection1;
 
+        // TODO: move to configuration, use variable from ansible
+        $this->uniAgentDID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr', 
+
         $this->logger->info('DidExternalApi initialized!');
     }
 
@@ -345,12 +348,13 @@ class DidExternalApi implements DidConnectionProviderInterface
     {
         $PATH_SIGN_CRED = '/verifiable/signcredential';
         $url = $baseUrl.$PATH_SIGN_CRED;
-        DidExternalApi::$classLogger->info("Signing a credential using $url");
+        DidExternalApi::$classLogger->info("Signing a credential using $url: $cred");
 
         try {
             $res = DidExternalApi::requestInsecure($url, 'POST', $cred);
             if ($res['status_code'] !== 200) {
-                DidExternalApi::$classLogger->error("Credential signing failed ...");
+                $code = $res['status_code'];
+                DidExternalApi::$classLogger->error("Credential signing failed: HTTP $code");
             }
 
             return $res['contents'];
@@ -396,7 +400,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                             'VerifiableCredential',
                             'UniversityDegreeCredential',
                         ],
-                        'id' => $diploma->getIdentifier(),
+                        'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/'.$diploma->getIdentifier(),
                         'credentialSubject' => [
                             'id' => 'sample-student-id2',
                             'name' => $diploma->getName(),
@@ -404,7 +408,8 @@ class DidExternalApi implements DidConnectionProviderInterface
                             'achievenmentDate' => $diploma->getAchievenmentDate(),
                             'academicDegree' => $diploma->getAcademicDegree(),
                         ],
-                        'issuanceDate' => '2021-01-01T19:23:24Z',       
+                        'issuanceDate' => '2021-01-01T19:23:24Z',  
+                        'issuer' => $this->uniAgentDID     
                     ];
         } elseif ($type === 'course_grades') {
             $courseGrade = $this->courseApi->getCourseGradeById($id);
@@ -418,7 +423,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                             'VerifiableCredential',
                             'UniversityDegreeCredential',
                         ],
-                        'id' => $courseGrade->getIdentifier(),
+                        'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/'.$courseGrade->getIdentifier(),
                         'credentialSubject' => [
                             'id' => 'sample-student-id2',
                             'name' => $courseGrade->getName(),
@@ -427,8 +432,11 @@ class DidExternalApi implements DidConnectionProviderInterface
                             'grade' => $courseGrade->getGrade(),
                             'credits' => $courseGrade->getCredits(),
                         ],
-                        'issuanceDate' => '2021-01-01T19:23:24Z'
+                        'issuanceDate' => '2021-01-01T19:23:24Z',
+                        'issuer' => $this->uniAgentDID
                     ];
+        } else {
+            $this->logger->error("Unknown credential type: $type");
         }
 
         // STEP 2: Sign credential using /verifiable/signcredential
@@ -436,7 +444,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $signrequest = [
             'created' => '2021-06-15T15:04:06Z',
-            'did' => 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr', // TODO: move to configuration, use variable from ansible
+            'did' => $this->uniAgentDID,
             'signatureType' => 'Ed25519Signature2018',
             'credential' => $cred
         ];
