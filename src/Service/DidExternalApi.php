@@ -288,7 +288,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             $credoffer = [
                 'my_did' => $myDid,
                 'their_did' => $theirDid,
-                'offer_credential' => json_decode('{}'), // todo: clean up weird hack
+                'offer_credential' => json_decode('{}'), // TODO: offer correct credential 
             ];
             // todo: unsecure
             $res = DidExternalApi::requestInsecure($url, 'POST', $credoffer);
@@ -341,8 +341,28 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
     }
 
+    private static function signCredential(string $baseUrl, array $cred): string
+    {
+        $PATH_SIGN_CRED = '/verifiable/signcredential';
+        $url = $baseUrl.$PATH_SIGN_CRED;
+        DidExternalApi::$classLogger->info("Signing a credential using $url");
+
+        try {
+            $res = DidExternalApi::requestInsecure($url, 'POST', $cred);
+            if ($res['status_code'] !== 200) {
+                DidExternalApi::$classLogger->error("Credential signing failed: HTTP $res['status_code']");
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            DidExternalApi::$classLogger->error("Credential signing failed: $exception");
+        }
+    }
+
     public function acceptRequest(Credential $data): ?Credential
     {
+        $this->logger->info("acceptRequest: Issuing a credential ...");
+
         // todo: don't pass id via status..
         $id = $data->getStatus();
         $data->setIdentifier('some id');
@@ -359,76 +379,89 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $type = explode('/', $id)[1];
         $id = explode('/', $id)[2];
+
+        // STEP 1: Build credential (for signing) --> just the VC
+        $this->logger->info("STEP 1: Build credential of type: $type");
+
         if ($type === 'diplomas') {
+
             $diploma = $this->diplomaApi->getDiplomaById($id);
 
             $cred = [
-                'issue_credential' => [
-                    'credentials~attach' => [
-                        [
-                            'lastmod_time' => '0001-01-01T00:00:00Z',
-                            'data' => [
-                                'json' => [
-                                    '@context' => [
-                                        'https://www.w3.org/2018/credentials/v1',
-                                        'https://www.w3.org/2018/credentials/examples/v1',
-                                    ],
-                                    'type' => [
-                                        'VerifiableCredential',
-                                        'UniversityDegreeCredential',
-                                    ],
-                                    'id' => $diploma->getIdentifier(),
-                                    'credentialSubject' => [
-                                        'id' => 'sample-student-id2',
-                                        'name' => $diploma->getName(),
-                                        // todo: fix typo
-                                        'achievenmentDate' => $diploma->getAchievenmentDate(),
-                                        'academicDegree' => $diploma->getAcademicDegree(),
-                                    ],
-                                    'issuanceDate' => '2021-01-01T19:23:24Z',
-                                ],
-                            ],
+                        '@context' => [
+                            'https://www.w3.org/2018/credentials/v1',
+                            'https://www.w3.org/2018/credentials/examples/v1',
                         ],
-                    ],
-                ],
-            ];
+                        'type' => [
+                            'VerifiableCredential',
+                            'UniversityDegreeCredential',
+                        ],
+                        'id' => $diploma->getIdentifier(),
+                        'credentialSubject' => [
+                            'id' => 'sample-student-id2',
+                            'name' => $diploma->getName(),
+                            // todo: fix typo
+                            'achievenmentDate' => $diploma->getAchievenmentDate(),
+                            'academicDegree' => $diploma->getAcademicDegree(),
+                        ],
+                        'issuanceDate' => '2021-01-01T19:23:24Z',       
+                    ];
         } elseif ($type === 'course_grades') {
             $courseGrade = $this->courseApi->getCourseGradeById($id);
 
             $cred = [
+                        '@context' => [
+                            'https://www.w3.org/2018/credentials/v1',
+                            'https://www.w3.org/2018/credentials/examples/v1',
+                        ],
+                        'type' => [
+                            'VerifiableCredential',
+                            'UniversityDegreeCredential',
+                        ],
+                        'id' => $courseGrade->getIdentifier(),
+                        'credentialSubject' => [
+                            'id' => 'sample-student-id2',
+                            'name' => $courseGrade->getName(),
+                            // todo: fix typo
+                            'achievenmentDate' => $courseGrade->getAchievenmentDate(),
+                            'grade' => $courseGrade->getGrade(),
+                            'credits' => $courseGrade->getCredits(),
+                        ],
+                        'issuanceDate' => '2021-01-01T19:23:24Z'
+                    ];
+        }
+
+        // STEP 2: Sign credential using /verifiable/signcredential
+        $this->logger->info("STEP 2: Sign credential");
+
+        $signrequest = [
+            'created' => '2021-06-15T15:04:06Z',
+            'did' => 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr', // TODO: move to configuration, use variable from ansible
+            'signatureType' => 'Ed25519Signature2018',
+            'credential' => $cred
+        ];
+
+        $signedCred = DidExternalApi::signCredential(DidExternalApi::$UNI_AGENT_URL, $signrequest);
+
+
+        // STEP 3: Build credential datastructure
+        $this->logger->info("Build credential datastructure");
+        $credAnswer = [
                 'issue_credential' => [
                     'credentials~attach' => [
                         [
-                            'lastmod_time' => '0001-01-01T00:00:00Z',
+                            //'lastmod_time' => '0001-01-01T00:00:00Z',
                             'data' => [
-                                'json' => [
-                                    '@context' => [
-                                        'https://www.w3.org/2018/credentials/v1',
-                                        'https://www.w3.org/2018/credentials/examples/v1',
-                                    ],
-                                    'type' => [
-                                        'VerifiableCredential',
-                                        'UniversityDegreeCredential',
-                                    ],
-                                    'id' => $courseGrade->getIdentifier(),
-                                    'credentialSubject' => [
-                                        'id' => 'sample-student-id2',
-                                        'name' => $courseGrade->getName(),
-                                        // todo: fix typo
-                                        'achievenmentDate' => $courseGrade->getAchievenmentDate(),
-                                        'grade' => $courseGrade->getGrade(),
-                                        'credits' => $courseGrade->getCredits(),
-                                    ],
-                                    'issuanceDate' => '2021-01-01T19:23:24Z',
-                                ],
+                                'json' => $signedCred,
                             ],
                         ],
                     ],
                 ],
             ];
-        }
 
-        $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid, $cred);
+        // STEP 4: Issue credential
+        $this->logger->info("STEP 4: Issue credential ...");
+        $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid, $credAnswer);
 
         // todo: remove this temp thing.
         $data->setMyDid($response);
