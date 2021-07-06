@@ -451,7 +451,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         ];
 
         $signedCred = DidExternalApi::signCredential(DidExternalApi::$UNI_AGENT_URL, $signrequest);
-
+        $signedCred = json_decode($signedCred);
 
         // STEP 3: Build credential datastructure
         $this->logger->info("Build credential datastructure");
