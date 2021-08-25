@@ -6,7 +6,7 @@ namespace VC4SM\Bundle\DataProvider;
 
 use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
-use DBP\API\CoreBundle\Helpers\ArrayFullPaginator;
+use Dbp\Relay\CoreBundle\Helpers\ArrayFullPaginator;
 use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Service\DidConnectionProviderInterface;
 
