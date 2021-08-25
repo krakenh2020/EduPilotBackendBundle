@@ -4,7 +4,6 @@
     "license": "AGPL-3.0-or-later",
     "require": {
         "php": "^7.3",
-        "api-platform/core": "^2.5",
         "symfony/framework-bundle": "^5.2",
         "dbp/relay-core-bundle": "^0.1.10",
         "dbp/relay-keycloak-bundle": "^0.1.1"
