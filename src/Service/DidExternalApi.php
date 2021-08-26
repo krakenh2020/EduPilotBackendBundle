@@ -424,7 +424,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                         'issuanceDate' => '2021-01-01T19:23:24Z',  
                         'issuer' => $this->uniAgentDID     
                     ];
-        } elseif ($type === 'course_grades') {
+        } elseif ($type === 'course-grades') {
             $courseGrade = $this->courseApi->getCourseGradeById($id);
 
             $cred = [
