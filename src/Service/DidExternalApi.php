@@ -134,9 +134,9 @@ class DidExternalApi implements DidConnectionProviderInterface
         $this->didConnections = [];
         $didConnection1 = new DidConnection();
         // todo: change
-        $didConnection1->setIdentifier('graz');
+        $didConnection1->setIdentifier('tug');
         // todo: change
-        $didConnection1->setName('Graz');
+        $didConnection1->setName('Graz University of Technology');
 
         // todo: remove invitation intermediate states..
         $didConnection1->setInvitation('try');
@@ -214,7 +214,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $didConnection = new DidConnection();
         $didConnection->setIdentifier($identifier);
         // todo: change
-        $didConnection->setName('Graz');
+        $didConnection->setName('Graz University of Technology');
 
         $oneAccepted = false;
         $connectionId = '';
@@ -226,10 +226,12 @@ class DidExternalApi implements DidConnectionProviderInterface
         $inviteContents = DidExternalApi::listConnections(DidExternalApi::$UNI_AGENT_URL);
         $invites = json_decode($inviteContents);
         
+        $this->logger->info("Invites: $inviteContents");
+
         // check if request actually returned something:
         if(!property_exists($invites, 'results')) { 
             $this->logger->error('Agent did not return any connections?');
-            //throw new Exception("Agent did not return any connections.");
+            throw new Exception("Agent did not return any connections.");
             return null; 
             // in this case, the user's browser might use cookies which were generated before the agent was restarted the last time
             // FIX: if this happens, the frontend needs to reset the corresponding cookie 
@@ -240,6 +242,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
                 $connectionId = $invite->ConnectionID;
                 $acceptRes = DidExternalApi::acceptInviteRequest(DidExternalApi::$UNI_AGENT_URL, $connectionId);
+                $this->logger->info("acceptRes: $acceptRes");
                 if ($acceptRes === '') {
                     throw new Exception('Accept failed');
 
@@ -247,13 +250,22 @@ class DidExternalApi implements DidConnectionProviderInterface
                 }
                 $oneAccepted = true;
                 break;
+            } elseif ($invite->InvitationID === $identifier && $invite->State === 'responded') {
+                $this->logger->info("Invitation found but already accepted ... moving on.");
+                $connectionId = $invite->ConnectionID;
+                $oneAccepted = true;
+                break;
+            } else {
+                $this->logger->info("InvitationID: $invite->InvitationID, \n requested: $identifier, \n state: $invite->State");
             }
         }
+
         if (!$oneAccepted) {
-            throw new Exception('Non accepted');
+            $this->logger->error('No invite accepted');
 
             return null;
         }
+
         $connContents = DidExternalApi::getConnectionById(DidExternalApi::$UNI_AGENT_URL, $connectionId);
         $conn = json_decode($connContents);
         if ($conn->result->State === 'responded' || $conn->result->State === 'completed') {
