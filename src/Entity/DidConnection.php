@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *       "put",
  *       "delete"
  *     },
- *     iri="https://schema.org/Place",
+ *     iri="https://schema.org/CollegeOrUniversity",
  *     normalizationContext={"groups"={"DidConnection:output"}, "jsonld_embed_context"=true},
  *     denormalizationContext={"groups"={"DidConnection:input"}, "jsonld_embed_context"=true}
  * )
