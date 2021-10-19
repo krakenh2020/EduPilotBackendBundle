@@ -365,7 +365,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
 
-            $credoffer = DidExternalApi::buildOfferReuest($myDid, $theirDid, $api, $type, $id);
+            $credoffer = DidExternalApi::buildOfferRequest($myDid, $theirDid, $api, $type, $id);
             
             // todo: unsecure
             $res = DidExternalApi::requestInsecure($url, 'POST', $credoffer);
