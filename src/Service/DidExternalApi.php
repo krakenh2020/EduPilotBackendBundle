@@ -87,10 +87,12 @@ class DidExternalApi implements DidConnectionProviderInterface
         return true;
     }
 
-    private static function createInvitation(string $baseUrl): string
+    public static function createInvitation(string $baseUrl): string
     {
+        $alias = "TU Graz KRAKEN Demo";
         $PATH_CREATE_INVITATION = '/connections/create-invitation';
-        $url = $baseUrl.$PATH_CREATE_INVITATION;
+        $url = $baseUrl.$PATH_CREATE_INVITATION."?alias=".urlencode($alias);
+
         try {
             // todo: unsecure
             $res = DidExternalApi::requestInsecure($url, 'POST');

@@ -49,6 +49,19 @@ class DidExternalApiTest extends TestCase
         $this->assertFalse($ret2);
     }
 
+    public function testInvite()
+    {
+        /*
+           http POST "https://kraken.iaik.tugraz.at/connections/create-invitation?alias=STEFAN"
+        */
+
+        $invite = DidExternalApi::createInvitation("https://kraken.iaik.tugraz.at");
+        //print_r($invite);
+
+        $j = json_decode($invite);
+        $this->assertEquals("TU Graz KRAKEN Demo", $j->alias);
+    }
+
     public function testBuildOfferRequestDiploma()
     {
         $mydid = "did:myDID";
@@ -60,7 +73,7 @@ class DidExternalApiTest extends TestCase
         $offer = DidExternalApi::buildOfferRequest($mydid, $theirdid, $api, $type, $cred_id);
         //print_r($offer);
         $cred_json = json_encode($offer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        DidExternalApi::$classLogger->info($cred_json);
+        //DidExternalApi::$classLogger->info($cred_json);
 
         $this->assertEquals($mydid, $offer['my_did']);
         $this->assertEquals($theirdid, $offer['their_did']);
@@ -77,7 +90,7 @@ class DidExternalApiTest extends TestCase
         $offer = DidExternalApi::buildOfferRequest($mydid, $theirdid, $api, $type, $cred_id);
         //print_r($offer);
         $cred_json = json_encode($offer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        DidExternalApi::$classLogger->info($cred_json);
+        //DidExternalApi::$classLogger->info($cred_json);
 
         $this->assertEquals($mydid, $offer['my_did']);
         $this->assertEquals($theirdid, $offer['their_did']);
