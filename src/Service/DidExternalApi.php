@@ -35,7 +35,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         return 0;
     }
 
-    private static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
+    public static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
     {
         $options = [
             'http' => [
