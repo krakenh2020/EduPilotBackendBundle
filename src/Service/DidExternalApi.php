@@ -390,8 +390,8 @@ class DidExternalApi implements DidConnectionProviderInterface
             return null;
         }
 
-        DidExternalApi::$classLogger->info("Send offer for credential:" . $data->getIdentifier());
         DidExternalApi::$classLogger->info("Send offer for status:" . $data->getStatus());
+        //DidExternalApi::$classLogger->info("Send offer for credential:" . $data->getIdentifier());
         $id = $data->getStatus();
         $type = explode('/', $id)[1];
         $id = explode('/', $id)[2];
