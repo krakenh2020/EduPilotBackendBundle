@@ -14,7 +14,7 @@ use VC4SM\Bundle\Entity\Diploma;
 class DidExternalApi implements DidConnectionProviderInterface
 {
     private static $UNI_AGENT_URL = ''; //'https://agent.university-agent.demo:8082';
-    private static $classLogger = null;
+    public static $classLogger = null;
 
     private $didConnections;
     private $courseApi;
@@ -72,7 +72,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         ];
     }
 
-    private static function checkConnection(string $baseUrl): bool
+    public static function checkConnection(string $baseUrl): bool
     {
         $PATH_CONNECTIONS = '/connections';
         $url = $baseUrl.$PATH_CONNECTIONS;
@@ -295,16 +295,78 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $credential;
     }
 
-    private static function sendOfferRequest(string $baseUrl, string $myDid, string $theirDid): string
+    public static function buildOfferRequest(string $myDid, string $theirDid, $api, $type, $id)
+    {
+
+        if ($type === 'diplomas') {
+            $diploma = $api->getDiplomaById($id);
+            $cred_type = "Academic Diploma";
+            $cred_attributes = [
+            [
+                'name' => "Credential Type",
+                'value' => $cred_type,
+            ],
+            [
+                'name' => "Name",
+                'value' => $diploma->getName(),
+            ],
+            [
+                'name' => "Degree",
+                'value' => $diploma->getAcademicDegree(),
+            ]
+        ];
+
+        } elseif ($type === 'course-grades') {
+            $courseGrade = $api->getCourseGradeById($id);   
+            $cred_type = "Academic Course Grade";
+            $cred_attributes = [
+            [
+                'name' => "Credential Type",
+                'value' => $cred_type,
+            ],
+            [
+                'name' => "Name",
+                'value' => $courseGrade->getName(),
+            ],
+            [
+                'name' => "Grade",
+                'value' => $courseGrade->getGrade(),
+            ],
+            [
+                'name' => "Credits",
+                'value' =>  $courseGrade->getCredits(),
+            ]
+        ];
+        }
+
+        $cred_preview = [
+            '@type' => "https://didcomm.org/issue-credential/1.0/credential-preview",
+            'attributes' => $cred_attributes,
+        ];
+
+        $offer_credential = [
+                '@type' => "https://didcomm.org/issue-credential/1.0/offer-credential",
+                'comment' => "some credential offer comment",
+                'credential_preview' => $cred_preview,
+        ];
+
+        $credoffer = [
+                'my_did' => $myDid,
+                'their_did' => $theirDid,
+                'offer_credential' => $offer_credential,
+            ];
+
+        return $credoffer;
+    }
+
+    private static function sendOfferRequest(string $baseUrl, string $myDid, string $theirDid, $api, $type, $id): string
     {
         $PATH_CREATE_INVITATION = '/issuecredential/send-offer';
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
-            $credoffer = [
-                'my_did' => $myDid,
-                'their_did' => $theirDid,
-                'offer_credential' => json_decode('{}'), // TODO: offer correct credential 
-            ];
+
+            $credoffer = DidExternalApi::buildOfferReuest($myDid, $theirDid, $api, $type, $id);
+            
             // todo: unsecure
             $res = DidExternalApi::requestInsecure($url, 'POST', $credoffer);
             if ($res['status_code'] !== 200) {
@@ -327,7 +389,14 @@ class DidExternalApi implements DidConnectionProviderInterface
 
             return null;
         }
-        $response = DidExternalApi::sendOfferRequest(DidExternalApi::$UNI_AGENT_URL, $data->getMyDid(), $data->getTheirDid());
+
+        $id = $data->getStatus();
+        $type = explode('/', $id)[1];
+        $id = explode('/', $id)[2];
+
+        $api = $type === 'diplomas' ? $this->diplomaApi : $this->courseApi;
+
+        $response = DidExternalApi::sendOfferRequest(DidExternalApi::$UNI_AGENT_URL, $data->getMyDid(), $data->getTheirDid(), $api, $type, $id);
 
         // todo: remove this temp thing.
         $data->setMyDid($response);
