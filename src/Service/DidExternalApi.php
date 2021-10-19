@@ -346,7 +346,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $offer_credential = [
                 '@type' => "https://didcomm.org/issue-credential/1.0/offer-credential",
-                'comment' => "some credential offer comment",
+                'comment' => $cred_type . " offer",
                 'credential_preview' => $cred_preview,
         ];
 
@@ -401,6 +401,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $response = DidExternalApi::sendOfferRequest(DidExternalApi::$UNI_AGENT_URL, $data->getMyDid(), $data->getTheirDid(), $api, $type, $id);
 
         // todo: remove this temp thing.
+        $data->setIdentifier($id)
         $data->setMyDid($response);
         $data->setStatus('offer!');
 
