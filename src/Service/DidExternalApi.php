@@ -401,7 +401,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $response = DidExternalApi::sendOfferRequest(DidExternalApi::$UNI_AGENT_URL, $data->getMyDid(), $data->getTheirDid(), $api, $type, $id);
 
         // todo: remove this temp thing.
-        $data->setIdentifier($id)
+        $data->setIdentifier($id);
         $data->setMyDid($response);
         $data->setStatus('offer!');
 
