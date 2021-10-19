@@ -381,8 +381,8 @@ class DidExternalApi implements DidConnectionProviderInterface
 
     public function sendOffer(Credential $data): ?Credential
     {
-        $data->setIdentifier('some id');
-        $data->setStatus('try offer...');
+        //$data->setIdentifier('some id');
+        //$data->setStatus('try offer...');
 
         if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
             throw new Exception('No Connection');
@@ -390,6 +390,8 @@ class DidExternalApi implements DidConnectionProviderInterface
             return null;
         }
 
+        DidExternalApi::$classLogger->info("Send offer for credential:" . $data->getIdentifier());
+        DidExternalApi::$classLogger->info("Send offer for status:" . $data->getStatus());
         $id = $data->getStatus();
         $type = explode('/', $id)[1];
         $id = explode('/', $id)[2];
