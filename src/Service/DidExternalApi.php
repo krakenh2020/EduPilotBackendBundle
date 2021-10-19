@@ -312,9 +312,15 @@ class DidExternalApi implements DidConnectionProviderInterface
                 'name' => "Name",
                 'value' => $diploma->getName(),
             ],
+            // right now we do this:
             [
                 'name' => "Degree",
                 'value' => $diploma->getAcademicDegree(),
+            ],
+            // experimental: 
+            [
+                'name' => "credentialSubject.academicDegree",
+                'value' => "Degree Level",
             ]
         ];
 
