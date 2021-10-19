@@ -304,46 +304,69 @@ class DidExternalApi implements DidConnectionProviderInterface
             $diploma = $api->getDiplomaById($id);
             $cred_type = "Academic Diploma";
             $cred_attributes = [
-            [
-                'name' => "Credential Type",
-                'value' => $cred_type,
-            ],
-            [
-                'name' => "Name",
-                'value' => $diploma->getName(),
-            ],
-            // right now we do this:
-            [
-                'name' => "Degree",
-                'value' => $diploma->getAcademicDegree(),
-            ],
+            // [
+            //     'name' => "Credential Type",
+            //     'value' => $cred_type,
+            // ],
+            // [
+            //     'name' => "Name",
+            //     'value' => $diploma->getName(),
+            // ],
+            // [
+            //     'name' => "Degree",
+            //     'value' => $diploma->getAcademicDegree(),
+            // ],
             // experimental: 
             [
+                'name' => "credentialSubject.name",
+                'value' => "Degree Name",
+            ],
+            [
+                'name' => "credentialSubject.achievenmentDate",
+                'value' => "Degree Date",
+            ],
+            [
                 'name' => "credentialSubject.academicDegree",
-                'value' => "Degree Level",
-            ]
+                'value' => "Degree",
+            ],
         ];
 
         } elseif ($type === 'course-grades') {
             $courseGrade = $api->getCourseGradeById($id);   
             $cred_type = "Academic Course Grade";
             $cred_attributes = [
+            // [
+            //     'name' => "Credential Type",
+            //     'value' => $cred_type,
+            // ],
+            // [
+            //     'name' => "Name",
+            //     'value' => $courseGrade->getName(),
+            // ],
+            // [
+            //     'name' => "Grade",
+            //     'value' => $courseGrade->getGrade(),
+            // ],
+            // [
+            //     'name' => "Credits",
+            //     'value' =>  $courseGrade->getCredits(),
+            // ]
             [
-                'name' => "Credential Type",
-                'value' => $cred_type,
+                'name' => "credentialSubject.name",
+                'value' => "Course Name",
             ],
             [
-                'name' => "Name",
-                'value' => $courseGrade->getName(),
+                'name' => "credentialSubject.achievenmentDate",
+                'value' => "Grade Date",
             ],
             [
-                'name' => "Grade",
-                'value' => $courseGrade->getGrade(),
+                'name' => "credentialSubject.grade",
+                'value' => "Grade",
             ],
             [
-                'name' => "Credits",
-                'value' =>  $courseGrade->getCredits(),
-            ]
+                'name' => "credentialSubject.credits",
+                'value' => "Credits",
+            ],
         ];
         }
 
