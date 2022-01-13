@@ -7,6 +7,7 @@ namespace VC4SM\Bundle\Tests\Service;
 use PHPUnit\Framework\TestCase;
 use VC4SM\Bundle\Service\DidExternalApi;
 use VC4SM\Bundle\Service\ExternalApi;
+use VC4SM\Bundle\Service\SimpleHttpClient;
 use VC4SM\Bundle\Tests\Kernel;
 
 class DidExternalApiTest extends TestCase
@@ -34,10 +35,10 @@ class DidExternalApiTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testCurl()
+    public function testHttpClient()
     {
         $url = 'https://krakenh2020.eu';
-        $res = DidExternalApi::requestInsecure($url, 'GET');
+        $res = SimpleHttpClient::requestInsecure($url, 'GET');
         //print_r($res);
         $this->assertEquals(200, $res['status_code']);
     }

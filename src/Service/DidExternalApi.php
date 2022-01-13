@@ -74,65 +74,13 @@ class DidExternalApi implements DidConnectionProviderInterface
         $this->logger->info('DidExternalApi initialized!');
     }
 
-    /**
-     * see: https://stackoverflow.com/a/49299689/782920 .
-     */
-    private static function getHttpCode($http_response_header): int
-    {
-        if (is_array($http_response_header)) {
-            $parts = explode(' ', $http_response_header[0]);
-            if (count($parts) > 1) { //HTTP/1.0 <code> <text>
-                return intval($parts[1]);
-            }
-        }
-
-        return 0;
-    }
-
-    public static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
-    {
-        $options = [
-            'http' => [
-                'method' => $method,
-            ],
-            'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-            ],
-        ];
-        if ($data) {
-            $options['http']['header'] = 'Content-type: application/json';
-            $options['http']['content'] = json_encode($data);
-        }
-
-        try {
-            $body = @file_get_contents($url, false, stream_context_create($options));
-        } catch (Exception $e) {
-            DidExternalApi::$classLogger->warning("$e");
-            $body = false;
-        }
-
-        if ($body === false) {
-            DidExternalApi::$classLogger->warning("Error while connecting to $url");
-
-            return [
-                'contents' => '',
-                'status_code' => -1,
-            ];
-        }
-
-        return [
-            'contents' => $body,
-            'status_code' => DidExternalApi::getHttpCode($http_response_header),
-        ];
-    }
 
     public static function checkConnection(string $baseUrl): bool
     {
         $PATH_CONNECTIONS = '/connections';
         $url = $baseUrl.$PATH_CONNECTIONS;
         // todo: unsecure
-        $res = DidExternalApi::requestInsecure($url);
+        $res = SimpleHttpClient::requestInsecure($url);
 
         if ($res['status_code'] !== 200) {
             DidExternalApi::$classLogger->warning("Check connection to $baseUrl, status code: ".$res['status_code']);
@@ -151,7 +99,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         try {
             // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url, 'POST');
+            $res = SimpleHttpClient::requestInsecure($url, 'POST');
             if ($res['status_code'] !== 200) {
                 return '';
             }
@@ -168,7 +116,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url, 'GET');
+            $res = SimpleHttpClient::requestInsecure($url, 'GET');
             if ($res['status_code'] !== 200) {
                 return '';
             }
@@ -185,7 +133,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url, 'GET');
+            $res = SimpleHttpClient::requestInsecure($url, 'GET');
             if ($res['status_code'] !== 200) {
                 return '';
             }
@@ -202,7 +150,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
             // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url, 'POST');
+            $res = SimpleHttpClient::requestInsecure($url, 'POST');
             if ($res['status_code'] !== 200) {
                 return '';
             }
@@ -396,7 +344,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             $credoffer = DidExternalApi::buildOfferRequest($myDid, $theirDid, $api, $type, $id);
 
             // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url, 'POST', $credoffer);
+            $res = SimpleHttpClient::requestInsecure($url, 'POST', $credoffer);
             if ($res['status_code'] !== 200) {
                 return '';
             }
@@ -444,7 +392,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         // todo: add diploma
         try {
             // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url, 'POST', $cred);
+            $res = SimpleHttpClient::requestInsecure($url, 'POST', $cred);
             if ($res['status_code'] !== 200) {
                 return '';
             }
@@ -463,7 +411,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         DidExternalApi::$classLogger->info("Signing a credential using $url: $credJson");
 
         try {
-            $res = DidExternalApi::requestInsecure($url, 'POST', $cred);
+            $res = SimpleHttpClient::requestInsecure($url, 'POST', $cred);
             if ($res['status_code'] !== 200) {
                 $code = $res['status_code'];
                 DidExternalApi::$classLogger->error("Credential signing failed: HTTP $code");
