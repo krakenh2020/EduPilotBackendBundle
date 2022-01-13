@@ -58,7 +58,10 @@
             "@php vendor/bin/php-cs-fixer --ansi fix"
         ],
         "cs": [
-            "@php vendor/bin/php-cs-fixer --ansi fix --dry-run --diff --diff-format=udiff"
+            "@php vendor/bin/php-cs-fixer --ansi fix --dry-run --diff"
+        ],
+        "php-cs-fixer": [
+            "php-cs-fixer --rules=@PSR1"
         ],
         "coverage": [
             "@php vendor/bin/simple-phpunit --coverage-html _coverage"

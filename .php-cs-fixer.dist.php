@@ -1,11 +1,18 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
+    ->ignoreDotFiles(false)
+    ->ignoreVCSIgnored(true)
+    ->exclude('tests/Fixtures')
     ->in(__DIR__)
-    ->exclude('var')
+    ->append([
+        __DIR__.'/dev-tools/doc.php',
+        // __DIR__.'/php-cs-fixer', disabled, as we want to be able to run bootstrap file even on lower PHP version, to show nice message
+    ])
 ;
 
-return PhpCsFixer\Config::create()
+$config = new PhpCsFixer\Config();
+$config
     ->setRules([
         '@Symfony' => true,
         '@PHP70Migration' => true,
@@ -20,3 +27,4 @@ return PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
     ->setFinder($finder)
 ;
+return $config;
