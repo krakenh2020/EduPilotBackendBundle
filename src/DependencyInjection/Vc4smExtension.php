@@ -14,7 +14,10 @@ class Vc4smExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $this->extendArrayParameter(
-            $container, 'api_platform.resource_class_directories', [__DIR__.'/../Entity']);
+            $container,
+            'api_platform.resource_class_directories',
+            [__DIR__.'/../Entity']
+        );
 
         $loader = new YamlFileLoader(
             $container,

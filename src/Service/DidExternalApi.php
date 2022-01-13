@@ -19,106 +19,21 @@ class DidExternalApi implements DidConnectionProviderInterface
     private $didConnections;
     private $courseApi;
     private $diplomaApi;
-
-    /**
-     * see: https://stackoverflow.com/a/49299689/782920 .
-     */
-    private static function getHttpCode($http_response_header): int
-    {
-        if (is_array($http_response_header)) {
-            $parts = explode(' ', $http_response_header[0]);
-            if (count($parts) > 1) { //HTTP/1.0 <code> <text>
-                return intval($parts[1]);
-            }
-        }
-
-        return 0;
-    }
-
-    public static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
-    {
-        $options = [
-            'http' => [
-                'method' => $method,
-            ],
-            'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-            ],
-        ];
-        if ($data) {
-            $options['http']['header'] = 'Content-type: application/json';
-            $options['http']['content'] = json_encode($data);
-        }
-
-        try {
-            $body = @file_get_contents($url, false, stream_context_create($options));
-        } catch (Exception $e) {  
-            DidExternalApi::$classLogger->warning("$e");
-            $body = FALSE;
-        }  
-
-        if($body === FALSE) {
-            DidExternalApi::$classLogger->warning("Error while connecting to $url");
-            return [
-                'contents' => '',
-                'status_code' => -1,
-             ];
-        }
-
-        return [
-            'contents' => $body,
-            'status_code' => DidExternalApi::getHttpCode($http_response_header),
-        ];
-    }
-
-    public static function checkConnection(string $baseUrl): bool
-    {
-        $PATH_CONNECTIONS = '/connections';
-        $url = $baseUrl.$PATH_CONNECTIONS;
-        // todo: unsecure
-        $res = DidExternalApi::requestInsecure($url);
-
-        if ($res['status_code'] !== 200) {
-            DidExternalApi::$classLogger->warning("Check connection to $baseUrl, status code: ".$res['status_code']);
-            return false;
-        }
-
-        return true;
-    }
-
-    public static function createInvitation(string $baseUrl): string
-    {
-        $alias = "TU Graz KRAKEN Demo";
-        $PATH_CREATE_INVITATION = '/connections/create-invitation';
-        $url = $baseUrl.$PATH_CREATE_INVITATION."?alias=".urlencode($alias);
-
-        try {
-            // todo: unsecure
-            $res = DidExternalApi::requestInsecure($url, 'POST');
-            if ($res['status_code'] !== 200) {
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            return '';
-        }
-    }
+    private $logger;
+    private $uniAgentDID;
 
     public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi, ContainerInterface $container, LoggerInterface $logger)
     {
         $logger->info('I just got the logger');
         $this->logger = $logger;
         DidExternalApi::$classLogger = $logger;
-        $this->container = $container;
 
         $agent1 = $container->getParameter('vc4sm.aries_agent_university');
         $agent2 = $container->getParameter('vc4sm.aries_agent_university2');
 
         $this->logger->info("agent1: $agent1");
         $this->logger->info("agent2: $agent2");
-        if(DidExternalApi::checkConnection($agent1)) {
+        if (DidExternalApi::checkConnection($agent1)) {
             $agent = $agent1;
         } elseif (DidExternalApi::checkConnection($agent2)) {
             $agent = $agent2;
@@ -157,6 +72,94 @@ class DidExternalApi implements DidConnectionProviderInterface
         $this->uniAgentDID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr';
 
         $this->logger->info('DidExternalApi initialized!');
+    }
+
+    /**
+     * see: https://stackoverflow.com/a/49299689/782920 .
+     */
+    private static function getHttpCode($http_response_header): int
+    {
+        if (is_array($http_response_header)) {
+            $parts = explode(' ', $http_response_header[0]);
+            if (count($parts) > 1) { //HTTP/1.0 <code> <text>
+                return intval($parts[1]);
+            }
+        }
+
+        return 0;
+    }
+
+    public static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
+    {
+        $options = [
+            'http' => [
+                'method' => $method,
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ],
+        ];
+        if ($data) {
+            $options['http']['header'] = 'Content-type: application/json';
+            $options['http']['content'] = json_encode($data);
+        }
+
+        try {
+            $body = @file_get_contents($url, false, stream_context_create($options));
+        } catch (Exception $e) {
+            DidExternalApi::$classLogger->warning("$e");
+            $body = false;
+        }
+
+        if ($body === false) {
+            DidExternalApi::$classLogger->warning("Error while connecting to $url");
+
+            return [
+                'contents' => '',
+                'status_code' => -1,
+            ];
+        }
+
+        return [
+            'contents' => $body,
+            'status_code' => DidExternalApi::getHttpCode($http_response_header),
+        ];
+    }
+
+    public static function checkConnection(string $baseUrl): bool
+    {
+        $PATH_CONNECTIONS = '/connections';
+        $url = $baseUrl.$PATH_CONNECTIONS;
+        // todo: unsecure
+        $res = DidExternalApi::requestInsecure($url);
+
+        if ($res['status_code'] !== 200) {
+            DidExternalApi::$classLogger->warning("Check connection to $baseUrl, status code: ".$res['status_code']);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function createInvitation(string $baseUrl): string
+    {
+        $alias = 'TU Graz KRAKEN Demo';
+        $PATH_CREATE_INVITATION = '/connections/create-invitation';
+        $url = $baseUrl.$PATH_CREATE_INVITATION.'?alias='.urlencode($alias);
+
+        try {
+            // todo: unsecure
+            $res = DidExternalApi::requestInsecure($url, 'POST');
+            if ($res['status_code'] !== 200) {
+                return '';
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            return '';
+        }
     }
 
     private static function listConnections(string $baseUrl): string
@@ -222,21 +225,20 @@ class DidExternalApi implements DidConnectionProviderInterface
         $connectionId = '';
         if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
             throw new Exception('No Connection');
-
-            return null;
+            //return null;
         }
         $inviteContents = DidExternalApi::listConnections(DidExternalApi::$UNI_AGENT_URL);
         $invites = json_decode($inviteContents);
-        
+
         $this->logger->info("Invites: $inviteContents");
 
         // check if request actually returned something:
-        if(!property_exists($invites, 'results')) { 
+        if (!property_exists($invites, 'results')) {
             $this->logger->error('Agent did not return any connections?');
-            throw new Exception("Agent did not return any connections.");
-            return null; 
+            throw new Exception('Agent did not return any connections.');
+            //return null;
             // in this case, the user's browser might use cookies which were generated before the agent was restarted the last time
-            // FIX: if this happens, the frontend needs to reset the corresponding cookie 
+            // FIX: if this happens, the frontend needs to reset the corresponding cookie
         }
 
         foreach ($invites->results as $invite) {
@@ -247,13 +249,12 @@ class DidExternalApi implements DidConnectionProviderInterface
                 $this->logger->info("acceptRes: $acceptRes");
                 if ($acceptRes === '') {
                     throw new Exception('Accept failed');
-
-                    return null;
+                    //return null;
                 }
                 $oneAccepted = true;
                 break;
             } elseif ($invite->InvitationID === $identifier && $invite->State === 'responded') {
-                $this->logger->info("Invitation found but already accepted ... moving on.");
+                $this->logger->info('Invitation found but already accepted ... moving on.');
                 $connectionId = $invite->ConnectionID;
                 $oneAccepted = true;
                 break;
@@ -277,8 +278,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
 
         throw new Exception('Accepted connection not found');
-
-        return null;
+        //return null;
     }
 
     public function getDidConnections(): array
@@ -299,86 +299,84 @@ class DidExternalApi implements DidConnectionProviderInterface
 
     public static function buildOfferRequest(string $myDid, string $theirDid, $api, $type, $id)
     {
-
         if ($type === 'diplomas') {
             $diploma = $api->getDiplomaById($id);
-            $cred_type = "Academic Diploma";
+            $cred_type = 'Academic Diploma';
             $cred_attributes = [
-            // [
-            //     'name' => "Credential Type",
-            //     'value' => $cred_type,
-            // ],
-            // [
-            //     'name' => "Name",
-            //     'value' => $diploma->getName(),
-            // ],
-            // [
-            //     'name' => "Degree",
-            //     'value' => $diploma->getAcademicDegree(),
-            // ],
-            // experimental: 
-            [
-                'name' => "credentialSubject.name",
-                'value' => "Degree Name",
-            ],
-            [
-                'name' => "credentialSubject.achievenmentDate",
-                'value' => "Degree Date",
-            ],
-            [
-                'name' => "credentialSubject.academicDegree",
-                'value' => "Degree",
-            ],
-        ];
-
+                // [
+                //     'name' => "Credential Type",
+                //     'value' => $cred_type,
+                // ],
+                // [
+                //     'name' => "Name",
+                //     'value' => $diploma->getName(),
+                // ],
+                // [
+                //     'name' => "Degree",
+                //     'value' => $diploma->getAcademicDegree(),
+                // ],
+                // experimental:
+                [
+                    'name' => 'credentialSubject.name',
+                    'value' => 'Degree Name',
+                ],
+                [
+                    'name' => 'credentialSubject.achievenmentDate',
+                    'value' => 'Degree Date',
+                ],
+                [
+                    'name' => 'credentialSubject.academicDegree',
+                    'value' => 'Degree',
+                ],
+            ];
         } elseif ($type === 'course-grades') {
-            $courseGrade = $api->getCourseGradeById($id);   
-            $cred_type = "Academic Course Grade";
+            $courseGrade = $api->getCourseGradeById($id);
+            $cred_type = 'Academic Course Grade';
             $cred_attributes = [
-            // [
-            //     'name' => "Credential Type",
-            //     'value' => $cred_type,
-            // ],
-            // [
-            //     'name' => "Name",
-            //     'value' => $courseGrade->getName(),
-            // ],
-            // [
-            //     'name' => "Grade",
-            //     'value' => $courseGrade->getGrade(),
-            // ],
-            // [
-            //     'name' => "Credits",
-            //     'value' =>  $courseGrade->getCredits(),
-            // ]
-            [
-                'name' => "credentialSubject.name",
-                'value' => "Course Name",
-            ],
-            [
-                'name' => "credentialSubject.achievenmentDate",
-                'value' => "Grade Date",
-            ],
-            [
-                'name' => "credentialSubject.grade",
-                'value' => "Grade",
-            ],
-            [
-                'name' => "credentialSubject.credits",
-                'value' => "Credits",
-            ],
-        ];
+                // [
+                //     'name' => "Credential Type",
+                //     'value' => $cred_type,
+                // ],
+                // [
+                //     'name' => "Name",
+                //     'value' => $courseGrade->getName(),
+                // ],
+                // [
+                //     'name' => "Grade",
+                //     'value' => $courseGrade->getGrade(),
+                // ],
+                // [
+                //     'name' => "Credits",
+                //     'value' =>  $courseGrade->getCredits(),
+                // ]
+                [
+                    'name' => 'credentialSubject.name',
+                    'value' => 'Course Name',
+                ],
+                [
+                    'name' => 'credentialSubject.achievenmentDate',
+                    'value' => 'Grade Date',
+                ],
+                [
+                    'name' => 'credentialSubject.grade',
+                    'value' => 'Grade',
+                ],
+                [
+                    'name' => 'credentialSubject.credits',
+                    'value' => 'Credits',
+                ],
+            ];
         }
 
         $cred_preview = [
-            '@type' => "https://didcomm.org/issue-credential/1.0/credential-preview",
+            '@type' => 'https://didcomm.org/issue-credential/1.0/credential-preview',
             'attributes' => $cred_attributes,
         ];
 
         $offer_credential = [
-                '@type' => "https://didcomm.org/issue-credential/1.0/offer-credential",
-                'comment' => $cred_type . " offer",
-                'credential_preview' => $cred_preview,
+            '@type' => 'https://didcomm.org/issue-credential/1.0/offer-credential',
+            'comment' => $cred_type.' offer',
+            'credential_preview' => $cred_preview,
         ];
 
         $credoffer = [
@@ -395,9 +393,8 @@ class DidExternalApi implements DidConnectionProviderInterface
         $PATH_CREATE_INVITATION = '/issuecredential/send-offer';
         $url = $baseUrl.$PATH_CREATE_INVITATION;
         try {
-
             $credoffer = DidExternalApi::buildOfferRequest($myDid, $theirDid, $api, $type, $id);
-            
+
             // todo: unsecure
             $res = DidExternalApi::requestInsecure($url, 'POST', $credoffer);
             if ($res['status_code'] !== 200) {
@@ -417,11 +414,10 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
             throw new Exception('No Connection');
-
-            return null;
+            //return null;
         }
 
-        DidExternalApi::$classLogger->info("Send offer for status:" . $data->getStatus());
+        DidExternalApi::$classLogger->info('Send offer for status:'.$data->getStatus());
         //DidExternalApi::$classLogger->info("Send offer for credential:" . $data->getIdentifier());
         $id = $data->getStatus();
         $type = explode('/', $id)[1];
@@ -476,12 +472,13 @@ class DidExternalApi implements DidConnectionProviderInterface
             return $res['contents'];
         } catch (Exception $exception) {
             DidExternalApi::$classLogger->error("Credential signing failed: $exception");
+            throw new Exception("Credential signing failed: $exception");
         }
     }
 
     public function acceptRequest(Credential $data): ?Credential
     {
-        $this->logger->info("acceptRequest: Issuing a credential ...");
+        $this->logger->info('acceptRequest: Issuing a credential ...');
 
         // todo: don't pass id via status..
         $id = $data->getStatus();
@@ -490,8 +487,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
             throw new Exception('No Connection');
-
-            return null;
+            //return null;
         }
 
         // todo: fix naming
@@ -504,87 +500,86 @@ class DidExternalApi implements DidConnectionProviderInterface
         $this->logger->info("STEP 1: Build credential of type: $type");
 
         if ($type === 'diplomas') {
-
             $diploma = $this->diplomaApi->getDiplomaById($id);
 
             $cred = [
-                        '@context' => [
-                            'https://www.w3.org/2018/credentials/v1',
-                            'https://www.w3.org/2018/credentials/examples/v1',
-                        ],
-                        'type' => [
-                            'VerifiableCredential',
-                            'UniversityDegreeCredential',
-                        ],
-                        'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/'.$diploma->getIdentifier(),
-                        'credentialSubject' => [
-                            'id' => 'sample-student-id2',
-                            'name' => $diploma->getName(),
-                            // todo: fix typo
-                            'achievenmentDate' => $diploma->getAchievenmentDate(),
-                            'academicDegree' => $diploma->getAcademicDegree(),
-                        ],
-                        'issuanceDate' => '2021-01-01T19:23:24Z',  
-                        'issuer' => $this->uniAgentDID     
-                    ];
+                '@context' => [
+                    'https://www.w3.org/2018/credentials/v1',
+                    'https://www.w3.org/2018/credentials/examples/v1',
+                ],
+                'type' => [
+                    'VerifiableCredential',
+                    'UniversityDegreeCredential',
+                ],
+                'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/'.$diploma->getIdentifier(),
+                'credentialSubject' => [
+                    'id' => 'sample-student-id2',
+                    'name' => $diploma->getName(),
+                    // todo: fix typo
+                    'achievenmentDate' => $diploma->getAchievenmentDate(),
+                    'academicDegree' => $diploma->getAcademicDegree(),
+                ],
+                'issuanceDate' => '2021-01-01T19:23:24Z',
+                'issuer' => $this->uniAgentDID,
+            ];
         } elseif ($type === 'course-grades') {
             $courseGrade = $this->courseApi->getCourseGradeById($id);
 
             $cred = [
-                        '@context' => [
-                            'https://www.w3.org/2018/credentials/v1',
-                            'https://www.w3.org/2018/credentials/examples/v1',
-                        ],
-                        'type' => [
-                            'VerifiableCredential',
-                            'UniversityDegreeCredential',
-                        ],
-                        'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/'.$courseGrade->getIdentifier(),
-                        'credentialSubject' => [
-                            'id' => 'sample-student-id2',
-                            'name' => $courseGrade->getName(),
-                            // todo: fix typo
-                            'achievenmentDate' => $courseGrade->getAchievenmentDate(),
-                            'grade' => $courseGrade->getGrade(),
-                            'credits' => $courseGrade->getCredits(),
-                        ],
-                        'issuanceDate' => '2021-01-01T19:23:24Z',
-                        'issuer' => $this->uniAgentDID
-                    ];
+                '@context' => [
+                    'https://www.w3.org/2018/credentials/v1',
+                    'https://www.w3.org/2018/credentials/examples/v1',
+                ],
+                'type' => [
+                    'VerifiableCredential',
+                    'UniversityDegreeCredential',
+                ],
+                'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/'.$courseGrade->getIdentifier(),
+                'credentialSubject' => [
+                    'id' => 'sample-student-id2',
+                    'name' => $courseGrade->getName(),
+                    // todo: fix typo
+                    'achievenmentDate' => $courseGrade->getAchievenmentDate(),
+                    'grade' => $courseGrade->getGrade(),
+                    'credits' => $courseGrade->getCredits(),
+                ],
+                'issuanceDate' => '2021-01-01T19:23:24Z',
+                'issuer' => $this->uniAgentDID,
+            ];
         } else {
             $this->logger->error("Unknown credential type: $type");
         }
 
         // STEP 2: Sign credential using /verifiable/signcredential
-        $this->logger->info("STEP 2: Sign credential");
+        $this->logger->info('STEP 2: Sign credential');
 
         $signrequest = [
             'created' => '2021-06-15T15:04:06Z',
             'did' => $this->uniAgentDID,
             'signatureType' => 'Ed25519Signature2018',
-            'credential' => $cred
+            'credential' => $cred,
         ];
 
         $signedCred = DidExternalApi::signCredential(DidExternalApi::$UNI_AGENT_URL, $signrequest);
         $signedCred = json_decode($signedCred)->verifiableCredential;
 
         // STEP 3: Build credential datastructure
-        $this->logger->info("Build credential datastructure");
+        $this->logger->info('Build credential datastructure');
         $credAnswer = [
-                'issue_credential' => [
-                    'credentials~attach' => [
-                        [
-                            //'lastmod_time' => '0001-01-01T00:00:00Z',
-                            'data' => [
-                                'json' => $signedCred,
-                            ],
+            'issue_credential' => [
+                'credentials~attach' => [
+                    [
+                        //'lastmod_time' => '0001-01-01T00:00:00Z',
+                        'data' => [
+                            'json' => $signedCred,
                         ],
                     ],
                 ],
-            ];
+            ],
+        ];
 
         // STEP 4: Issue credential
-        $this->logger->info("STEP 4: Issue credential ...");
+        $this->logger->info('STEP 4: Issue credential ...');
         $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid, $credAnswer);
 
         // todo: remove this temp thing.

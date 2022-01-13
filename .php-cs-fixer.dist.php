@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $finder = PhpCsFixer\Finder::create()
     ->ignoreDotFiles(false)
     ->ignoreVCSIgnored(true)
@@ -27,4 +29,5 @@ $config
     ->setRiskyAllowed(true)
     ->setFinder($finder)
 ;
+
 return $config;

@@ -7,8 +7,8 @@ namespace VC4SM\Bundle\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
-use VC4SM\Bundle\Controller\SendOffer;
 use VC4SM\Bundle\Controller\AcceptRequest;
+use VC4SM\Bundle\Controller\SendOffer;
 
 // todo: schema
 /**
@@ -42,6 +42,7 @@ class Credential
 
     /**
      * todo: schema.
+     *
      * @Groups({"Credential:output", "Credential:input"})
      *
      * @var string
@@ -50,6 +51,7 @@ class Credential
 
     /**
      * todo: schema.
+     *
      * @Groups({"Credential:output", "Credential:input"})
      *
      * @var string
@@ -58,6 +60,7 @@ class Credential
 
     /**
      * todo: schema.
+     *
      * @Groups({"Credential:output", "Credential:input"})
      *
      * @var string

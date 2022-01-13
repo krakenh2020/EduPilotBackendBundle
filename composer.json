@@ -6,7 +6,8 @@
         "php": "^7.3",
         "symfony/framework-bundle": "^5.2",
         "dbp/relay-core-bundle": "^0.1.10",
-        "dbp/relay-keycloak-bundle": "^0.1.1"
+        "dbp/relay-keycloak-bundle": "^0.1.1",
+        "ext-json": "*"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
