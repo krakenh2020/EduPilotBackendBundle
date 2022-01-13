@@ -22,6 +22,9 @@ jobs:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
+      - name: Install PHP dependencies
+          uses: php-actions/composer@v6
+
       - name: Run tests
         uses: php-actions/composer@v6
         with:
