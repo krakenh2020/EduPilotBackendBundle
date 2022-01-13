@@ -9,16 +9,15 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('vc4sm');
 
         $treeBuilder->getRootNode()
             ->children()
-                        ->scalarNode('aries_agent_university')->end()
-                        ->scalarNode('aries_agent_university2')->end()
-            ->end()
-        ;
+            ->scalarNode('aries_agent_university')->end()
+            ->scalarNode('aries_agent_university2')->end()
+            ->end();
 
         return $treeBuilder;
     }

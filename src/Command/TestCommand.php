@@ -24,7 +24,7 @@ class TestCommand extends Command
         $this->setDescription('Hey there!');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $argument = $input->getArgument('argument');
         $output->writeln($argument);

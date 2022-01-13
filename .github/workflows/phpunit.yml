@@ -1,4 +1,4 @@
-name: Build, Deploy
+name: Build, Test
 
 on:
  push:
@@ -19,8 +19,15 @@ jobs:
       - name: Install PHP dependencies
         uses: php-actions/composer@v6
 
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
       - name: Run tests
         uses: php-actions/composer@v6
         with:
+          version: 2
           command: test
 
