@@ -7,6 +7,7 @@ namespace VC4SM\Bundle\Tests\Service;
 use PHPUnit\Framework\TestCase;
 use VC4SM\Bundle\Service\DidExternalApi;
 use VC4SM\Bundle\Service\ExternalApi;
+use VC4SM\Bundle\Tests\Kernel;
 
 class DidExternalApiTest extends TestCase
 {
@@ -14,9 +15,14 @@ class DidExternalApiTest extends TestCase
 
     protected function setUp(): void
     {
-        //self::bootKernel();
+        $kernel = new Kernel([
+            'aries_agent_university' => 'https://kraken.iaik.tugraz.at',
+            'aries_agent_university2' => 'https://krakenh2020.eu',
+        ]);
+        $kernel->boot();
+        $container = $kernel->getContainer();
 
-        //$this->api = new DidExternalApi();
+        $this->api = $container->get('VC4SM\Bundle\Service\DidExternalApi');
 
         DidExternalApi::$classLogger = new MockLogger();
     }
