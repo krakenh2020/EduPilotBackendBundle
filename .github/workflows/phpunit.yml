@@ -16,9 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install PHP dependencies
-        uses: php-actions/composer@v6
-
       - name: Cache Composer dependencies
         uses: actions/cache@v2
         with:
@@ -31,3 +28,24 @@ jobs:
           version: 2
           command: test
 
+
+      - name: Run CS
+        continue-on-error: true
+        uses: php-actions/composer@v6
+        with:
+          version: 2
+          command: run cs
+
+      - name: Run phpstan
+        continue-on-error: true
+        uses: php-actions/composer@v6
+        with:
+          version: 2
+          command: run phpstan
+
+      - name: Run psalm
+        continue-on-error: true
+        uses: php-actions/composer@v6
+        with:
+          version: 2
+          command: run psalm
