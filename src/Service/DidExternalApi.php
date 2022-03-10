@@ -7,6 +7,11 @@ namespace VC4SM\Bundle\Service;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
 
@@ -73,7 +78,12 @@ class DidExternalApi implements DidConnectionProviderInterface
         $PATH_CONNECTIONS = '/connections'; // path known to exist for aries agents
         $url = $baseUrl . $PATH_CONNECTIONS;
 
-        $res = SimpleHttpClient::request($url);
+        try {
+            $res = SimpleHttpClient::request($url);
+        } catch (HttpExceptionInterface $e) {
+            $this->logger->warning($e);
+            return false;
+        }
 
         if ($res['status_code'] !== 200) {
             return false;
@@ -117,12 +127,12 @@ class DidExternalApi implements DidConnectionProviderInterface
         foreach ($invites->results as $invite) {
             // todo: skip accept and return good result if State === responded or completed.
             if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
-                $this->logger->info('Invitation found and state is requested! Accepting it ...');
+                $this->logger->info('Invitation found and state is "requested"! Accepting it ...');
                 $connectionId = $invite->ConnectionID;
                 $acceptRes = $this->agent->acceptInviteRequest($connectionId);
 
                 $this->logger->info("acceptRes: $acceptRes");
-                if ($acceptRes === '') {
+                if ($acceptRes == null || $acceptRes === '') {
                     throw new Exception('Failed to accept connection request.');
                 }
                 $oneAccepted = true;
@@ -196,7 +206,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $this->didConnections;
     }
 
-    public function getCredentialById(string $identifier): ?Credential
+    /*public function getCredentialById(string $identifier): ?Credential
     {
         // TODO: check if this is actually used by frontend
 
@@ -207,7 +217,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $credential->setStatus('asdf');
 
         return $credential;
-    }
+    }*/
 
     public function buildOfferRequest(string $myDid, string $theirDid, $api, $type, $id)
     {
@@ -307,7 +317,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $this->checkAgentConnection();
 
-        $this->logger->info('Send offer for status:' . $data->getStatus());
+        $this->logger->info('Send offer for credential: ' . $data->getStatus());
 
         $id = $data->getStatus();
         $type = explode('/', $id)[1];
@@ -315,7 +325,10 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $api = $type === 'diplomas' ? $this->diplomaApi : $this->courseApi;
 
-        $response = $this->agent->sendOfferRequest($data->getMyDid(), $data->getTheirDid(), $api, $type, $id);
+        $credoffer = self::buildOfferRequest($data->getMyDid(), $data->getTheirDid(), $api, $type, $id);
+        $response = $this->agent->sendOfferRequest($credoffer);
+
+        if ($response == null) return null;
 
         // todo: remove this temp thing.
         $data->setIdentifier($id);

@@ -84,8 +84,8 @@ class AriesAgentClient
 
     public function acceptConnectionInvite(string $connectionId): string
     {
-        $PATH_CREATE_INVITATION = '/connections/' . $connectionId . '/accept-invitation';
-        $url = $this->agentUrl . $PATH_CREATE_INVITATION;
+        $PATH_ACCEPT_INVITATION = '/connections/' . $connectionId . '/accept-invitation';
+        $url = $this->agentUrl . $PATH_ACCEPT_INVITATION;
 
         try {
             $res = SimpleHttpClient::request($url, 'POST');
@@ -104,8 +104,8 @@ class AriesAgentClient
 
     public function listConnections(): string
     {
-        $PATH_CREATE_INVITATION = '/connections';
-        $url = $this->agentUrl . $PATH_CREATE_INVITATION;
+        $PATH_GET_CONNECTIONS = '/connections';
+        $url = $this->agentUrl . $PATH_GET_CONNECTIONS;
 
         try {
             $res = SimpleHttpClient::request($url, 'GET');
@@ -124,8 +124,8 @@ class AriesAgentClient
 
     public function getConnectionById(string $id): string
     {
-        $PATH_CREATE_INVITATION = '/connections/' . $id;
-        $url = $this->agentUrl . $PATH_CREATE_INVITATION;
+        $PATH_GET_CONNECTION = '/connections/' . $id;
+        $url = $this->agentUrl . $PATH_GET_CONNECTION;
 
         try {
             $res = SimpleHttpClient::request($url, 'GET');
@@ -142,16 +142,16 @@ class AriesAgentClient
         return '';
     }
 
-    public function acceptInviteRequest(string $identifier): string
+    public function acceptInviteRequest(string $identifier): ?string
     {
-        $PATH_CREATE_INVITATION = '/connections/' . $identifier . '/accept-request';
-        $url = $this->agentUrl . $PATH_CREATE_INVITATION;
+        $PATH_ACCEPT_INVITATION = '/connections/' . $identifier . '/accept-request';
+        $url = $this->agentUrl . $PATH_ACCEPT_INVITATION;
 
         try {
             $res = SimpleHttpClient::request($url, 'POST');
             if ($res['status_code'] !== 200) {
                 $this->logger->warning('acceptInviteRequest status code: ' . $res['status_code']);
-                return '';
+                return null;
             }
 
             return $res['contents'];
@@ -159,21 +159,21 @@ class AriesAgentClient
             $this->logger->warning('acceptInviteRequest exception: ' . $exception);
         }
 
-        return '';
+        return null;
     }
 
-    public function sendOfferRequest(string $myDid, string $theirDid, $api, $type, $id): string
+    public function sendOfferRequest($credoffer): ?string
     {
-        $PATH_CREATE_INVITATION = '/issuecredential/send-offer';
-        $url = $this->agentUrl . $PATH_CREATE_INVITATION;
+        $PATH_SEND_OFFER = '/issuecredential/send-offer';
+        $url = $this->agentUrl . $PATH_SEND_OFFER;
+
+        //print_r($credoffer);
 
         try {
-            $credoffer = DidExternalApi::buildOfferRequest($myDid, $theirDid, $api, $type, $id);
-
             $res = SimpleHttpClient::request($url, 'POST', $credoffer);
             if ($res['status_code'] !== 200) {
                 $this->logger->warning('sendOfferRequest status code: ' . $res['status_code']);
-                return '';
+                return null;
             }
 
             return $res['contents'];
@@ -181,13 +181,13 @@ class AriesAgentClient
             $this->logger->warning('sendOfferRequest exception: ' . $exception);
         }
 
-        return '';
+        return null;
     }
 
     public function acceptRequestRequest(string $credoffer_piid, array $cred): string
     {
-        $PATH_CREATE_INVITATION = '/issuecredential/' . $credoffer_piid . '/accept-request';
-        $url = $this->agentUrl . $PATH_CREATE_INVITATION;
+        $PATH_ACCEPT_RREQUEST = '/issuecredential/' . $credoffer_piid . '/accept-request';
+        $url = $this->agentUrl . $PATH_ACCEPT_RREQUEST;
 
         try {
             $res = SimpleHttpClient::request($url, 'POST', $cred);
@@ -216,7 +216,7 @@ class AriesAgentClient
             $res = SimpleHttpClient::request($url, 'POST', $cred);
             if ($res['status_code'] !== 200) {
                 $code = $res['status_code'];
-                $this->logger->error("Credential signing failed: HTTP $code");
+                $this->logger->error("Credential signing failed: HTTP $code -> " . $res['contents']);
             }
 
             return $res['contents'];
