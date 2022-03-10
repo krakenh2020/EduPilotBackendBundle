@@ -93,7 +93,7 @@ class DidExternalApiTest extends TestCase
     {
         //$studentAgentUrl = "http://localhost:8092";
         $studentAgentUrl = "https://kraken.iaik.tugraz.at";
-        $studentAgent = new AriesAgentClient(new AgentMockLogger('StudentAgent'), $studentAgentUrl, "did:student");
+        $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, "did:student");
         $this->assertTrue($studentAgent->checkConnection(), "Could not connect to student agent ...");
 
         // University: Create Invite
@@ -159,7 +159,7 @@ class DidExternalApiTest extends TestCase
 
 }
 
-class AgentMockLogger
+class AgentMockLogger2
 {
     private $agentName;
 
