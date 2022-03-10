@@ -5,23 +5,57 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Service;
 
 use Exception;
+use Symfony\Component\HttpClient\HttpClient;
 
 class SimpleHttpClient
 {
     //public static $classLogger = null;
 
-    // TODO: migrate class to something more stable
-    // like https://symfony.com/doc/current/http_client.html
-    // → $client = HttpClient::create();
+    private $client;
 
-
-    public static function request(string $url, string $method = 'GET', array $data = []): array
+    public function __construct()
     {
-        // TODO: replace with secure implementation
-        return self::requestInsecure($url, $method, $data);
+        $this->client = HttpClient::create();
     }
 
-    public static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
+    /**
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     */
+    public static function request(string $url, string $method = 'GET', array $data = []): array
+    {
+        //return self::requestInsecure($url, $method, $data);
+
+        $c = new SimpleHttpClient();
+        return $c->requestSymfony($url, $method, $data);
+    }
+
+    /**
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     */
+    public function requestSymfony(string $url, string $method = 'GET', array $data = []): array
+    {
+        // uses https://symfony.com/doc/current/http_client.html
+
+        if ($data != null) {
+            $response = $this->client->request($method, $url, ['json' => $data]);
+        } else {
+            $response = $this->client->request($method, $url);
+        }
+
+        return [
+            'contents' => $response->getContent(),
+            'status_code' => $response->getStatusCode(),
+        ];
+    }
+
+    public
+    static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
     {
         $options = [
             'http' => [
