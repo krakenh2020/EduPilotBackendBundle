@@ -143,7 +143,13 @@ class DidExternalApiTest extends TestCase
 
         // University: Poll if invite accepted (yes)
 
-        $uniConnection = $this->api->getDidConnectionById($connection_id);
+        //  not sure if the problem is that the test is faster than the agent:
+        for ($i = 0; $i < 60; $i++) {
+            $uniConnection = $this->api->getDidConnectionById($connection_id);
+            if ($uniConnection != null) break;
+            sleep(1);
+        }
+
         $this->assertNotNull($uniConnection, "Could not find accepted invite.");
         $this->assertNotEmpty($uniConnection);
         //print_r($uniConnection->getInvitation());
@@ -210,7 +216,13 @@ class DidExternalApiTest extends TestCase
 
         // University: Poll if invite accepted (yes)
 
-        $uniConnection = $this->api->getDidConnectionById($connection_id);
+        //  not sure if the problem is that the test is faster than the agent:
+        for ($i = 0; $i < 60; $i++) {
+            $uniConnection = $this->api->getDidConnectionById($connection_id);
+            if ($uniConnection != null) break;
+            sleep(1);
+        }
+
         $this->assertNotNull($uniConnection, "Could not find accepted invite.");
         $this->assertNotEmpty($uniConnection);
         //print_r($uniConnection->getInvitation());

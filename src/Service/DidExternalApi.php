@@ -133,7 +133,8 @@ class DidExternalApi implements DidConnectionProviderInterface
 
                 $this->logger->info("acceptRes: $acceptRes");
                 if ($acceptRes == null || $acceptRes === '') {
-                    throw new Exception('Failed to accept connection request.');
+                    $this->logger->warning('Failed to accept connection request.');
+                    return null;
                 }
                 $oneAccepted = true;
                 break;
