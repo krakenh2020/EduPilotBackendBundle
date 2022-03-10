@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Tests\Service;
 
 use PHPUnit\Framework\TestCase;
+use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Service\AriesAgentClient;
 use VC4SM\Bundle\Service\DidExternalApi;
@@ -89,7 +90,7 @@ class DidExternalApiTest extends TestCase
         $this->assertEquals($theirdid, $offer['their_did']);
     }
 
-    public function testFlowAccept()
+    public function testInviteFlow()
     {
         //$studentAgentUrl = "http://localhost:8092";
         $studentAgentUrl = "https://kraken.iaik.tugraz.at";
@@ -144,18 +145,113 @@ class DidExternalApiTest extends TestCase
 
         $uniConnection = $this->api->getDidConnectionById($connection_id);
         $this->assertNotNull($uniConnection, "Could not find accepted invite.");
-        print_r($uniConnection);
         $this->assertNotEmpty($uniConnection);
+        //print_r($uniConnection->getInvitation());
 
+        $uniAcceptedInvite = json_decode($uniConnection->getInvitation());
+        //echo "MyDID= " . $uniAcceptedInvite->MyDID;
+        //echo "TheirDID= " . $uniAcceptedInvite->TheirDID;
+
+        ///////////////////////////////////////////////////////////////////////
         // done, connection established!
-
         $this->assertTrue(true);
     }
 
-    public function testFlowFull()
+    public function testFullFlow()
     {
+        //$studentAgentUrl = "http://localhost:8092";
+        $studentAgentUrl = "https://kraken.iaik.tugraz.at";
+        $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, "did:student");
+        $this->assertTrue($studentAgent->checkConnection(), "Could not connect to student agent ...");
+
+        // University: Create Invite
+
+        $connections = $this->api->getDidConnections();
+        $this->assertEquals(1, count($connections));
+
+        $connection = $connections[0];
+        $this->assertInstanceOf(DidConnection::class, $connection);
+
+        $invite = $connection->getInvitation();
+        $this->assertNotNull($invite);
+        $this->assertNotEmpty($invite);
+
+        $invite = json_decode($invite);
+
+        // University: Frontend polls if invite accepted (not yet)
+
+        $this->assertTrue(isset($invite->invitation));
+        $this->assertTrue(isset($invite->invitation->{'@id'}));
+
+        $connection_id = $invite->invitation->{'@id'};
+
+        $connection = $this->api->getDidConnectionById($connection_id);
+        $this->assertNull($connection, "Found accepted invite, but student did not accept yet.");
+
+        // Student: Receive Invite
+        //   POST /connections/receive-invitation → connection with $invite->invitation
+        //   connectionId = connection['connection_id']
+
+        // via https://stackoverflow.com/a/18576902/1518225
+        $inviteAsArray = json_decode(json_encode($invite->invitation), true);
+        $studentConnection = $studentAgent->receiveConnectionInvite($inviteAsArray);
+
+        $this->assertNotEmpty($studentConnection);
+        $studentConnection = json_decode($studentConnection);
+
+        $this->assertTrue(isset($studentConnection->connection_id));
+        $studentConnectionId = $studentConnection->connection_id;
+
+        // Student: Accept invite
+        // POST '/connections/' + connectionId + '/accept-invitation'
+
+        $inviteAcceptDetails = $studentAgent->acceptConnectionInvite($studentConnectionId);
+        $this->assertNotEmpty($inviteAcceptDetails);
+
+        // University: Poll if invite accepted (yes)
+
+        $uniConnection = $this->api->getDidConnectionById($connection_id);
+        $this->assertNotNull($uniConnection, "Could not find accepted invite.");
+        $this->assertNotEmpty($uniConnection);
+        //print_r($uniConnection->getInvitation());
+
+        $uniAcceptedInvite = json_decode($uniConnection->getInvitation());
+        //echo "MyDID= " . $uniAcceptedInvite->MyDID;
+        //echo "TheirDID= " . $uniAcceptedInvite->TheirDID;
+
+        ///////////////////////////////////////////////////////////////////////
+        // done, connection established!
+        $this->assertTrue(true);
+
+        // University: Send credential offer
+
+        $credId = "/diplomas/bsc1";
+
+        $cred = new Credential("", $uniAcceptedInvite->MyDID, $uniAcceptedInvite->TheirDID, $credId);
+        $credofferResp = $this->api->sendOffer($cred);
+
+        $this->assertNotNull($credofferResp);
+        print_r($credofferResp); // contains PIID in myDID field → send back via myDID field to acceptRequest
+
+        // University: Frontend polls if credential accepted (not yet)
+
+        $credoffer_piid = '?';
+        $cred2 = new Credential("", $credoffer_piid, "", $credId);
+        $credAcceptResp = $this->api->acceptRequest($cred2);
+
+        $this->assertNotNull($credAcceptResp);
+        print_r($credAcceptResp);
+
+        // Student: Accept cred offer 
+
+
+        // University: Frontend polls if credential accepted (yes!)
+        // → issue credential
+
+        // done, credential issued!
         $this->assertTrue(true);
     }
+
 
 }
 
