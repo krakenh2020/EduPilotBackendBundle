@@ -1,16 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace VC4SM\Bundle\Service;
 
 class SimpleHttpClient
 {
     // TODO: migrate to something more stable
+    // like https://symfony.com/doc/current/http_client.html
+    // → $client = HttpClient::create();
 
     /**
      * see: https://stackoverflow.com/a/49299689/782920 .
      */
     private static function getHttpCode($http_response_header): int
     {
+
         if (is_array($http_response_header)) {
             $parts = explode(' ', $http_response_header[0]);
             if (count($parts) > 1) { //HTTP/1.0 <code> <text>
@@ -58,5 +63,4 @@ class SimpleHttpClient
             'status_code' => SimpleHttpClient::getHttpCode($http_response_header),
         ];
     }
-
 }
