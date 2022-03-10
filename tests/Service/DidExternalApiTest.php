@@ -24,18 +24,16 @@ class DidExternalApiTest extends TestCase
         $container = $kernel->getContainer();
 
         $this->api = $container->get('VC4SM\Bundle\Service\DidExternalApi');
-
-        DidExternalApi::$classLogger = new MockLogger();
     }
 
     public function testLogger()
     {
-        DidExternalApi::$classLogger->info('Init logger');
+        $this->api->getLogger()->info('Init logger');
 
         $this->assertTrue(true);
     }
 
-    public function testHttpClient()
+    public function testHttpClientInsecure()
     {
         $url = 'https://krakenh2020.eu';
         $res = SimpleHttpClient::requestInsecure($url, 'GET');
@@ -54,20 +52,7 @@ class DidExternalApiTest extends TestCase
         $this->assertFalse($ret2);
     }
 
-    public function testCreateInvite()
-    {
-        /*
-           http POST "https://kraken.iaik.tugraz.at/connections/create-invitation?alias=STEFAN"
-        */
-
-        $invite = DidExternalApi::createInvitation('https://kraken.iaik.tugraz.at'); // (public) remote agent
-
-        //print_r($invite);
-
-        $j = json_decode($invite);
-        $this->assertEquals('TU Graz KRAKEN Demo', $j->alias);
-    }
-
+    
     public function testBuildOfferRequestDiploma()
     {
         $mydid = 'did:myDID';
@@ -100,18 +85,5 @@ class DidExternalApiTest extends TestCase
 
         $this->assertEquals($mydid, $offer['my_did']);
         $this->assertEquals($theirdid, $offer['their_did']);
-    }
-}
-
-class MockLogger
-{
-    public function warning($text)
-    {
-        echo 'Warning: '.$text."\n";
-    }
-
-    public function info($text)
-    {
-        echo 'Info: '.$text."\n";
     }
 }

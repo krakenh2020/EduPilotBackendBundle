@@ -6,6 +6,8 @@ namespace VC4SM\Bundle\Service;
 
 class SimpleHttpClient
 {
+    //public static $classLogger = null;
+
     // TODO: migrate to something more stable
     // like https://symfony.com/doc/current/http_client.html
     // → $client = HttpClient::create();
@@ -24,6 +26,12 @@ class SimpleHttpClient
         }
 
         return 0;
+    }
+
+    public static function request(string $url, string $method = 'GET', array $data = []): array
+    {
+        // TODO: replace with secure implementation
+        return self::requestInsecure($url, $method, $data);
     }
 
     public static function requestInsecure(string $url, string $method = 'GET', array $data = []): array
@@ -45,12 +53,12 @@ class SimpleHttpClient
         try {
             $body = @file_get_contents($url, false, stream_context_create($options));
         } catch (Exception $e) {
-            DidExternalApi::$classLogger->warning("$e");
+            //self::$classLogger->warning("$e");
             $body = false;
         }
 
         if ($body === false) {
-            DidExternalApi::$classLogger->warning("Error while connecting to $url");
+            //self::$classLogger->warning("Error while connecting to $url");
 
             return [
                 'contents' => '',
@@ -60,7 +68,7 @@ class SimpleHttpClient
 
         return [
             'contents' => $body,
-            'status_code' => SimpleHttpClient::getHttpCode($http_response_header),
+            'status_code' => self::getHttpCode($http_response_header),
         ];
     }
 }

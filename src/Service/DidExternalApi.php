@@ -13,40 +13,48 @@ use VC4SM\Bundle\Entity\Diploma;
 
 class DidExternalApi implements DidConnectionProviderInterface
 {
-    private static $UNI_AGENT_URL = ''; //'https://agent.university-agent.demo:8082';
-    public static $classLogger = null;
+    //private static $UNI_AGENT_URL = ''; //'https://agent.university-agent.demo:8082';
+    //public static $classLogger = null;
 
     private $didConnections;
     private $courseApi;
     private $diplomaApi;
     private $logger;
     private $uniAgentDID;
+    private $agent;
 
+    /**
+     * @throws Exception
+     */
     public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi, ContainerInterface $container, LoggerInterface $logger)
     {
-        $logger->info('I just got the logger');
+        $logger->info('DidExternalApi just got the logger');
         $this->logger = $logger;
-        DidExternalApi::$classLogger = $logger;
+        //DidExternalApi::$classLogger = $logger;
+
+        // TODO: move to configuration, use variable from ansible
+        $this->uniAgentDID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr';
 
         $agent1 = $container->getParameter('vc4sm.aries_agent_university');
         $agent2 = $container->getParameter('vc4sm.aries_agent_university2');
-
         $this->logger->info("agent1: $agent1");
         $this->logger->info("agent2: $agent2");
         if (DidExternalApi::checkConnection($agent1)) {
-            $agent = $agent1;
+            $agentUrl = $agent1;
         } elseif (DidExternalApi::checkConnection($agent2)) {
-            $agent = $agent2;
+            $agentUrl = $agent2;
         } else {
             throw new Exception('None of the two configured agents is reachable ...');
         }
 
-        DidExternalApi::$UNI_AGENT_URL = $agent;
-        $this->logger->info("Using Aries agent at $agent.");
+        //DidExternalApi::$UNI_AGENT_URL = $agentUrl;
+        $this->logger->info("Using Aries agent at $agentUrl.");
+        $this->agent = new AriesAgentClient($this->logger, $agentUrl, $this->uniAgentDID);
 
         $this->courseApi = $courseApi;
         $this->diplomaApi = $diplomaApi;
 
+        /*
         // DidConnections
         $this->didConnections = [];
         $didConnection1 = new DidConnection();
@@ -67,103 +75,47 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
 
         $this->didConnections[] = $didConnection1;
-
-        // TODO: move to configuration, use variable from ansible
-        $this->uniAgentDID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr';
+        */
 
         $this->logger->info('DidExternalApi initialized!');
     }
 
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
+    }
+    
 
     public static function checkConnection(string $baseUrl): bool
     {
-        $PATH_CONNECTIONS = '/connections';
-        $url = $baseUrl.$PATH_CONNECTIONS;
-        // todo: unsecure
-        $res = SimpleHttpClient::requestInsecure($url);
+        $PATH_CONNECTIONS = '/connections'; // path known to exist for aries agents
+        $url = $baseUrl . $PATH_CONNECTIONS;
+
+        $res = SimpleHttpClient::request($url);
 
         if ($res['status_code'] !== 200) {
-            DidExternalApi::$classLogger->warning("Check connection to $baseUrl, status code: ".$res['status_code']);
-
             return false;
         }
 
         return true;
     }
 
-    public static function createInvitation(string $baseUrl): string
+    public function checkAgentConnection(): void
     {
-        $alias = 'TU Graz KRAKEN Demo';
-        $PATH_CREATE_INVITATION = '/connections/create-invitation';
-        $url = $baseUrl.$PATH_CREATE_INVITATION.'?alias='.urlencode($alias);
-
-        try {
-            // todo: unsecure
-            $res = SimpleHttpClient::requestInsecure($url, 'POST');
-            if ($res['status_code'] !== 200) {
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            return '';
+        if (!$this->checkConnection()) {
+            throw new Exception('No connection to agent at ' . $this->agent->getAgentUrl());
         }
     }
 
-    private static function listConnections(string $baseUrl): string
-    {
-        $PATH_CREATE_INVITATION = '/connections';
-        $url = $baseUrl.$PATH_CREATE_INVITATION;
-        try {
-            // todo: unsecure
-            $res = SimpleHttpClient::requestInsecure($url, 'GET');
-            if ($res['status_code'] !== 200) {
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            return '';
-        }
-    }
-
-    private static function getConnectionById(string $baseUrl, string $id): string
-    {
-        $PATH_CREATE_INVITATION = '/connections/'.$id;
-        $url = $baseUrl.$PATH_CREATE_INVITATION;
-        try {
-            // todo: unsecure
-            $res = SimpleHttpClient::requestInsecure($url, 'GET');
-            if ($res['status_code'] !== 200) {
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            return '';
-        }
-    }
-
-    private static function acceptInviteRequest(string $baseUrl, string $identifier): string
-    {
-        $PATH_CREATE_INVITATION = '/connections/'.$identifier.'/accept-request';
-        $url = $baseUrl.$PATH_CREATE_INVITATION;
-        try {
-            // todo: unsecure
-            $res = SimpleHttpClient::requestInsecure($url, 'POST');
-            if ($res['status_code'] !== 200) {
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            return '';
-        }
-    }
 
     public function getDidConnectionById(string $identifier): ?DidConnection
     {
         $this->logger->info('getDidConnectionById ...');
+        checkAgentConnection();
+
         $didConnection = new DidConnection();
         $didConnection->setIdentifier($identifier);
         // todo: change
@@ -171,13 +123,9 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $oneAccepted = false;
         $connectionId = '';
-        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
-            throw new Exception('No Connection');
-            //return null;
-        }
-        $inviteContents = DidExternalApi::listConnections(DidExternalApi::$UNI_AGENT_URL);
-        $invites = json_decode($inviteContents);
+        $inviteContents = $this->agent->listConnections();
 
+        $invites = json_decode($inviteContents);
         $this->logger->info("Invites: $inviteContents");
 
         // check if request actually returned something:
@@ -193,19 +141,21 @@ class DidExternalApi implements DidConnectionProviderInterface
             // todo: skip accept and return good result if State === responded or completed.
             if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
                 $connectionId = $invite->ConnectionID;
-                $acceptRes = DidExternalApi::acceptInviteRequest(DidExternalApi::$UNI_AGENT_URL, $connectionId);
+                $acceptRes = $this->agent->acceptInviteRequest($connectionId);
+
                 $this->logger->info("acceptRes: $acceptRes");
                 if ($acceptRes === '') {
                     throw new Exception('Accept failed');
-                    //return null;
                 }
                 $oneAccepted = true;
                 break;
+
             } elseif ($invite->InvitationID === $identifier && $invite->State === 'responded') {
                 $this->logger->info('Invitation found but already accepted ... moving on.');
                 $connectionId = $invite->ConnectionID;
                 $oneAccepted = true;
                 break;
+
             } else {
                 $this->logger->info("InvitationID: $invite->InvitationID, \n requested: $identifier, \n state: $invite->State");
             }
@@ -217,8 +167,9 @@ class DidExternalApi implements DidConnectionProviderInterface
             return null;
         }
 
-        $connContents = DidExternalApi::getConnectionById(DidExternalApi::$UNI_AGENT_URL, $connectionId);
+        $connContents = $this->agent->getConnectionById($connectionId);
         $conn = json_decode($connContents);
+
         if ($conn->result->State === 'responded' || $conn->result->State === 'completed') {
             $didConnection->setInvitation(json_encode($conn->result, 0, 512));
 
@@ -229,10 +180,10 @@ class DidExternalApi implements DidConnectionProviderInterface
         //return null;
     }
 
-    public function getDidConnections(): array
+    /*public function getDidConnections(): array
     {
         return $this->didConnections;
-    }
+    }*/
 
     public function getCredentialById(string $identifier): ?Credential
     {
@@ -336,44 +287,23 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $credoffer;
     }
 
-    private static function sendOfferRequest(string $baseUrl, string $myDid, string $theirDid, $api, $type, $id): string
-    {
-        $PATH_CREATE_INVITATION = '/issuecredential/send-offer';
-        $url = $baseUrl.$PATH_CREATE_INVITATION;
-        try {
-            $credoffer = DidExternalApi::buildOfferRequest($myDid, $theirDid, $api, $type, $id);
-
-            // todo: unsecure
-            $res = SimpleHttpClient::requestInsecure($url, 'POST', $credoffer);
-            if ($res['status_code'] !== 200) {
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            return '';
-        }
-    }
 
     public function sendOffer(Credential $data): ?Credential
     {
         //$data->setIdentifier('some id');
         //$data->setStatus('try offer...');
 
-        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
-            throw new Exception('No Connection');
-            //return null;
-        }
+        $this->checkAgentConnection();
 
-        DidExternalApi::$classLogger->info('Send offer for status:'.$data->getStatus());
-        //DidExternalApi::$classLogger->info("Send offer for credential:" . $data->getIdentifier());
+        $this->logger->info('Send offer for status:' . $data->getStatus());
+
         $id = $data->getStatus();
         $type = explode('/', $id)[1];
         $id = explode('/', $id)[2];
 
         $api = $type === 'diplomas' ? $this->diplomaApi : $this->courseApi;
 
-        $response = DidExternalApi::sendOfferRequest(DidExternalApi::$UNI_AGENT_URL, $data->getMyDid(), $data->getTheirDid(), $api, $type, $id);
+        $response = $this->agent->sendOfferRequest($data->getMyDid(), $data->getTheirDid(), $api, $type, $id);
 
         // todo: remove this temp thing.
         $data->setIdentifier($id);
@@ -383,60 +313,17 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $data;
     }
 
-    // todo: accept diploma or coursegrade
-    private static function acceptRequestRequest(string $baseUrl, string $credoffer_piid, array $cred): string
-    {
-        $PATH_CREATE_INVITATION = '/issuecredential/'.$credoffer_piid.'/accept-request';
-        $url = $baseUrl.$PATH_CREATE_INVITATION;
-
-        // todo: add diploma
-        try {
-            // todo: unsecure
-            $res = SimpleHttpClient::requestInsecure($url, 'POST', $cred);
-            if ($res['status_code'] !== 200) {
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            return '';
-        }
-    }
-
-    private static function signCredential(string $baseUrl, array $cred): string
-    {
-        $PATH_SIGN_CRED = '/verifiable/signcredential';
-        $url = $baseUrl.$PATH_SIGN_CRED;
-        $credJson = json_encode($cred);
-        DidExternalApi::$classLogger->info("Signing a credential using $url: $credJson");
-
-        try {
-            $res = SimpleHttpClient::requestInsecure($url, 'POST', $cred);
-            if ($res['status_code'] !== 200) {
-                $code = $res['status_code'];
-                DidExternalApi::$classLogger->error("Credential signing failed: HTTP $code");
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            DidExternalApi::$classLogger->error("Credential signing failed: $exception");
-            throw new Exception("Credential signing failed: $exception");
-        }
-    }
 
     public function acceptRequest(Credential $data): ?Credential
     {
         $this->logger->info('acceptRequest: Issuing a credential ...');
 
+        $this->checkAgentConnection();
+
         // todo: don't pass id via status..
         $id = $data->getStatus();
         $data->setIdentifier('some id');
         $data->setStatus('try accept request...');
-
-        if (!DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
-            throw new Exception('No Connection');
-            //return null;
-        }
 
         // todo: fix naming
         $credoffer_piid = $data->getMyDid();
@@ -508,7 +395,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             'credential' => $cred,
         ];
 
-        $signedCred = DidExternalApi::signCredential(DidExternalApi::$UNI_AGENT_URL, $signrequest);
+        $signedCred = $this->agent->signCredential($signrequest);
         $signedCred = json_decode($signedCred)->verifiableCredential;
 
         // STEP 3: Build credential datastructure
@@ -528,7 +415,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         // STEP 4: Issue credential
         $this->logger->info('STEP 4: Issue credential ...');
-        $response = DidExternalApi::acceptRequestRequest(DidExternalApi::$UNI_AGENT_URL, $credoffer_piid, $credAnswer);
+        $response = $this->agent->acceptRequestRequest($credoffer_piid, $credAnswer);
 
         // todo: remove this temp thing.
         $data->setMyDid($response);

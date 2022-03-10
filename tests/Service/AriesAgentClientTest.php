@@ -6,6 +6,7 @@ namespace VC4SM\Bundle\Tests\Service;
 
 use PHPUnit\Framework\TestCase;
 use VC4SM\Bundle\Service\AriesAgentClient;
+use VC4SM\Bundle\Service\DidExternalApi;
 
 class AriesAgentClientTest extends TestCase
 {
@@ -26,6 +27,7 @@ class AriesAgentClientTest extends TestCase
 
         $this->assertTrue($agentReachable);
     }
+    
 
     public function testCreateInvite()
     {
@@ -39,7 +41,6 @@ class AriesAgentClientTest extends TestCase
     }
 
     // TODO create test for all other aries actions (at least for those needed by uni agent)
-    
 
 }
 
