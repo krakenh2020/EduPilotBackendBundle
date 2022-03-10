@@ -14,22 +14,28 @@ class AriesAgentClient
 
     public function __construct($logger, $agentUrl, $agentDID)
     {
-        $logger->info('Initializing AriesAgentClient ...');
+        $logger->info("Initializing AriesAgentClient for agent at $agentUrl ...");
         $this->logger = $logger;
         $this->agentUrl = $agentUrl;
         $this->agentDID = $agentDID;
 
         $this->checkConnection();
+        $this->logger->info('AriesAgentClient initialized!');
+    }
+
+    public function getAgentUrl()
+    {
+        return $this->agentUrl;
     }
 
     public function checkConnection(): bool
     {
         $PATH_CONNECTIONS = '/connections';
         $url = $this->agentUrl . $PATH_CONNECTIONS;
-        $res = SimpleHttpClient::requestInsecure($url);
+        $res = SimpleHttpClient::request($url);
 
         if ($res['status_code'] !== 200) {
-            $this->logger->warning("Check connection to $url, status code: " . $res['status_code']);
+            $this->logger->warning("Checked connection to $url, status code: " . $res['status_code']);
             return false;
         }
 
@@ -43,7 +49,7 @@ class AriesAgentClient
         $url = $this->agentUrl . $PATH_CREATE_INVITATION . '?alias=' . urlencode($alias);
 
         try {
-            $res = SimpleHttpClient::requestInsecure($url, 'POST');
+            $res = SimpleHttpClient::request($url, 'POST');
             if ($res['status_code'] !== 200) {
                 $this->logger->warning('createInvitation status code: ' . $res['status_code']);
                 return '';
@@ -56,9 +62,44 @@ class AriesAgentClient
         }
     }
 
-    public function getAgentUrl()
+    public function receiveConnectionInvite($invite): string
     {
-        return $this->agentUrl;
+        $PATH_RECEIVE_INVITATION = '/connections/receive-invitation';
+        $url = $this->agentUrl . $PATH_RECEIVE_INVITATION;
+
+        try {
+            $res = SimpleHttpClient::request($url, 'POST', $invite);
+            if ($res['status_code'] !== 200) {
+                $this->logger->warning('receiveConnectionInvite status code: ' . $res['status_code'] . ' -> ' . $res['contents']);
+                return '';
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            $this->logger->warning('receiveConnectionInvite exception: ' . $exception);
+        }
+
+        return '';
+    }
+
+    public function acceptConnectionInvite(string $connectionId): string
+    {
+        $PATH_CREATE_INVITATION = '/connections/' . $connectionId . '/accept-invitation';
+        $url = $this->agentUrl . $PATH_CREATE_INVITATION;
+
+        try {
+            $res = SimpleHttpClient::request($url, 'POST');
+            if ($res['status_code'] !== 200) {
+                $this->logger->warning('acceptConnectionInvite status code: ' . $res['status_code']);
+                return '';
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            $this->logger->warning('acceptConnectionInvite exception: ' . $exception);
+        }
+
+        return '';
     }
 
     public function listConnections(): string
@@ -145,11 +186,9 @@ class AriesAgentClient
 
     public function acceptRequestRequest(string $credoffer_piid, array $cred): string
     {
-        // todo: accept diploma or coursegrade
         $PATH_CREATE_INVITATION = '/issuecredential/' . $credoffer_piid . '/accept-request';
         $url = $this->agentUrl . $PATH_CREATE_INVITATION;
 
-        // todo: add diploma
         try {
             $res = SimpleHttpClient::request($url, 'POST', $cred);
             if ($res['status_code'] !== 200) {

@@ -9,7 +9,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
-use VC4SM\Bundle\Entity\Diploma;
 
 class DidExternalApi implements DidConnectionProviderInterface
 {
@@ -28,20 +27,32 @@ class DidExternalApi implements DidConnectionProviderInterface
      */
     public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi, ContainerInterface $container, LoggerInterface $logger)
     {
-        $logger->info('DidExternalApi just got the logger');
+        $logger->info('Initializing DidExternalApi ...');
         $this->logger = $logger;
         //DidExternalApi::$classLogger = $logger;
 
-        // TODO: move to configuration, use variable from ansible
+        // TODO: move to configuration (use variable from ansible)
         $this->uniAgentDID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr';
 
+        $agentUrl = $this->probeConfiguredAgents($container);
+        $this->agent = new AriesAgentClient($this->logger, $agentUrl, $this->uniAgentDID);
+
+        $this->courseApi = $courseApi;
+        $this->diplomaApi = $diplomaApi;
+
+        $this->logger->info('DidExternalApi initialized!');
+    }
+
+    private function probeConfiguredAgents(ContainerInterface $container)
+    {
         $agent1 = $container->getParameter('vc4sm.aries_agent_university');
         $agent2 = $container->getParameter('vc4sm.aries_agent_university2');
         $this->logger->info("agent1: $agent1");
         $this->logger->info("agent2: $agent2");
-        if (DidExternalApi::checkConnection($agent1)) {
+
+        if ($this->checkConnection($agent1)) {
             $agentUrl = $agent1;
-        } elseif (DidExternalApi::checkConnection($agent2)) {
+        } elseif ($this->checkConnection($agent2)) {
             $agentUrl = $agent2;
         } else {
             throw new Exception('None of the two configured agents is reachable ...');
@@ -49,47 +60,15 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         //DidExternalApi::$UNI_AGENT_URL = $agentUrl;
         $this->logger->info("Using Aries agent at $agentUrl.");
-        $this->agent = new AriesAgentClient($this->logger, $agentUrl, $this->uniAgentDID);
-
-        $this->courseApi = $courseApi;
-        $this->diplomaApi = $diplomaApi;
-
-        /*
-        // DidConnections
-        $this->didConnections = [];
-        $didConnection1 = new DidConnection();
-        // todo: change
-        $didConnection1->setIdentifier('tug');
-        // todo: change
-        $didConnection1->setName('Graz University of Technology');
-
-        // todo: remove invitation intermediate states..
-        $didConnection1->setInvitation('try');
-        if (DidExternalApi::checkConnection(DidExternalApi::$UNI_AGENT_URL)) {
-            $didConnection1->setInvitation('conn');
-            $invitation = DidExternalApi::createInvitation(DidExternalApi::$UNI_AGENT_URL);
-            $didConnection1->setInvitation('inv?');
-            if ($invitation) {
-                $didConnection1->setInvitation($invitation);
-            }
-        }
-
-        $this->didConnections[] = $didConnection1;
-        */
-
-        $this->logger->info('DidExternalApi initialized!');
+        return $agentUrl;
     }
 
-    /**
-     * @return LoggerInterface
-     */
     public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
-    
 
-    public static function checkConnection(string $baseUrl): bool
+    public function checkConnection(string $baseUrl): bool
     {
         $PATH_CONNECTIONS = '/connections'; // path known to exist for aries agents
         $url = $baseUrl . $PATH_CONNECTIONS;
@@ -105,20 +84,18 @@ class DidExternalApi implements DidConnectionProviderInterface
 
     public function checkAgentConnection(): void
     {
-        if (!$this->checkConnection()) {
+        if (!$this->agent->checkConnection()) {
             throw new Exception('No connection to agent at ' . $this->agent->getAgentUrl());
         }
     }
 
-
     public function getDidConnectionById(string $identifier): ?DidConnection
     {
-        $this->logger->info('getDidConnectionById ...');
-        checkAgentConnection();
+        $this->logger->info('getDidConnectionById for ' . $identifier);
+        $this->checkAgentConnection();
 
         $didConnection = new DidConnection();
         $didConnection->setIdentifier($identifier);
-        // todo: change
         $didConnection->setName('Graz University of Technology');
 
         $oneAccepted = false;
@@ -126,7 +103,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $inviteContents = $this->agent->listConnections();
 
         $invites = json_decode($inviteContents);
-        $this->logger->info("Invites: $inviteContents");
+        //$this->logger->info("Invites: $inviteContents");
 
         // check if request actually returned something:
         if (!property_exists($invites, 'results')) {
@@ -140,53 +117,89 @@ class DidExternalApi implements DidConnectionProviderInterface
         foreach ($invites->results as $invite) {
             // todo: skip accept and return good result if State === responded or completed.
             if ($invite->InvitationID === $identifier && $invite->State === 'requested') {
+                $this->logger->info('Invitation found and state is requested! Accepting it ...');
                 $connectionId = $invite->ConnectionID;
                 $acceptRes = $this->agent->acceptInviteRequest($connectionId);
 
                 $this->logger->info("acceptRes: $acceptRes");
                 if ($acceptRes === '') {
-                    throw new Exception('Accept failed');
+                    throw new Exception('Failed to accept connection request.');
                 }
                 $oneAccepted = true;
                 break;
 
             } elseif ($invite->InvitationID === $identifier && $invite->State === 'responded') {
-                $this->logger->info('Invitation found but already accepted ... moving on.');
+                $this->logger->info('Invitation found and state already accepted ... moving on.');
                 $connectionId = $invite->ConnectionID;
                 $oneAccepted = true;
                 break;
 
-            } else {
-                $this->logger->info("InvitationID: $invite->InvitationID, \n requested: $identifier, \n state: $invite->State");
-            }
+            } /*else {
+                $this->logger->info("open invite, ID: $invite->InvitationID, \n requested: $identifier, \n state: $invite->State");
+            }*/
         }
 
         if (!$oneAccepted) {
-            $this->logger->error('No invite accepted');
-
+            $this->logger->warning('Invite not (yet) accepted by student.');
             return null;
         }
 
+        // get details of connection which we accepted:
         $connContents = $this->agent->getConnectionById($connectionId);
         $conn = json_decode($connContents);
 
+        // since we now accepted the connection, check if that was successful:
         if ($conn->result->State === 'responded' || $conn->result->State === 'completed') {
             $didConnection->setInvitation(json_encode($conn->result, 0, 512));
 
+            // return the accepted connection:
             return $didConnection;
         }
 
-        throw new Exception('Accepted connection not found');
+        throw new Exception('Connection not found ...');
         //return null;
     }
 
-    /*public function getDidConnections(): array
+
+    /**
+     * Each student needs a fresh DID connection.
+     * To ensure that there is always an unused connection available,
+     * we simply create a new one every time the frontend requests one
+     * (and only return that one).
+     *
+     * This is a "quickfix" since otherwise we would need to track state
+     * of the connections, and also track which one is used by which student.
+     */
+    public function initNewDidConnection()
     {
+        $this->logger->info('initNewDidConnection ...');
+
+        // DidConnections
+        $this->didConnections = [];
+        $didConnection1 = new DidConnection();
+
+        $didConnection1->setIdentifier('tug');
+        $didConnection1->setName('DID Connection to Graz University of Technology');
+
+        $invitation = $this->agent->createInvitation();
+
+        if ($invitation) {
+            $didConnection1->setInvitation($invitation);
+        }
+
+        $this->didConnections[] = $didConnection1;
+    }
+
+    public function getDidConnections(): array
+    {
+        $this->initNewDidConnection();
         return $this->didConnections;
-    }*/
+    }
 
     public function getCredentialById(string $identifier): ?Credential
     {
+        // TODO: check if this is actually used by frontend
+
         $credential = new Credential();
         $credential->setIdentifier($identifier);
         $credential->setMyDid('asdf');
@@ -196,7 +209,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $credential;
     }
 
-    public static function buildOfferRequest(string $myDid, string $theirDid, $api, $type, $id)
+    public function buildOfferRequest(string $myDid, string $theirDid, $api, $type, $id)
     {
         if ($type === 'diplomas') {
             $diploma = $api->getDiplomaById($id);
@@ -274,19 +287,18 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $offer_credential = [
             '@type' => 'https://didcomm.org/issue-credential/1.0/offer-credential',
-            'comment' => $cred_type.' offer',
+            'comment' => $cred_type . ' offer',
             'credential_preview' => $cred_preview,
         ];
 
         $credoffer = [
-                'my_did' => $myDid,
-                'their_did' => $theirDid,
-                'offer_credential' => $offer_credential,
-            ];
+            'my_did' => $myDid,
+            'their_did' => $theirDid,
+            'offer_credential' => $offer_credential,
+        ];
 
         return $credoffer;
     }
-
 
     public function sendOffer(Credential $data): ?Credential
     {
@@ -312,7 +324,6 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         return $data;
     }
-
 
     public function acceptRequest(Credential $data): ?Credential
     {
@@ -346,7 +357,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'VerifiableCredential',
                     'UniversityDegreeCredential',
                 ],
-                'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/'.$diploma->getIdentifier(),
+                'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/' . $diploma->getIdentifier(),
                 'credentialSubject' => [
                     'id' => 'sample-student-id2',
                     'name' => $diploma->getName(),
@@ -369,7 +380,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'VerifiableCredential',
                     'UniversityDegreeCredential',
                 ],
-                'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/'.$courseGrade->getIdentifier(),
+                'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/' . $courseGrade->getIdentifier(),
                 'credentialSubject' => [
                     'id' => 'sample-student-id2',
                     'name' => $courseGrade->getName(),
@@ -415,6 +426,8 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         // STEP 4: Issue credential
         $this->logger->info('STEP 4: Issue credential ...');
+
+        // (this will fail if the student agent has not yet accepted the offer)
         $response = $this->agent->acceptRequestRequest($credoffer_piid, $credAnswer);
 
         // todo: remove this temp thing.
@@ -423,4 +436,5 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         return $data;
     }
+
 }

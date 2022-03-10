@@ -4,29 +4,16 @@ declare(strict_types=1);
 
 namespace VC4SM\Bundle\Service;
 
+use Exception;
+
 class SimpleHttpClient
 {
     //public static $classLogger = null;
 
-    // TODO: migrate to something more stable
+    // TODO: migrate class to something more stable
     // like https://symfony.com/doc/current/http_client.html
     // → $client = HttpClient::create();
 
-    /**
-     * see: https://stackoverflow.com/a/49299689/782920 .
-     */
-    private static function getHttpCode($http_response_header): int
-    {
-
-        if (is_array($http_response_header)) {
-            $parts = explode(' ', $http_response_header[0]);
-            if (count($parts) > 1) { //HTTP/1.0 <code> <text>
-                return intval($parts[1]);
-            }
-        }
-
-        return 0;
-    }
 
     public static function request(string $url, string $method = 'GET', array $data = []): array
     {
@@ -53,16 +40,18 @@ class SimpleHttpClient
         try {
             $body = @file_get_contents($url, false, stream_context_create($options));
         } catch (Exception $e) {
-            //self::$classLogger->warning("$e");
-            $body = false;
+            return [
+                'contents' => "Error while connecting to $url: $e",
+                'status_code' => -1,
+            ];
         }
 
         if ($body === false) {
             //self::$classLogger->warning("Error while connecting to $url");
 
             return [
-                'contents' => '',
-                'status_code' => -1,
+                'contents' => "Error while connecting to $url",
+                'status_code' => -2,
             ];
         }
 
@@ -70,5 +59,21 @@ class SimpleHttpClient
             'contents' => $body,
             'status_code' => self::getHttpCode($http_response_header),
         ];
+    }
+
+    /**
+     * see: https://stackoverflow.com/a/49299689/782920 .
+     */
+    private static function getHttpCode($http_response_header): int
+    {
+
+        if (is_array($http_response_header)) {
+            $parts = explode(' ', $http_response_header[0]);
+            if (count($parts) > 1) { //HTTP/1.0 <code> <text>
+                return intval($parts[1]);
+            }
+        }
+
+        return 0;
     }
 }
