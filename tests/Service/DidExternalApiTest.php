@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Tests\Service;
 
 use PHPUnit\Framework\TestCase;
+use VC4SM\Bundle\Entity\DidConnection;
+use VC4SM\Bundle\Service\AriesAgentClient;
 use VC4SM\Bundle\Service\DidExternalApi;
 use VC4SM\Bundle\Service\ExternalApi;
 use VC4SM\Bundle\Service\SimpleHttpClient;
@@ -44,15 +46,15 @@ class DidExternalApiTest extends TestCase
     public function testAgentConnection()
     {
         // KRAKEN public (student) agent
-        $ret1 = DidExternalApi::checkConnection('https://kraken.iaik.tugraz.at');
+        $ret1 = $this->api->checkConnection('https://kraken.iaik.tugraz.at');
         $this->assertTrue($ret1);
 
         // No agent at this URL
-        $ret2 = DidExternalApi::checkConnection('https://krakenh2020.eu');
+        $ret2 = $this->api->checkConnection('https://krakenh2020.eu');
         $this->assertFalse($ret2);
     }
 
-    
+
     public function testBuildOfferRequestDiploma()
     {
         $mydid = 'did:myDID';
@@ -61,7 +63,7 @@ class DidExternalApiTest extends TestCase
 
         $type = 'diplomas';
         $cred_id = 'bsc1';
-        $offer = DidExternalApi::buildOfferRequest($mydid, $theirdid, $api, $type, $cred_id);
+        $offer = $this->api->buildOfferRequest($mydid, $theirdid, $api, $type, $cred_id);
         //print_r($offer);
         $cred_json = json_encode($offer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         //DidExternalApi::$classLogger->info($cred_json);
@@ -78,7 +80,7 @@ class DidExternalApiTest extends TestCase
 
         $type = 'course-grades';
         $cred_id = 'os';
-        $offer = DidExternalApi::buildOfferRequest($mydid, $theirdid, $api, $type, $cred_id);
+        $offer = $this->api->buildOfferRequest($mydid, $theirdid, $api, $type, $cred_id);
         //print_r($offer);
         $cred_json = json_encode($offer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         //DidExternalApi::$classLogger->info($cred_json);
@@ -86,4 +88,101 @@ class DidExternalApiTest extends TestCase
         $this->assertEquals($mydid, $offer['my_did']);
         $this->assertEquals($theirdid, $offer['their_did']);
     }
+
+    public function testFlowAccept()
+    {
+        //$studentAgentUrl = "http://localhost:8092";
+        $studentAgentUrl = "https://kraken.iaik.tugraz.at";
+        $studentAgent = new AriesAgentClient(new AgentMockLogger('StudentAgent'), $studentAgentUrl, "did:student");
+        $this->assertTrue($studentAgent->checkConnection(), "Could not connect to student agent ...");
+
+        // University: Create Invite
+
+        $connections = $this->api->getDidConnections();
+        $this->assertEquals(1, count($connections));
+
+        $connection = $connections[0];
+        $this->assertInstanceOf(DidConnection::class, $connection);
+
+        $invite = $connection->getInvitation();
+        $this->assertNotNull($invite);
+        $this->assertNotEmpty($invite);
+
+        $invite = json_decode($invite);
+
+        // University: Frontend polls if invite accepted (not yet)
+
+        $this->assertTrue(isset($invite->invitation));
+        $this->assertTrue(isset($invite->invitation->{'@id'}));
+
+        $connection_id = $invite->invitation->{'@id'};
+
+        $connection = $this->api->getDidConnectionById($connection_id);
+        $this->assertNull($connection, "Found accepted invite, but student did not accept yet.");
+
+        // Student: Receive Invite
+        //   POST /connections/receive-invitation → connection with $invite->invitation
+        //   connectionId = connection['connection_id']
+
+        // via https://stackoverflow.com/a/18576902/1518225
+        $inviteAsArray = json_decode(json_encode($invite->invitation), true);
+        $studentConnection = $studentAgent->receiveConnectionInvite($inviteAsArray);
+
+        $this->assertNotEmpty($studentConnection);
+        $studentConnection = json_decode($studentConnection);
+
+        $this->assertTrue(isset($studentConnection->connection_id));
+        $studentConnectionId = $studentConnection->connection_id;
+
+        // Student: Accept invite
+        // POST '/connections/' + connectionId + '/accept-invitation'
+
+        $inviteAcceptDetails = $studentAgent->acceptConnectionInvite($studentConnectionId);
+        $this->assertNotEmpty($inviteAcceptDetails);
+
+        // University: Poll if invite accepted (yes)
+
+        $uniConnection = $this->api->getDidConnectionById($connection_id);
+        $this->assertNotNull($uniConnection, "Could not find accepted invite.");
+        print_r($uniConnection);
+        $this->assertNotEmpty($uniConnection);
+
+        // done, connection established!
+
+        $this->assertTrue(true);
+    }
+
+    public function testFlowFull()
+    {
+        $this->assertTrue(true);
+    }
+
 }
+
+class AgentMockLogger
+{
+    private $agentName;
+
+    public function __construct(string $agentName)
+    {
+        $this->agentName = $agentName;
+    }
+
+    public function warning($text)
+    {
+        $text = "Warning: " . $text . "\n";
+        $this->writeItOut($text);
+    }
+
+    public function info($text)
+    {
+        $text = "Info: " . $text . "\n";
+        $this->writeItOut($text);
+    }
+
+    private function writeItOut($text)
+    {
+        fwrite(STDERR, "[$this->agentName] " . $text . "\n");
+    }
+}
+
