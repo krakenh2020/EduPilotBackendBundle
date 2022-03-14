@@ -40,6 +40,7 @@ jobs:
           docker start university-agent-container
 
       - name: Test connection via localhost
+        continue-on-error: true
         run: |
           echo "student:"
           curl http://localhost:8092/connections
@@ -47,12 +48,13 @@ jobs:
           curl http://localhost:8082/connections
 
       - name: Init aries KMS for university DID
+        continue-on-error: true
         run: |
           pip3 install requests
           python3 .github/helper/kms_init.py
 
       - name: Show service aries agents logs
-        continue-on-error: true
+        #continue-on-error: true
         run: |
           docker ps
           docker logs "student-agent-container"
