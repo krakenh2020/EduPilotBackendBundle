@@ -15,18 +15,38 @@ use VC4SM\Bundle\Tests\Kernel;
 
 class DidExternalApiTest extends TestCase
 {
+    // https://github.com/krakenh2020/EduPilotDeploymentDocker#exposed-services
+    private const localhost_uni_agent = 'https://localhost:8082';
+    private const localhost_student_agent = 'http://localhost:8092';
+    const remote_student_agent = 'https://kraken.iaik.tugraz.at';
+
+    const testOffline = true; // only use localhost agents
+
     private $api;
 
     protected function setUp(): void
     {
+
         $kernel = new Kernel([
-            'aries_agent_university' => 'https://kraken.iaik.tugraz.at',
+            'aries_agent_university' => self::getUniAgentUrl(),
             'aries_agent_university2' => 'https://krakenh2020.eu',
         ]);
+
         $kernel->boot();
         $container = $kernel->getContainer();
 
         $this->api = $container->get('VC4SM\Bundle\Service\DidExternalApi');
+    }
+
+    public static function getStudentAgentUrl()
+    {
+        return self::testOffline ? self::localhost_student_agent : self::remote_student_agent;
+    }
+
+    public static function getUniAgentUrl()
+    {
+        // for some testing uni and student can both use same agent (as remote uni agent is not exposed)
+        return self::testOffline ? self::localhost_uni_agent : self::remote_student_agent;
     }
 
     public function testLogger()
@@ -34,6 +54,20 @@ class DidExternalApiTest extends TestCase
         $this->api->getLogger()->info('Init logger');
 
         $this->assertTrue(true);
+    }
+
+    public function testStudentAgentReachable()
+    {
+        $url = self::getStudentAgentUrl() . "/connections";
+        $res = SimpleHttpClient::request($url);
+        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: " . $res['status_code']);
+    }
+
+    public function testUniAgentReachable()
+    {
+        $url = self::getUniAgentUrl() . "/connections";
+        $res = SimpleHttpClient::request($url);
+        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: " . $res['status_code']);
     }
 
     public function testHttpClientInsecure()
@@ -44,14 +78,14 @@ class DidExternalApiTest extends TestCase
         $this->assertEquals(200, $res['status_code']);
     }
 
-    public function testAgentConnection()
+    public function testRemoteAgentConnection()
     {
         // KRAKEN public (student) agent
-        $ret1 = $this->api->checkConnection('https://kraken.iaik.tugraz.at');
+        $ret1 = $this->api->checkConnection('https://kraken.iaik.tugraz.at', "could not reach remote agent");
         $this->assertTrue($ret1);
 
         // No agent at this URL
-        $ret2 = $this->api->checkConnection('https://krakenh2020.eu');
+        $ret2 = $this->api->checkConnection('https://krakenh2020.eu', "remote agent reached at URL where no remote agent is hosted");
         $this->assertFalse($ret2);
     }
 
@@ -92,8 +126,8 @@ class DidExternalApiTest extends TestCase
 
     public function testInviteFlow()
     {
-        //$studentAgentUrl = "http://localhost:8092";
-        $studentAgentUrl = "https://kraken.iaik.tugraz.at";
+        $studentAgentUrl = self::getStudentAgentUrl();
+
         $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, "did:student");
         $this->assertTrue($studentAgent->checkConnection(), "Could not connect to student agent ...");
 
@@ -165,12 +199,8 @@ class DidExternalApiTest extends TestCase
 
     public function testFullFlow()
     {
-        $this->markTestSkipped('test not finished as of 2022-03-10');
+        $studentAgentUrl = self::getStudentAgentUrl();
 
-
-        // https://github.com/krakenh2020/EduPilotDeploymentDocker#exposed-services
-        $studentAgentUrl = "http://localhost:8092";
-        //$studentAgentUrl = "https://kraken.iaik.tugraz.at";
         $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, "did:student");
         $this->assertTrue($studentAgent->checkConnection(), "Could not connect to student agent ...");
 
