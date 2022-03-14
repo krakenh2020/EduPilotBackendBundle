@@ -117,6 +117,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         // check if request actually returned something:
         if (!property_exists($invites, 'results')) {
+            $this->logger->info(print_r($invites, true));
             $this->logger->error('Agent did not return any connections?');
             throw new Exception('Agent did not return any connections.');
             //return null;
@@ -196,6 +197,9 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         if ($invitation) {
             $didConnection1->setInvitation($invitation);
+            $this->logger->info("initNewDidConnection: created new DID connection: " . print_r($didConnection1, true));
+        } else {
+            $this->logger->warning("initNewDidConnection: could not create new connection.");
         }
 
         $this->didConnections[] = $didConnection1;
