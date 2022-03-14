@@ -35,7 +35,48 @@ jobs:
   linting:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          registry: docker.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull aries agent images and setup network
+        run: |
+          docker pull ghcr.io/hyperledger/aries-framework-go:0.1.6
+          docker network create --label kraken-network github_network_kraken
+
+      - name: Create student aries agent container
+        run: |
+          docker create --name student-agent-container --label student-agent --network github_network_kraken --network-alias student-agent -p 8092:8092 -p 8091:8091  -e "ARIESD_API_HOST=0.0.0.0:8092" -e "ARIESD_INBOUND_HOST=http@0.0.0.0:8091" -e "ARIESD_INBOUND_HOST_EXTERNAL=http@http://student-agent:8091" -e "ARIESD_WEBHOOK_URL=https://enybebk8mydni.x.pipedream.net" -e "ARIESD_DEFAULT_LABEL=student-agent" -e "ARIESD_DATABASE_TYPE=leveldb" -e "ARIESD_DATABASE_PREFIX=student" -e "ARIESD_DATABASE_TIMEOUT=60" -e "ARIESD_HTTP_RESOLVER=sidetree@http://sidetree-mock.demo:48326/sidetree/0.0.1/identifiers" -e GITHUB_ACTIONS=true -e CI=true ghcr.io/hyperledger/aries-framework-go:0.1.6 start
+          docker start student-agent-container
+
+      - name: Create university aries agent container
+        run: |
+          docker create --name university-agent-container --label university-agent --network github_network_kraken --network-alias university-agent -p 8082:8082 -p 8081:8081  -e "ARIESD_API_HOST=0.0.0.0:8082" -e "ARIESD_INBOUND_HOST=http@0.0.0.0:8081" -e "ARIESD_INBOUND_HOST_EXTERNAL=http@http://university-agent:8081" -e "ARIESD_WEBHOOK_URL=https://enybebk8mydni.x.pipedream.net" -e "ARIESD_DEFAULT_LABEL=university-agent" -e "ARIESD_DATABASE_TYPE=leveldb" -e "ARIESD_DATABASE_PREFIX=university" -e "ARIESD_DATABASE_TIMEOUT=60" -e "ARIESD_HTTP_RESOLVER=sidetree@http://sidetree-mock.demo:48326/sidetree/0.0.1/identifiers" -e GITHUB_ACTIONS=true -e CI=true ghcr.io/hyperledger/aries-framework-go:0.1.6 start
+          docker start university-agent-container
+
+      - name: Init aries KMS for university DID
+        run: |
+          pip3 install requests
+          python3 ../helper/kms_init.py
+
+      - name: Show service aries agents logs
+        continue-on-error: true
+        run: |
+          docker ps
+          docker logs "student-agent-container"
+          docker logs "university-agent-container"
+
+      - name: Test connection via localhost
+        run: |
+          echo "student:"
+          curl http://localhost:8092/connections
+          echo "university: 
+          curl http://localhost:8082/connections
+
+      - name: Checkout repo
         uses: actions/checkout@v2
 
       - name: Cache Composer dependencies
