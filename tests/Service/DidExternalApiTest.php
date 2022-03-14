@@ -16,7 +16,7 @@ use VC4SM\Bundle\Tests\Kernel;
 class DidExternalApiTest extends TestCase
 {
     // https://github.com/krakenh2020/EduPilotDeploymentDocker#exposed-services
-    private const localhost_uni_agent = 'https://localhost:8082';
+    private const localhost_uni_agent = 'http://localhost:8082';
     private const localhost_student_agent = 'http://localhost:8092';
     const remote_student_agent = 'https://kraken.iaik.tugraz.at';
 
