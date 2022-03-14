@@ -8,6 +8,7 @@ on:
    branches:
      - master
 
+
 jobs:
   phpunit-all:
     runs-on: ubuntu-latest
@@ -41,7 +42,7 @@ jobs:
       - name: Init aries KMS for university DID
         run: |
           pip3 install requests
-          python3 ../helper/kms_init.py
+          python3 .github/helper/kms_init.py
 
       - name: Show service aries agents logs
         continue-on-error: true
