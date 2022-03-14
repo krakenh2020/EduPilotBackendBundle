@@ -39,6 +39,13 @@ jobs:
           docker create --name university-agent-container --label university-agent --network github_network_kraken --network-alias university-agent -p 8082:8082 -p 8081:8081  -e "ARIESD_API_HOST=0.0.0.0:8082" -e "ARIESD_INBOUND_HOST=http@0.0.0.0:8081" -e "ARIESD_INBOUND_HOST_EXTERNAL=http@http://university-agent:8081" -e "ARIESD_WEBHOOK_URL=https://enybebk8mydni.x.pipedream.net" -e "ARIESD_DEFAULT_LABEL=university-agent" -e "ARIESD_DATABASE_TYPE=leveldb" -e "ARIESD_DATABASE_PREFIX=university" -e "ARIESD_DATABASE_TIMEOUT=60" -e "ARIESD_HTTP_RESOLVER=sidetree@http://sidetree-mock.demo:48326/sidetree/0.0.1/identifiers" -e GITHUB_ACTIONS=true -e CI=true ghcr.io/hyperledger/aries-framework-go:0.1.6 start
           docker start university-agent-container
 
+      - name: Test connection via localhost
+        run: |
+          echo "student:"
+          curl http://localhost:8092/connections
+          echo "university: 
+          curl http://localhost:8082/connections
+
       - name: Init aries KMS for university DID
         run: |
           pip3 install requests
@@ -50,13 +57,6 @@ jobs:
           docker ps
           docker logs "student-agent-container"
           docker logs "university-agent-container"
-
-      - name: Test connection via localhost
-        run: |
-          echo "student:"
-          curl http://localhost:8092/connections
-          echo "university: 
-          curl http://localhost:8082/connections
 
       - name: Cache Composer dependencies
         uses: actions/cache@v2

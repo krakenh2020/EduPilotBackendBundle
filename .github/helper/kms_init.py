@@ -2,7 +2,7 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-agent_url = 'https://localhost:8082' # university agent
+agent_url = 'http://localhost:8082' # university agent
 
 print('Check connection ...')
 r = requests.get(agent_url + '/connections', verify=False)
