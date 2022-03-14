@@ -345,7 +345,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
     public function acceptRequest(Credential $data): ?Credential
     {
-        $this->logger->info('acceptRequest: Issuing a credential ...');
+        $this->logger->info("acceptRequest: Issuing a " . $data->getStatus() . " credential ...");
 
         $this->checkAgentConnection();
 
@@ -356,6 +356,23 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         // todo: fix naming
         $credoffer_piid = $data->getMyDid();
+
+        // check if credoffer with $credoffer_piid already accepted by student
+        //   via https://github.com/hyperledger/aries-framework-go/blob/main/docs/rest/openapi_demo.md#how-to-issue-credentials-through-the-issue-credential-protocol
+        $actions = $this->agent->getIssuercredentialActions();
+        $found = false;
+        foreach ($actions as $action) {
+            if ($action->PIID === $credoffer_piid) {
+                $found = true;
+            }
+        }
+
+        if (!$found) {
+            $this->logger->warning("Credential offer $credoffer_piid not (yet) accepted by student.");
+            return null;
+        } else {
+            $this->logger->info("Credential offer $credoffer_piid accepted by student! Issuing $id ...");
+        }
 
         $type = explode('/', $id)[1];
         $id = explode('/', $id)[2];

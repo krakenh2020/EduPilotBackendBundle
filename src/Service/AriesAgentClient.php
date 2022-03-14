@@ -210,6 +210,46 @@ class AriesAgentClient
         return '';
     }
 
+    public function getIssuercredentialActions(): ?array
+    {
+        $PATH_GET_CREDACTIONS = '/issuecredential/actions';
+        $url = $this->agentUrl . $PATH_GET_CREDACTIONS;
+
+        try {
+            $res = SimpleHttpClient::request($url, 'GET');
+            if ($res['status_code'] !== 200) {
+                $this->logger->warning('getIssuercredentialActions status code: ' . $res['status_code']);
+                return null;
+            }
+
+            return json_decode($res['contents'])->actions;
+        } catch (Exception $exception) {
+            $this->logger->warning('getIssuercredentialActions exception: ' . $exception);
+        }
+
+        return null;
+    }
+
+    public function acceptCredentialOffer(string $credoffer_piid): ?string
+    {
+        $PATH_ACCEPT_CREDOFFER = '/issuecredential/' . $credoffer_piid . '/accept-offer';
+        $url = $this->agentUrl . $PATH_ACCEPT_CREDOFFER;
+
+        try {
+            $res = SimpleHttpClient::request($url, 'POST');
+            if ($res['status_code'] !== 200) {
+                $this->logger->warning('acceptCredentialOffer status code: ' . $res['status_code']);
+                return null;
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            $this->logger->warning('acceptCredentialOffer exception: ' . $exception);
+        }
+
+        return null;
+    }
+
     public function signCredential(array $cred): string
     {
         $PATH_SIGN_CRED = '/verifiable/signcredential';
@@ -230,5 +270,26 @@ class AriesAgentClient
             $this->logger->error("Credential signing failed: $exception");
             throw new Exception("Credential signing failed: $exception");
         }
+    }
+
+    public function acceptCredential(string $credoffer_piid, string $cred_name): ?string
+    {
+        $PATH_ACCEPT_CRED = '/issuecredential/' . $credoffer_piid . '/accept-credential';
+        $url = $this->agentUrl . $PATH_ACCEPT_CRED;
+
+        $this->logger->info("acceptCredential: " . $url);
+        try {
+            $res = SimpleHttpClient::request($url, 'POST', ["names" => [$cred_name]]);
+            if ($res['status_code'] !== 200) {
+                $this->logger->warning('acceptCredential status code: ' . $res['status_code'] . '  ' . $res['contents']);
+                return null;
+            }
+
+            return $res['contents'];
+        } catch (Exception $exception) {
+            $this->logger->warning('acceptCredential exception: ' . $exception);
+        }
+
+        return null;
     }
 }
