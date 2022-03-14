@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "student:"
           curl http://localhost:8092/connections
-          echo "university: 
+          echo "university:"
           curl http://localhost:8082/connections
 
       - name: Init aries KMS for university DID
