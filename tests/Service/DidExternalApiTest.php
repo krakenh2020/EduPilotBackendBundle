@@ -277,22 +277,55 @@ class DidExternalApiTest extends TestCase
         $credofferResp = $this->api->sendOffer($cred);
 
         $this->assertNotNull($credofferResp);
-        print_r($credofferResp); // contains PIID in myDID field → send back via myDID field to acceptRequest
+        //print_r($credofferResp); // contains PIID in myDID field → send back via myDID field to acceptRequest
 
         // University: Frontend polls if credential accepted (not yet)
 
-        $credoffer_piid = '?';
+        $credoffer_piid = json_decode($credofferResp->getMyDid())->piid;
         $cred2 = new Credential("", $credoffer_piid, "", $credId);
         $credAcceptResp = $this->api->acceptRequest($cred2);
 
-        $this->assertNotNull($credAcceptResp);
-        print_r($credAcceptResp);
+        $this->assertNull($credAcceptResp);
 
-        // Student: Accept cred offer 
+        // Student: Accept cred offer
 
+        $studentActions = $studentAgent->getIssuercredentialActions();
+        foreach ($studentActions as $action) {
+            echo "offer-credential? " . $action->Msg->{"@type"} . "\n";
+            if (!str_contains($action->Msg->{"@type"}, "offer-credential")) continue;
+            $action_piid = $action->PIID;
+            echo "student: accepting offer $action_piid ... \n";
+            $acceptCredOffer = $studentAgent->acceptCredentialOffer($action_piid);
+            $this->assertNotNull($acceptCredOffer);
+        }
 
         // University: Frontend polls if credential accepted (yes!)
         // → issue credential
+
+        $cred3 = new Credential("", $credoffer_piid, "", $credId);
+        $credAcceptResp2 = $this->api->acceptRequest($cred3);
+
+        $this->assertNotNull($credAcceptResp2, "Tried to issue credential, but offer not yet accepted by student.");
+        $this->assertEquals([], json_decode($credAcceptResp2->getMyDid(), true));
+
+        // Student: Accept credential
+        // (not sure why some only show up later, so do this twice)
+
+        for ($i = 0; $i < 2; $i++) {
+
+            $studentActions2 = $studentAgent->getIssuercredentialActions();
+            foreach ($studentActions2 as $action) {
+                echo "issue-credential? " . $action->Msg->{"@type"} . "\n";
+                if (!str_contains($action->Msg->{"@type"}, "issue-credential")) continue;
+                $action_piid = $action->PIID;
+                echo "student: accepting credential $action_piid ... \n";
+                $credname = "tug_cred_" . $action_piid;
+                $acceptCred = $studentAgent->acceptCredential($action_piid, $credname);
+                $this->assertNotNull($acceptCred);
+            }
+
+            sleep(2);
+        }
 
         // done, credential issued!
         $this->assertTrue(true);
