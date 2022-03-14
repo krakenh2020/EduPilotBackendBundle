@@ -48,9 +48,10 @@ class SimpleHttpClient
             $response = $this->client->request($method, $url);
         }
 
+        $status = $response->getStatusCode();
         return [
-            'contents' => $response->getContent(),
-            'status_code' => $response->getStatusCode(),
+            'status_code' => $status,
+            'contents' => $response->getContent(false)
         ];
     }
 
