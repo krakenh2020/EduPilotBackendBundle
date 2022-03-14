@@ -165,8 +165,12 @@ class DidExternalApiTest extends TestCase
 
     public function testFullFlow()
     {
-        //$studentAgentUrl = "http://localhost:8092";
-        $studentAgentUrl = "https://kraken.iaik.tugraz.at";
+        $this->markTestSkipped('test not finished as of 2022-03-10');
+
+
+        // https://github.com/krakenh2020/EduPilotDeploymentDocker#exposed-services
+        $studentAgentUrl = "http://localhost:8092";
+        //$studentAgentUrl = "https://kraken.iaik.tugraz.at";
         $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, "did:student");
         $this->assertTrue($studentAgent->checkConnection(), "Could not connect to student agent ...");
 

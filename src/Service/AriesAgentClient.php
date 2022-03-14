@@ -42,6 +42,11 @@ class AriesAgentClient
         return true;
     }
 
+    private function printError($methodname, $res)
+    {
+        $this->logger->warning($methodname . ' status code: ' . $res['status_code'] . ' -> ' . $res['contents']);
+    }
+
     public function createInvitation(string $alias = 'TU Graz KRAKEN Demo'): string
     {
 
@@ -51,7 +56,7 @@ class AriesAgentClient
         try {
             $res = SimpleHttpClient::request($url, 'POST');
             if ($res['status_code'] !== 200) {
-                $this->logger->warning('createInvitation status code: ' . $res['status_code']);
+                $this->printError('createInvitation', $res);
                 return '';
             }
 
@@ -70,7 +75,7 @@ class AriesAgentClient
         try {
             $res = SimpleHttpClient::request($url, 'POST', $invite);
             if ($res['status_code'] !== 200) {
-                $this->logger->warning('receiveConnectionInvite status code: ' . $res['status_code'] . ' -> ' . $res['contents']);
+                $this->printError('receiveConnectionInvite', $res);
                 return '';
             }
 
@@ -150,7 +155,8 @@ class AriesAgentClient
         try {
             $res = SimpleHttpClient::request($url, 'POST');
             if ($res['status_code'] !== 200) {
-                $this->logger->warning('acceptInviteRequest status code: ' . $res['status_code']);
+                $this->printError('acceptInviteRequest', $res);
+                $this->logger->warning($res['contents']);
                 return null;
             }
 
@@ -172,7 +178,7 @@ class AriesAgentClient
         try {
             $res = SimpleHttpClient::request($url, 'POST', $credoffer);
             if ($res['status_code'] !== 200) {
-                $this->logger->warning('sendOfferRequest status code: ' . $res['status_code']);
+                $this->printError('sendOfferRequest', $res);
                 return null;
             }
 
