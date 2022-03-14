@@ -49,6 +49,11 @@ class DidExternalApiTest extends TestCase
         return self::testOffline ? self::localhost_uni_agent : self::remote_student_agent;
     }
 
+    public static function log(string $text)
+    {
+        fwrite(STDERR, "[Test] " . $text . "\n");
+    }
+
     public function testLogger()
     {
         $this->api->getLogger()->info('Init logger');
@@ -292,11 +297,12 @@ class DidExternalApiTest extends TestCase
         // Student: Accept cred offer
 
         $studentActions = $studentAgent->getIssuercredentialActions();
+        self::log("Handling " . count($studentActions) . " actions ...");
         foreach ($studentActions as $action) {
-            echo "offer-credential? " . $action->Msg->{"@type"} . "\n";
+            self::log("offer-credential? " . $action->Msg->{"@type"} . "\n");
             if (!str_contains($action->Msg->{"@type"}, "offer-credential")) continue;
             $action_piid = $action->PIID;
-            echo "student: accepting offer $action_piid ... \n";
+            self::log("student: accepting offer $action_piid ... \n");
             $acceptCredOffer = $studentAgent->acceptCredentialOffer($action_piid);
             $this->assertNotNull($acceptCredOffer);
             $this->assertEquals([], json_decode($acceptCredOffer, true));
@@ -319,10 +325,10 @@ class DidExternalApiTest extends TestCase
 
             $studentActions2 = $studentAgent->getIssuercredentialActions();
             foreach ($studentActions2 as $action) {
-                echo "issue-credential? " . $action->Msg->{"@type"} . "\n";
+                self::log("issue-credential? " . $action->Msg->{"@type"} . "\n");
                 if (!str_contains($action->Msg->{"@type"}, "issue-credential")) continue;
                 $action_piid = $action->PIID;
-                echo "student: accepting credential $action_piid ... \n";
+                self::log("student: accepting credential $action_piid ... \n");
                 $credname = "tug_cred_" . $action_piid;
                 $acceptCred = $studentAgent->acceptCredential($action_piid, $credname);
                 $this->assertNotNull($acceptCred);
