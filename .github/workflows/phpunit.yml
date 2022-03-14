@@ -50,13 +50,13 @@ jobs:
           curl http://localhost:8082/connections
 
       - name: Init aries KMS for university DID
-        continue-on-error: true
         run: |
           pip3 install requests
           python3 .github/helper/kms_init.py
 
-      - name: Show service aries agents logs
+      - name: Show service aries agents logs 1
         #continue-on-error: true
+        if: always()
         run: |
           docker ps
           docker logs "student-agent-container"
@@ -76,6 +76,14 @@ jobs:
         with:
           version: 2
           command: test
+
+      - name: Show service aries agents logs 2
+        #continue-on-error: true
+        if: always()
+        run: |
+          docker ps
+          docker logs "student-agent-container"
+          docker logs "university-agent-container"
   
   
   linting:
