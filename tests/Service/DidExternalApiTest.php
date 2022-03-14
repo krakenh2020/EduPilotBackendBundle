@@ -297,10 +297,12 @@ class DidExternalApiTest extends TestCase
             echo "student: accepting offer $action_piid ... \n";
             $acceptCredOffer = $studentAgent->acceptCredentialOffer($action_piid);
             $this->assertNotNull($acceptCredOffer);
+            $this->assertEquals([], json_decode($acceptCredOffer, true));
         }
 
         // University: Frontend polls if credential accepted (yes!)
         // → issue credential
+        sleep(5);
 
         $cred3 = new Credential("", $credoffer_piid, "", $credId);
         $credAcceptResp2 = $this->api->acceptRequest($cred3);
