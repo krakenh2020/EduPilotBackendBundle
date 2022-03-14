@@ -95,7 +95,7 @@ class AriesAgentClient
         try {
             $res = SimpleHttpClient::request($url, 'POST');
             if ($res['status_code'] !== 200) {
-                $this->logger->warning('acceptConnectionInvite status code: ' . $res['status_code']);
+                $this->logger->warning('acceptConnectionInvite status code: ' . $res['status_code'] . ': ' . $res['contents']);
                 return '';
             }
 
