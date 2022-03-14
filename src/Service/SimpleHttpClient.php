@@ -13,9 +13,12 @@ class SimpleHttpClient
 
     private $client;
 
-    public function __construct()
+    public function __construct($certVerifyDisabled = false)
     {
-        $this->client = HttpClient::create();
+        // in case of $certVerifyDisabled:
+        //   disabled: https://symfony.com/doc/current/reference/configuration/framework.html#verify-peer
+        //   still enabled: https://symfony.com/doc/current/reference/configuration/framework.html#verify-host
+        $this->client = HttpClient::create($certVerifyDisabled ? ['verify_peer' => false] : []);
     }
 
     /**
@@ -28,7 +31,10 @@ class SimpleHttpClient
     {
         //return self::requestInsecure($url, $method, $data);
 
-        $c = new SimpleHttpClient();
+        $isLocalhost = parse_url($url, PHP_URL_HOST) === 'localhost';
+        $certVerifyDisabled = $isLocalhost == true;
+
+        $c = new SimpleHttpClient($certVerifyDisabled);
         return $c->requestSymfony($url, $method, $data);
     }
 
