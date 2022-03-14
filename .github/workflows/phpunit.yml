@@ -27,7 +27,7 @@ jobs:
       - name: Pull aries agent images and setup network
         run: |
           docker pull ghcr.io/hyperledger/aries-framework-go:0.1.6
-          docker network create --label kraken-network github_network_kraken
+          docker network create github_network_kraken
 
       - name: Create student aries agent container
         run: |
