@@ -42,6 +42,8 @@ jobs:
       - name: Test connection via localhost
         continue-on-error: true
         run: |
+          echo "give agents time to start ..."
+          sleep 5
           echo "student:"
           curl http://localhost:8092/connections
           echo "university:"
