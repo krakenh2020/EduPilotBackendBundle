@@ -59,7 +59,9 @@ jobs:
         if: always()
         run: |
           docker ps
+          echo "## student-agent-container logs:"
           docker logs "student-agent-container"
+          echo "## university-agent-container logs:"
           docker logs "university-agent-container"
 
       - name: Cache Composer dependencies
@@ -82,7 +84,9 @@ jobs:
         if: always()
         run: |
           docker ps
+          echo "## student-agent-container logs:"
           docker logs "student-agent-container"
+          echo "## university-agent-container logs:"
           docker logs "university-agent-container"
   
   
