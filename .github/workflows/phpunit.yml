@@ -43,7 +43,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "give agents time to start ..."
-          sleep 5
+          sleep 60
           echo "student:"
           curl http://localhost:8092/connections
           echo "university:"
