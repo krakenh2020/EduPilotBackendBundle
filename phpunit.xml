@@ -11,7 +11,11 @@
 
     <coverage cacheDirectory=".phpunit-coverage-cache">
         <include>
-            <directory suffix=".php">tests</directory>
+            <directory suffix=".php">src</directory>
         </include>
+        <report>
+            <html outputDirectory="build/coverage"/>
+            <text outputFile="build/coverage.txt"/>
+        </report>
     </coverage>
 </phpunit>
