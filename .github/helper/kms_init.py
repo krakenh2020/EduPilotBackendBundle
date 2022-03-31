@@ -2,9 +2,9 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-// keys generated using https://github.com/transmute-industries/did-key.js
-// via https://www.npmjs.com/package/@transmute/did-key-ed25519
-// using https://gist.github.com/stefan2904/f1ac36cebe946a475bcbbb8c3e8960c9
+# keys generated using https://github.com/transmute-industries/did-key.js
+# via https://www.npmjs.com/package/@transmute/did-key-ed25519
+# using https://gist.github.com/stefan2904/f1ac36cebe946a475bcbbb8c3e8960c9
 
 
 agent_url = 'http://localhost:8082'
