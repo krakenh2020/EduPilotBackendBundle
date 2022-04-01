@@ -11,7 +11,11 @@
 
     <coverage cacheDirectory=".phpunit-coverage-cache">
         <include>
-            <directory suffix=".php">src</directory>
+            <file>src/Service/AriesAgentClient.php</file>
+            <file>src/Service/DidExternalApi.php</file>
+            <file>src/Service/ExternalApi.php</file>
+            <file>src/Service/SimpleHttpClient.php</file>
+            <directory suffix=".php">src/Entity</directory>
         </include>
         <report>
             <html outputDirectory="build/coverage"/>
