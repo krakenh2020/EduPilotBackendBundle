@@ -15,6 +15,9 @@ class ExternalApi implements DiplomaProviderInterface, CourseGradeProviderInterf
 
     public function __construct()
     {
+        // Test Data for KRAKEN Evaluation:
+        // (replace with api.tugraz.at DataProvider/DataPersister when/if ready)
+
         // diplomas
         $this->diplomas = [];
 
@@ -78,7 +81,7 @@ class ExternalApi implements DiplomaProviderInterface, CourseGradeProviderInterf
 
     public function getDiplomaById(string $identifier): ?Diploma
     {
-        foreach ($this->diplomas as $diploma) {
+        foreach ($this->getDiplomas() as $diploma) {
             if ($diploma->getIdentifier() === $identifier) {
                 return $diploma;
             }
@@ -94,7 +97,7 @@ class ExternalApi implements DiplomaProviderInterface, CourseGradeProviderInterf
 
     public function getCourseGradeById(string $identifier): ?CourseGrade
     {
-        foreach ($this->courseGrades as $courseGrade) {
+        foreach ($this->getCourseGrades() as $courseGrade) {
             if ($courseGrade->getIdentifier() === $identifier) {
                 return $courseGrade;
             }
