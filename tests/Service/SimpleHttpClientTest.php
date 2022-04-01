@@ -20,11 +20,11 @@ class SimpleHttpClientTest extends TestCase
         $this->assertNotEmpty($r);
     }
 
-    public function testRequestGoogleInsecure()
+   /* public function testRequestGoogleInsecure()
     {
         $r = SimpleHttpClient::requestInsecure("https://google.com");
         $this->assertNotEmpty($r);
-    }
+    }*/
 
     public function testRequestKrakenIAIK()
     {

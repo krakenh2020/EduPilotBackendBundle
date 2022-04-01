@@ -75,13 +75,13 @@ class DidExternalApiTest extends TestCase
         $this->assertEquals(200, $res['status_code'], "Cannot reach $url: " . $res['status_code']);
     }
 
-    public function testHttpClientInsecure()
+    /*public function testHttpClientInsecure()
     {
         $url = 'https://krakenh2020.eu';
         $res = SimpleHttpClient::requestInsecure($url, 'GET');
         //print_r($res);
         $this->assertEquals(200, $res['status_code']);
-    }
+    }*/
 
     public function testRemoteAgentConnection()
     {
