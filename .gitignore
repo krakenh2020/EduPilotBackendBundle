@@ -4,3 +4,5 @@
 /.idea
 /*.cache
 /_coverage
+/.phpunit-coverage-cache
+/build
