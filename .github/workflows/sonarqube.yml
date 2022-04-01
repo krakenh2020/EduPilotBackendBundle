@@ -11,10 +11,11 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: false 
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
-      env: 
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}      
+    - name: SonarQube Scan 🚑
+      uses: kitabisa/sonarqube-action@master
       with:
-        args: -Dsonar.projectKey=EduPilotBackend
+        host: ${{ secrets.SONARQUBE_HOST }}
+        login: ${{ secrets.SONARQUBE_TOKEN }}
+        projectKey: EduPilotBackend
+        projectVersion: 1
+ 
