@@ -429,6 +429,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             ];
         } else {
             $this->logger->error("Unknown credential type: $type");
+            return null;
         }
 
         // STEP 2: Sign credential using /verifiable/signcredential
