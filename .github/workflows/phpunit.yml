@@ -78,6 +78,8 @@ jobs:
         with:
           version: 2
           command: test
+        env:
+          XDEBUG_MODE: coverage
 
       - name: Show service aries agents logs 2
         #continue-on-error: true
