@@ -1,0 +1,21 @@
+name: SonarQube Scan
+on:
+  push:
+    branches:
+      - sonarqube
+jobs:
+  sonarqube-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: action/checkout@v2
+      with:
+        fetch-depth: 0
+        persist-credentials: false 
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      with:
+        args: >
+          -Dsonar.projectKey=EduPilotBackend
+      env: 
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
