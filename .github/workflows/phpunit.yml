@@ -73,6 +73,13 @@ jobs:
       - name: Install PHP dependencies
         uses: php-actions/composer@v6
 
+      - name: Show PHP version and modules
+        #continue-on-error: true
+        if: always()
+        run: |
+          php -v
+          php -m
+
       - name: Run tests
         uses: php-actions/composer@v6
         with:
