@@ -77,7 +77,7 @@ jobs:
         uses: php-actions/composer@v6
         with:
           version: 2
-          command: test
+          command: test_with_clover
         env:
           XDEBUG_MODE: coverage
 

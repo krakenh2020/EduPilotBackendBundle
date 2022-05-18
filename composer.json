@@ -45,6 +45,9 @@
         "test": [
             "@php vendor/bin/simple-phpunit"
         ],
+        "test_with_clover": [
+            "@php vendor/bin/simple-phpunit --log-junit 'build/unitreport.xml' --coverage-clover 'build/clover.xml'"
+        ],
         "phpstan": [
             "@php vendor/bin/simple-phpunit --atleast-version 0",
             "@php vendor/bin/phpstan analyze --ansi"
