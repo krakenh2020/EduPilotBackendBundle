@@ -70,9 +70,6 @@ jobs:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
-      - name: Install PHP dependencies
-        uses: php-actions/composer@v6
-
       - name: Show PHP version and modules
         #continue-on-error: true
         if: always()
@@ -80,10 +77,19 @@ jobs:
           php -v
           php -m
 
+
+      - name: Install PHP dependencies
+        uses: php-actions/composer@v6
+        with:
+          version: 2
+          php_extensions: xdebug curl
+
+    
       - name: Run tests
         uses: php-actions/composer@v6
         with:
           version: 2
+          php_extensions: xdebug curl
           command: test_with_clover
         env:
           XDEBUG_MODE: coverage
