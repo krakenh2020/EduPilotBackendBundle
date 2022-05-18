@@ -90,6 +90,14 @@ jobs:
           docker logs "student-agent-container"
           echo "## university-agent-container logs:"
           docker logs "university-agent-container"
+
+      - name: SonarQube Scan 🚑
+        uses: kitabisa/sonarqube-action@master
+        with:
+          host: ${{ secrets.SONARQUBE_HOST }}
+          login: ${{ secrets.SONARQUBE_TOKEN }}
+          projectKey: EduPilotBackend
+          projectVersion: 1
   
   
   linting:
