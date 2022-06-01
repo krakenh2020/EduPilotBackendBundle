@@ -443,6 +443,10 @@ class DidExternalApi implements DidConnectionProviderInterface
         ];
 
         $signedCred = $this->agent->signCredential($signrequest);
+        if($signedCred == null) {
+            return null;
+        }
+
         $signedCred = json_decode($signedCred)->verifiableCredential;
 
         // STEP 3: Build credential datastructure

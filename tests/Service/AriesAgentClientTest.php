@@ -27,7 +27,32 @@ class AriesAgentClientTest extends TestCase
 
         $this->assertTrue($agentReachable);
     }
+
+    public function testConnectionFailDNS()
+    {
+        $agent1logger = new AgentMockLogger('Agent 42');
+
+        $agent1Url = 'https://somethingthatdoesnotexist.iaik.tugraz.at';
+        $agent1DID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr'; 
+        $agent42 = new AriesAgentClient($agent1logger, $agent1Url, $agent1DID);
+
+        $agentReachable = $agent42->checkConnection();
+
+        $this->assertFalse($agentReachable);
+    }
     
+    public function testConnectionFail500()
+    {
+        $agent1logger = new AgentMockLogger('Agent 42');
+
+        $agent1Url = 'https://mock.codes/500';
+        $agent1DID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr'; 
+        $agent43 = new AriesAgentClient($agent1logger, $agent1Url, $agent1DID);
+
+        $agentReachable = $agent43->checkConnection();
+
+        $this->assertFalse($agentReachable);
+    }
 
     public function testCreateInvite()
     {

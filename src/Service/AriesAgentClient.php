@@ -23,16 +23,16 @@ class AriesAgentClient
         $this->logger->info('AriesAgentClient initialized!');
     }
 
-    public function getAgentUrl()
-    {
-        return $this->agentUrl;
-    }
-
     public function checkConnection(): bool
     {
         $PATH_CONNECTIONS = '/connections';
         $url = $this->agentUrl . $PATH_CONNECTIONS;
-        $res = SimpleHttpClient::request($url);
+
+        try {
+            $res = SimpleHttpClient::request($url);
+        } catch (Exception $exception) {
+            return false;
+        }
 
         if ($res['status_code'] !== 200) {
             $this->logger->warning("Checked connection to $url, status code: " . $res['status_code']);
@@ -47,104 +47,61 @@ class AriesAgentClient
         $this->logger->warning($methodname . ' status code: ' . $res['status_code'] . ' -> ' . $res['contents']);
     }
 
-    public function createInvitation(string $alias = 'TU Graz KRAKEN Demo'): string
+    private function request(string $methodname, string $method, string $url, array $data = []) {
+        try {
+            $res = SimpleHttpClient::request($url, $method, $data);
+            if ($res['status_code'] !== 200) {
+                $this->printError($methodname, $res);
+                return null;
+            }
+
+            return $res['contents'];
+
+        } catch (Exception $exception) {
+            $this->logger->error("$methodname failed: $exception");
+            throw new Exception("$methodname failed: $exception");
+        }
+    }
+
+    public function createInvitation(string $alias = 'TU Graz KRAKEN Demo'): ?string
     {
 
         $PATH_CREATE_INVITATION = '/connections/create-invitation';
         $url = $this->agentUrl . $PATH_CREATE_INVITATION . '?alias=' . urlencode($alias);
 
-        try {
-            $res = SimpleHttpClient::request($url, 'POST');
-            if ($res['status_code'] !== 200) {
-                $this->printError('createInvitation', $res);
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('createInvitation exception: ' . $exception);
-            return '';
-        }
+        return $this->request('createInvitation', 'POST', $url);
     }
 
-    public function receiveConnectionInvite($invite): string
+    public function receiveConnectionInvite($invite): ?string
     {
         $PATH_RECEIVE_INVITATION = '/connections/receive-invitation';
         $url = $this->agentUrl . $PATH_RECEIVE_INVITATION;
 
-        try {
-            $res = SimpleHttpClient::request($url, 'POST', $invite);
-            if ($res['status_code'] !== 200) {
-                $this->printError('receiveConnectionInvite', $res);
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('receiveConnectionInvite exception: ' . $exception);
-        }
-
-        return '';
+        return $this->request('receiveConnectionInvite', 'POST', $url, $invite);
     }
 
-    public function acceptConnectionInvite(string $connectionId): string
+    public function acceptConnectionInvite(string $connectionId): ?string
     {
         $PATH_ACCEPT_INVITATION = '/connections/' . $connectionId . '/accept-invitation';
         $url = $this->agentUrl . $PATH_ACCEPT_INVITATION;
 
-        try {
-            $res = SimpleHttpClient::request($url, 'POST');
-            if ($res['status_code'] !== 200) {
-                $this->logger->warning('acceptConnectionInvite status code: ' . $res['status_code'] . ': ' . $res['contents']);
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('acceptConnectionInvite exception: ' . $exception);
-        }
-
-        return '';
+        return $this->request('acceptConnectionInvite', 'POST', $url);
     }
 
-    public function listConnections(): string
+    public function listConnections(): ?string
     {
         $PATH_GET_CONNECTIONS = '/connections';
         $url = $this->agentUrl . $PATH_GET_CONNECTIONS;
 
-        try {
-            $res = SimpleHttpClient::request($url, 'GET');
-            if ($res['status_code'] !== 200) {
-                $this->logger->warning('listConnections status code: ' . $res['status_code']);
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('listConnections exception: ' . $exception);
-        }
-
-        return '';
+        return $this->request('listConnections', 'GET', $url);
     }
 
-    public function getConnectionById(string $id): string
+    public function getConnectionById(string $id): ?string
     {
         $PATH_GET_CONNECTION = '/connections/' . $id;
         $url = $this->agentUrl . $PATH_GET_CONNECTION;
 
-        try {
-            $res = SimpleHttpClient::request($url, 'GET');
-            if ($res['status_code'] !== 200) {
-                $this->logger->warning('getConnectionById status code: ' . $res['status_code']);
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('getConnectionById exception: ' . $exception);
-        }
-
-        return '';
+        return $this->request('getConnectionById', 'GET', $url);
     }
 
     public function acceptInviteRequest(string $identifier): ?string
@@ -152,20 +109,7 @@ class AriesAgentClient
         $PATH_ACCEPT_INVITATION = '/connections/' . $identifier . '/accept-request';
         $url = $this->agentUrl . $PATH_ACCEPT_INVITATION;
 
-        try {
-            $res = SimpleHttpClient::request($url, 'POST');
-            if ($res['status_code'] !== 200) {
-                $this->printError('acceptInviteRequest', $res);
-                $this->logger->warning($res['contents']);
-                return null;
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('acceptInviteRequest exception: ' . $exception);
-        }
-
-        return null;
+        return $this->request('acceptInviteRequest', 'POST', $url);
     }
 
     public function sendOfferRequest($credoffer): ?string
@@ -173,41 +117,15 @@ class AriesAgentClient
         $PATH_SEND_OFFER = '/issuecredential/send-offer';
         $url = $this->agentUrl . $PATH_SEND_OFFER;
 
-        //print_r($credoffer);
-
-        try {
-            $res = SimpleHttpClient::request($url, 'POST', $credoffer);
-            if ($res['status_code'] !== 200) {
-                $this->printError('sendOfferRequest', $res);
-                return null;
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('sendOfferRequest exception: ' . $exception);
-        }
-
-        return null;
+        return $this->request('sendOfferRequest', 'POST', $url, $credoffer);
     }
 
-    public function acceptRequestRequest(string $credoffer_piid, array $cred): string
+    public function acceptRequestRequest(string $credoffer_piid, array $cred): ?string
     {
         $PATH_ACCEPT_RREQUEST = '/issuecredential/' . $credoffer_piid . '/accept-request';
         $url = $this->agentUrl . $PATH_ACCEPT_RREQUEST;
 
-        try {
-            $res = SimpleHttpClient::request($url, 'POST', $cred);
-            if ($res['status_code'] !== 200) {
-                $this->logger->warning('acceptRequestRequest status code: ' . $res['status_code']);
-                return '';
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('acceptRequestRequest exception: ' . $exception);
-        }
-
-        return '';
+        return $this->request('acceptRequestRequest', 'POST', $url, $cred);
     }
 
     public function getIssuercredentialActions(): ?array
@@ -215,19 +133,8 @@ class AriesAgentClient
         $PATH_GET_CREDACTIONS = '/issuecredential/actions';
         $url = $this->agentUrl . $PATH_GET_CREDACTIONS;
 
-        try {
-            $res = SimpleHttpClient::request($url, 'GET');
-            if ($res['status_code'] !== 200) {
-                $this->logger->warning('getIssuercredentialActions status code: ' . $res['status_code']);
-                return null;
-            }
-
-            return json_decode($res['contents'])->actions;
-        } catch (Exception $exception) {
-            $this->logger->warning('getIssuercredentialActions exception: ' . $exception);
-        }
-
-        return null;
+        $r = $this->request('getIssuercredentialActions', 'GET', $url);
+        return $r != null ? json_decode($r)->actions : null;
     }
 
     public function acceptCredentialOffer(string $credoffer_piid): ?string
@@ -235,22 +142,10 @@ class AriesAgentClient
         $PATH_ACCEPT_CREDOFFER = '/issuecredential/' . $credoffer_piid . '/accept-offer';
         $url = $this->agentUrl . $PATH_ACCEPT_CREDOFFER;
 
-        try {
-            $res = SimpleHttpClient::request($url, 'POST');
-            if ($res['status_code'] !== 200) {
-                $this->logger->warning('acceptCredentialOffer status code: ' . $res['status_code']);
-                return null;
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('acceptCredentialOffer exception: ' . $exception);
-        }
-
-        return null;
+        return $this->request('acceptCredentialOffer', 'POST', $url);
     }
 
-    public function signCredential(array $cred): string
+    public function signCredential(array $cred): ?string
     {
         $PATH_SIGN_CRED = '/verifiable/signcredential';
         $url = $this->agentUrl . $PATH_SIGN_CRED;
@@ -258,18 +153,7 @@ class AriesAgentClient
         $credJson = json_encode($cred);
         $this->logger->info("Signing a credential using $url: $credJson");
 
-        try {
-            $res = SimpleHttpClient::request($url, 'POST', $cred);
-            if ($res['status_code'] !== 200) {
-                $code = $res['status_code'];
-                $this->logger->error("Credential signing failed: HTTP $code -> " . $res['contents']);
-            }
-
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->error("Credential signing failed: $exception");
-            throw new Exception("Credential signing failed: $exception");
-        }
+        return $this->request('signCredential', 'POST', $url, $cred);
     }
 
     public function acceptCredential(string $credoffer_piid, string $cred_name): ?string
@@ -277,19 +161,7 @@ class AriesAgentClient
         $PATH_ACCEPT_CRED = '/issuecredential/' . $credoffer_piid . '/accept-credential';
         $url = $this->agentUrl . $PATH_ACCEPT_CRED;
 
-        $this->logger->info("acceptCredential: " . $url);
-        try {
-            $res = SimpleHttpClient::request($url, 'POST', ["names" => [$cred_name]]);
-            if ($res['status_code'] !== 200) {
-                $this->logger->warning('acceptCredential status code: ' . $res['status_code'] . '  ' . $res['contents']);
-                return null;
-            }
+        return $this->request('acceptCredential', 'POST', $url, ["names" => [$cred_name]]);
 
-            return $res['contents'];
-        } catch (Exception $exception) {
-            $this->logger->warning('acceptCredential exception: ' . $exception);
-        }
-
-        return null;
     }
 }
