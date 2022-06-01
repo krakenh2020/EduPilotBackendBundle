@@ -274,8 +274,6 @@ class DidExternalApiTest extends TestCase
         $this->assertNotEmpty($inviteAcceptDetails);
 
         // University: Poll if invite accepted (yes)
-
-        //  not sure if the problem is that the test is faster than the agent:
         for ($i = 0; $i < 10; $i++) {
             $uniConnection = $this->api->getDidConnectionById($connection_id);
             if ($uniConnection != null) break;
