@@ -111,8 +111,10 @@ jobs:
       
       - name: Fix clover and junit results
         run: |
-          sed -i -e 's:/app/:${GITHUB_WORKSPACE}/:g' build/clover.xml
-          sed -i -e 's:/app/:${GITHUB_WORKSPACE}/:g' build/unitreport.xml
+          # sed -i -e 's:/app/:${GITHUB_WORKSPACE}/:g' build/clover.xml
+          # sed -i -e 's:/app/:${GITHUB_WORKSPACE}/:g' build/unitreport.xml
+          CONTENT=$(cat build/clover.xml); echo "$CONTENT" | sed -e 's:/app/:${GITHUB_WORKSPACE}/:g' > build/clover.xml
+          CONTENT=$(cat build/unitreport.xml); echo "$CONTENT" | sed -e 's:/app/:${GITHUB_WORKSPACE}/:g' > build/unitreport.xml
 
       - name: Display clover results 2
         run: |
