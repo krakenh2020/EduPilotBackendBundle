@@ -202,9 +202,22 @@ class DidExternalApiTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testFullFlow()
+    public function testFullFlowDiploma()
     {
-        $this->markTestSkipped('something not working with DID connection on github actions ...');
+        //$this->markTestSkipped('something not working with DID connection on github actions ...');
+
+        $this->credFlow("/diplomas/bsc1");
+    }
+
+    public function testFullFlowGrade()
+    {
+        //$this->markTestSkipped('something not working with DID connection on github actions ...');
+
+        $this->credFlow("/course-grades/os");
+    }
+
+    public function credFlow($credId)
+    {
 
         $studentAgentUrl = self::getStudentAgentUrl();
 
@@ -278,7 +291,7 @@ class DidExternalApiTest extends TestCase
 
         // University: Send credential offer
 
-        $credId = "/diplomas/bsc1";
+        //$credId = "/diplomas/bsc1";
 
         $cred = new Credential("", $uniAcceptedInvite->MyDID, $uniAcceptedInvite->TheirDID, $credId);
         $credofferResp = $this->api->sendOffer($cred);
