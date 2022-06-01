@@ -263,9 +263,14 @@ class DidExternalApiTest extends TestCase
         $studentConnectionId = $studentConnection->connection_id;
 
         // Student: Accept invite
-        // POST '/connections/' + connectionId + '/accept-invitation'
+        // POST '/connections/' + connectionId + '/accept-invitation'        
+        for ($i = 0; $i < 10; $i++) {
+            $inviteAcceptDetails = $studentAgent->acceptConnectionInvite($studentConnectionId);
+            if ($inviteAcceptDetails != null) break;
+            sleep(1);
+        }
 
-        $inviteAcceptDetails = $studentAgent->acceptConnectionInvite($studentConnectionId);
+        $this->assertNotNull($inviteAcceptDetails);
         $this->assertNotEmpty($inviteAcceptDetails);
 
         // University: Poll if invite accepted (yes)
