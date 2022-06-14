@@ -292,7 +292,8 @@ class DidExternalApi implements DidConnectionProviderInterface
                 ],
             ];
         } else {
-            $this->logger->error('Unknown credential type: ' . $type);
+            $this->logger->error('Unknown credential type: '.$type);
+
             return null;
         }
 
