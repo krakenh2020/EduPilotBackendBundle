@@ -48,6 +48,7 @@ jobs:
 
 
       - name: Test connection via localhost
+        continue-on-error: true
         run: |
           curl http://localhost:8092/connections
           docker logs "student-agent-container"
@@ -56,6 +57,7 @@ jobs:
 
 
       - name: Test connection via 127.0.0.1
+        continue-on-error: true
         run: |
           curl http://127.0.0.1:8092/connections
           docker logs "student-agent-container"
@@ -64,6 +66,7 @@ jobs:
 
 
       - name: Init Aries KMS
+        continue-on-error: true
         run: |
           pip3 install requests
           python3 .github/helper/kms_init.py
