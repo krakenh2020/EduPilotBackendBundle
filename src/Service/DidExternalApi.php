@@ -209,7 +209,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $this->didConnections;
     }
 
-    /*public function getCredentialById(string $identifier): ?Credential
+    public function getCredentialById(string $identifier): ?Credential
     {
         // TODO: check if this is actually used by frontend
 
@@ -220,7 +220,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $credential->setStatus('asdf');
 
         return $credential;
-    }*/
+    }
 
     public function buildOfferRequest(string $myDid, string $theirDid, $api, $type, $id)
     {

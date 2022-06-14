@@ -27,8 +27,8 @@ final class CredentialItemDataProvider implements ItemDataProviderInterface, Res
     /**
      * @param array|int|string $id
      */
-    public function getItem(string $resourceClass, $id, string $operationName = null, array $context = []): ?DidConnection
+    public function getItem(string $resourceClass, $id, string $operationName = null, array $context = []): ?Credential
     {
-        return $this->api->getDidConnectionById($id);
+        return $this->api->getCredentialById($id);
     }
 }
