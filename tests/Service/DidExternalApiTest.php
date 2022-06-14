@@ -336,7 +336,7 @@ class DidExternalApiTest extends TestCase
             $action_piid = $action->PIID;
             self::log("student: accepting offer $action_piid ... \n");
             $acceptCredOffer = $studentAgent->acceptCredentialOffer($action_piid);
-            $this->assertNotNull($acceptCredOffer);
+            $this->assertNotNull($acceptCredOffer, "student: accepting credential offer failed.");
             $this->assertEquals([], json_decode($acceptCredOffer, true));
         }
 
