@@ -274,9 +274,14 @@ class DidExternalApiTest extends TestCase
         $this->assertNotEmpty($inviteAcceptDetails);
 
         // University: Poll if invite accepted (yes)
-        for ($i = 0; $i < 10; $i++) {
-            $uniConnection = $this->api->getDidConnectionById($connection_id);
-            if ($uniConnection != null) break;
+        for ($i = 0; $i < 20; $i++) {
+            $uniConnectionTmp = $this->api->getDidConnectionById($connection_id);
+            if ($uniConnectionTmp != null && json_decode($uniConnectionTmp->getInvitation())->State === "completed") {
+                $uniConnection = $uniConnectionTmp;
+                //$s = json_decode($uniConnection->getInvitation())->State;
+                //self::log($s);
+                break;
+            }
             sleep(1);
         }
 
@@ -288,11 +293,13 @@ class DidExternalApiTest extends TestCase
         //echo "MyDID= " . $uniAcceptedInvite->MyDID;
         //echo "TheirDID= " . $uniAcceptedInvite->TheirDID;
 
-        sleep(5); // wait for uni agent to receive info that student accepted the invite
-//        $uniConnection = $this->api->getDidConnectionById($connection_id);
-//        $uniAcceptedInvite = json_decode($uniConnection->getInvitation());
-//        echo "uniAcceptedInvite: $uniAcceptedInvite->State\n";  // responded ...
-//        print_r($uniAcceptedInvite);
+        /*
+         * sleep(5); // wait for uni agent to receive info that student accepted the invite
+        $uniConnection = $this->api->getDidConnectionById($connection_id);
+        $uniAcceptedInvite = json_decode($uniConnection->getInvitation());
+        echo "uniAcceptedInvite: $uniAcceptedInvite->State\n";  // responded ...
+        print_r($uniAcceptedInvite);
+        */
 
         ///////////////////////////////////////////////////////////////////////
         // done, connection established!
