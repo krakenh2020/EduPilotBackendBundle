@@ -122,11 +122,11 @@ jobs:
         run: |
           cat build/clover.xml| grep "<file"
 
-      - name: SonarQube Scan 🚑
-        uses: kitabisa/sonarqube-action@master
-        with:
-          host: ${{ secrets.SONARQUBE_HOST }}
-          login: ${{ secrets.SONARQUBE_TOKEN }}
+  #      - name: SonarQube Scan 🚑
+  #        uses: kitabisa/sonarqube-action@master
+  #        with:
+  #          host: ${{ secrets.SONARQUBE_HOST }}
+  #          login: ${{ secrets.SONARQUBE_TOKEN }}
   
   
   linting:
