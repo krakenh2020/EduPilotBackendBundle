@@ -43,45 +43,38 @@ jobs:
 
 
       - name: Show service logs
-        continue-on-error: true
         run: |
           docker ps
           docker logs "student-agent-container"
           docker logs "university-agent-container"
 
       - name: Give agents time to start ...
-        continue-on-error: true
         run: |
           sleep 60
 
       - name: Test uni connection via localhost
-        continue-on-error: true
         run: |
           curl http://localhost:8082/connections
           docker logs "university-agent-container"
 
 
       - name: Test uni connection via 127.0.0.1
-        continue-on-error: true
         run: |
           curl http://127.0.0.1:8082/connections
           docker logs "university-agent-container"
 
       - name: Test student connection via localhost
-        continue-on-error: true
         run: |
           curl http://localhost:8092/connections
           docker logs "student-agent-container"
 
 
       - name: Test student connection via 127.0.0.1
-        continue-on-error: true
         run: |
           curl http://127.0.0.1:8092/connections
           docker logs "student-agent-container"
 
       - name: Init Aries KMS
-        continue-on-error: true
         run: |
           pip3 install requests
           python3 .github/helper/kms_init.py
