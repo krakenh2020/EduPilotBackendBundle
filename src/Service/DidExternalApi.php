@@ -77,7 +77,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         try {
             $res = SimpleHttpClient::request($url);
-        } catch (HttpExceptionInterface $e) {
+        } catch (Exception $e) {
             $this->logger->warning($e);
 
             return false;

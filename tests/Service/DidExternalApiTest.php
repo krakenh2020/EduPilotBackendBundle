@@ -27,8 +27,8 @@ class DidExternalApiTest extends TestCase
     protected function setUp(): void
     {
         $kernel = new Kernel([
-            'aries_agent_university' => self::getUniAgentUrl(),
-            'aries_agent_university2' => 'https://krakenh2020.eu', // this is not a valid agent on purpose
+            'aries_agent_university' => 'https://krakenh2020.eu/fail', // this is not a valid agent on purpose
+            'aries_agent_university2' => self::getUniAgentUrl(),
         ]);
 
         $kernel->boot();
