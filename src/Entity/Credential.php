@@ -69,7 +69,6 @@ class Credential
 
 
     /**
-    * @param $identifier
     * @param string $myDid
     * @param string $theirDid
     * @param string $status
