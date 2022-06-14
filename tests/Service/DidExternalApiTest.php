@@ -288,9 +288,15 @@ class DidExternalApiTest extends TestCase
         //echo "MyDID= " . $uniAcceptedInvite->MyDID;
         //echo "TheirDID= " . $uniAcceptedInvite->TheirDID;
 
+        sleep(5); // wait for uni agent to receive info that student accepted the invite
+//        $uniConnection = $this->api->getDidConnectionById($connection_id);
+//        $uniAcceptedInvite = json_decode($uniConnection->getInvitation());
+//        echo "uniAcceptedInvite: $uniAcceptedInvite->State\n";  // responded ...
+//        print_r($uniAcceptedInvite);
+
         ///////////////////////////////////////////////////////////////////////
         // done, connection established!
-        $this->assertTrue(true);
+        $this->assertNotNull($uniAcceptedInvite, "Uni did not yet accept DID invite.");
 
         // University: Send credential offer
 
