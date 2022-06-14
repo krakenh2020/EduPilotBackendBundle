@@ -19,7 +19,7 @@ class DiplomaPersister implements DataPersisterInterface
 
     public function supports($data): bool
     {
-        return $data instanceof CourseGrade;
+        return $data instanceof Diploma;
     }
 
     public function persist($data)
