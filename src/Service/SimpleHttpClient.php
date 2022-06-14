@@ -48,7 +48,7 @@ class SimpleHttpClient
     {
         // uses https://symfony.com/doc/current/http_client.html
 
-        if ($data !== null) {
+        if ($data !== null && count($data) > 0) {
             $response = $this->client->request($method, $url, ['json' => $data]);
         } else {
             $response = $this->client->request($method, $url);

@@ -330,14 +330,13 @@ class DidExternalApiTest extends TestCase
         self::log('Handling '.count($studentActions).' actions ...');
         foreach ($studentActions as $action) {
             self::log('offer-credential? '.$action->Msg->{'@type'}."\n");
-            if (!str_contains($action->Msg->{'@type'}, 'offer-credential')) {
-                continue;
+            if (str_contains($action->Msg->{'@type'}, 'offer-credential')) {
+                $action_piid = $action->PIID;
+                self::log("student: accepting offer $action_piid ... \n");
+                $acceptCredOffer = $studentAgent->acceptCredentialOffer($action_piid);
+                $this->assertNotNull($acceptCredOffer, 'student: accepting credential offer failed.');
+                $this->assertEquals([], json_decode($acceptCredOffer, true));
             }
-            $action_piid = $action->PIID;
-            self::log("student: accepting offer $action_piid ... \n");
-            $acceptCredOffer = $studentAgent->acceptCredentialOffer($action_piid);
-            $this->assertNotNull($acceptCredOffer, "student: accepting credential offer failed.");
-            $this->assertEquals([], json_decode($acceptCredOffer, true));
         }
 
         // University: Frontend polls if credential accepted (yes!)
