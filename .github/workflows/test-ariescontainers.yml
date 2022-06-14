@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
       - name: Docker Login
         uses: docker/login-action@v1
         with:
@@ -46,24 +49,36 @@ jobs:
           docker logs "student-agent-container"
           docker logs "university-agent-container"
 
-
-      - name: Test connection via localhost
+      - name: Give agents time to start ...
         continue-on-error: true
         run: |
-          curl http://localhost:8092/connections
-          docker logs "student-agent-container"
+          sleep 60
+
+      - name: Test uni connection via localhost
+        continue-on-error: true
+        run: |
           curl http://localhost:8082/connections
           docker logs "university-agent-container"
 
 
-      - name: Test connection via 127.0.0.1
+      - name: Test uni connection via 127.0.0.1
+        continue-on-error: true
+        run: |
+          curl http://127.0.0.1:8082/connections
+          docker logs "university-agent-container"
+
+      - name: Test student connection via localhost
+        continue-on-error: true
+        run: |
+          curl http://localhost:8092/connections
+          docker logs "student-agent-container"
+
+
+      - name: Test student connection via 127.0.0.1
         continue-on-error: true
         run: |
           curl http://127.0.0.1:8092/connections
           docker logs "student-agent-container"
-          curl http://127.0.0.1:8082/connections
-          docker logs "university-agent-container"
-
 
       - name: Init Aries KMS
         continue-on-error: true

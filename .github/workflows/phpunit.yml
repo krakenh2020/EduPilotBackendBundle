@@ -46,6 +46,7 @@ jobs:
         run: |
           echo "give agents time to start ..."
           sleep 60
+          docker ps
           echo "student:"
           curl http://localhost:8092/connections
           echo "university:"
