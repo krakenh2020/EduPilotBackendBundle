@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Service;
 
 use VC4SM\Bundle\Entity\CourseGrade;
-use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Entity\Diploma;
 
 class ExternalApi implements DiplomaProviderInterface, CourseGradeProviderInterface

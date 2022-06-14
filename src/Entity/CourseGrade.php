@@ -49,7 +49,6 @@ class CourseGrade
      */
     private $achievenmentDate;
 
-
     /**
      * @ApiProperty(iri="https://schema.org/Thing")
      * @Groups({"CourseGrade:output", "CourseGrade:input"})
@@ -57,7 +56,6 @@ class CourseGrade
      * @var string
      */
     private $grade;
-
 
     /**
      * @ApiProperty(iri="https://schema.org/Thing")

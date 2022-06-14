@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace VC4SM\Bundle\Service;
 
-use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Entity\Credential;
+use VC4SM\Bundle\Entity\DidConnection;
 
 interface DidConnectionProviderInterface
 {
@@ -18,5 +18,4 @@ interface DidConnectionProviderInterface
     public function sendOffer(Credential $data): ?Credential;
 
     public function acceptRequest(Credential $data): ?Credential;
-
 }

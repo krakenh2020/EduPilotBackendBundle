@@ -41,6 +41,7 @@ class DidConnection
 
     /**
      * todo: schema.
+     *
      * @Groups({"DidConnection:output", "DidConnection:input"})
      *
      * @var string

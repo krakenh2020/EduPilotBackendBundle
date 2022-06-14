@@ -5,18 +5,14 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Tests;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\ApiPlatformBundle;
-use Dbp\Relay\BasePersonBundle\DbpRelayBasePersonBundle;
-use Dbp\Relay\CoreBundle\DbpRelayCoreBundle;
 use Nelmio\CorsBundle\NelmioCorsBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Bundle\MonologBundle\MonologBundle;
 use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use VC4SM\Bundle\Vc4smBundle;
 
 class Kernel extends BaseKernel
@@ -47,6 +43,4 @@ class Kernel extends BaseKernel
             $container->loadFromExtension('vc4sm', $this->vc4smConfig);
         });
     }
-
-
 }

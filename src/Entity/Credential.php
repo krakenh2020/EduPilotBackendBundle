@@ -69,9 +69,6 @@ class Credential
 
     /**
      * @param $identifier
-     * @param string $myDid
-     * @param string $theirDid
-     * @param string $status
      */
     public function __construct($identifier, string $myDid, string $theirDid, string $status)
     {
@@ -80,7 +77,6 @@ class Credential
         $this->theirDid = $theirDid;
         $this->status = $status;
     }
-
 
     public function getIdentifier(): string
     {

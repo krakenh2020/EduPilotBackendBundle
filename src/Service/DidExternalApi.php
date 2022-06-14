@@ -7,11 +7,7 @@ namespace VC4SM\Bundle\Service;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
 
@@ -65,6 +61,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         //DidExternalApi::$UNI_AGENT_URL = $agentUrl;
         $this->logger->info("Using Aries agent at $agentUrl.");
+
         return $agentUrl;
     }
 
@@ -76,12 +73,13 @@ class DidExternalApi implements DidConnectionProviderInterface
     public function checkConnection(string $baseUrl): bool
     {
         $PATH_CONNECTIONS = '/connections'; // path known to exist for aries agents
-        $url = $baseUrl . $PATH_CONNECTIONS;
+        $url = $baseUrl.$PATH_CONNECTIONS;
 
         try {
             $res = SimpleHttpClient::request($url);
         } catch (HttpExceptionInterface $e) {
             $this->logger->warning($e);
+
             return false;
         }
 
@@ -95,13 +93,13 @@ class DidExternalApi implements DidConnectionProviderInterface
     public function checkAgentConnection(): void
     {
         if (!$this->agent->checkConnection()) {
-            throw new Exception('No connection to agent at ' . $this->agent->getAgentUrl());
+            throw new Exception('No connection to agent at '.$this->agent->getAgentUrl());
         }
     }
 
     public function getDidConnectionById(string $identifier): ?DidConnection
     {
-        $this->logger->info('getDidConnectionById for ' . $identifier);
+        $this->logger->info('getDidConnectionById for '.$identifier);
         $this->checkAgentConnection();
 
         $didConnection = new DidConnection();
@@ -133,19 +131,18 @@ class DidExternalApi implements DidConnectionProviderInterface
                 $acceptRes = $this->agent->acceptInviteRequest($connectionId);
 
                 $this->logger->info("acceptRes: $acceptRes");
-                if ($acceptRes == null || $acceptRes === '') {
+                if ($acceptRes === null || $acceptRes === '') {
                     $this->logger->warning('Failed to accept connection request.');
+
                     return null;
                 }
                 $oneAccepted = true;
                 break;
-
             } elseif ($invite->InvitationID === $identifier && ($invite->State === 'responded' || $invite->State === 'completed')) {
                 $this->logger->info('Invitation found and state already accepted ... moving on.');
                 $connectionId = $invite->ConnectionID;
                 $oneAccepted = true;
                 break;
-
             } /*else {
                 $this->logger->info("open invite, ID: $invite->InvitationID, \n requested: $identifier, \n state: $invite->State");
             }*/
@@ -153,6 +150,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         if (!$oneAccepted) {
             $this->logger->warning('Invite not (yet) accepted by student.');
+
             return null;
         }
 
@@ -171,7 +169,6 @@ class DidExternalApi implements DidConnectionProviderInterface
         throw new Exception('Connection not found ...');
         //return null;
     }
-
 
     /**
      * Each student needs a fresh DID connection.
@@ -197,9 +194,9 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         if ($invitation) {
             $didConnection1->setInvitation($invitation);
-            $this->logger->info("initNewDidConnection: created new DID connection: " . print_r($didConnection1, true));
+            $this->logger->info('initNewDidConnection: created new DID connection: '.print_r($didConnection1, true));
         } else {
-            $this->logger->warning("initNewDidConnection: could not create new connection.");
+            $this->logger->warning('initNewDidConnection: could not create new connection.');
         }
 
         $this->didConnections[] = $didConnection1;
@@ -208,6 +205,7 @@ class DidExternalApi implements DidConnectionProviderInterface
     public function getDidConnections(): array
     {
         $this->initNewDidConnection();
+
         return $this->didConnections;
     }
 
@@ -302,7 +300,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $offer_credential = [
             '@type' => 'https://didcomm.org/issue-credential/1.0/offer-credential',
-            'comment' => $cred_type . ' offer',
+            'comment' => $cred_type.' offer',
             'credential_preview' => $cred_preview,
         ];
 
@@ -322,7 +320,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $this->checkAgentConnection();
 
-        $this->logger->info('Send offer for credential: ' . $data->getStatus());
+        $this->logger->info('Send offer for credential: '.$data->getStatus());
 
         $id = $data->getStatus();
         $type = explode('/', $id)[1];
@@ -333,7 +331,9 @@ class DidExternalApi implements DidConnectionProviderInterface
         $credoffer = self::buildOfferRequest($data->getMyDid(), $data->getTheirDid(), $api, $type, $id);
         $response = $this->agent->sendOfferRequest($credoffer);
 
-        if ($response == null) return null;
+        if ($response === null) {
+            return null;
+        }
 
         // todo: remove this temp thing.
         $data->setIdentifier($id);
@@ -345,7 +345,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
     public function acceptRequest(Credential $data): ?Credential
     {
-        $this->logger->info("acceptRequest: Issuing a " . $data->getStatus() . " credential ...");
+        $this->logger->info('acceptRequest: Issuing a '.$data->getStatus().' credential ...');
 
         $this->checkAgentConnection();
 
@@ -369,6 +369,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         if (!$found) {
             $this->logger->warning("Credential offer $credoffer_piid not (yet) accepted by student.");
+
             return null;
         } else {
             $this->logger->info("Credential offer $credoffer_piid accepted by student! Issuing $id ...");
@@ -392,7 +393,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'VerifiableCredential',
                     'UniversityDegreeCredential',
                 ],
-                'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/' . $diploma->getIdentifier(),
+                'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/'.$diploma->getIdentifier(),
                 'credentialSubject' => [
                     'id' => 'sample-student-id2',
                     'name' => $diploma->getName(),
@@ -415,7 +416,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'VerifiableCredential',
                     'UniversityDegreeCredential',
                 ],
-                'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/' . $courseGrade->getIdentifier(),
+                'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/'.$courseGrade->getIdentifier(),
                 'credentialSubject' => [
                     'id' => 'sample-student-id2',
                     'name' => $courseGrade->getName(),
@@ -429,6 +430,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             ];
         } else {
             $this->logger->error("Unknown credential type: $type");
+
             return null;
         }
 
@@ -443,7 +445,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         ];
 
         $signedCred = $this->agent->signCredential($signrequest);
-        if($signedCred == null) {
+        if ($signedCred === null) {
             return null;
         }
 
@@ -476,5 +478,4 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         return $data;
     }
-
 }

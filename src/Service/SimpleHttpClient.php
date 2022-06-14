@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace VC4SM\Bundle\Service;
 
-use Exception;
 use Symfony\Component\HttpClient\HttpClient;
 
 class SimpleHttpClient
@@ -32,9 +31,10 @@ class SimpleHttpClient
         //return self::requestInsecure($url, $method, $data);
 
         $isLocalhost = parse_url($url, PHP_URL_HOST) === 'localhost';
-        $certVerifyDisabled = $isLocalhost == true;
+        $certVerifyDisabled = $isLocalhost === true;
 
         $c = new SimpleHttpClient($certVerifyDisabled);
+
         return $c->requestSymfony($url, $method, $data);
     }
 
@@ -48,17 +48,17 @@ class SimpleHttpClient
     {
         // uses https://symfony.com/doc/current/http_client.html
 
-        if ($data != null) {
+        if ($data !== null) {
             $response = $this->client->request($method, $url, ['json' => $data]);
         } else {
             $response = $this->client->request($method, $url);
         }
 
         $status = $response->getStatusCode();
+
         return [
             'status_code' => $status,
-            'contents' => $response->getContent(false)
+            'contents' => $response->getContent(false),
         ];
     }
-    
 }

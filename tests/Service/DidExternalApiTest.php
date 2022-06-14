@@ -18,18 +18,17 @@ class DidExternalApiTest extends TestCase
     // https://github.com/krakenh2020/EduPilotDeploymentDocker#exposed-services
     private const localhost_uni_agent = 'http://localhost:8082';
     private const localhost_student_agent = 'http://localhost:8092';
-    const remote_student_agent = 'https://kraken.iaik.tugraz.at';
+    public const remote_student_agent = 'https://kraken.iaik.tugraz.at';
 
-    const testOffline = true; // only use localhost agents
+    public const testOffline = true; // only use localhost agents
 
     private $api;
 
     protected function setUp(): void
     {
-
         $kernel = new Kernel([
             'aries_agent_university' => self::getUniAgentUrl(),
-            'aries_agent_university2' => 'https://krakenh2020.eu' // this is not a valid agent on purpose
+            'aries_agent_university2' => 'https://krakenh2020.eu', // this is not a valid agent on purpose
         ]);
 
         $kernel->boot();
@@ -51,7 +50,7 @@ class DidExternalApiTest extends TestCase
 
     public static function log(string $text)
     {
-        fwrite(STDERR, "[Test] " . $text . "\n");
+        fwrite(STDERR, '[Test] '.$text."\n");
     }
 
     public function testLogger()
@@ -63,16 +62,16 @@ class DidExternalApiTest extends TestCase
 
     public function testStudentAgentReachable()
     {
-        $url = self::getStudentAgentUrl() . "/connections";
+        $url = self::getStudentAgentUrl().'/connections';
         $res = SimpleHttpClient::request($url);
-        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: " . $res['status_code']);
+        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: ".$res['status_code']);
     }
 
     public function testUniAgentReachable()
     {
-        $url = self::getUniAgentUrl() . "/connections";
+        $url = self::getUniAgentUrl().'/connections';
         $res = SimpleHttpClient::request($url);
-        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: " . $res['status_code']);
+        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: ".$res['status_code']);
     }
 
     /*public function testHttpClientInsecure()
@@ -86,14 +85,13 @@ class DidExternalApiTest extends TestCase
     public function testRemoteAgentConnection()
     {
         // KRAKEN public (student) agent
-        $ret1 = $this->api->checkConnection('https://kraken.iaik.tugraz.at', "could not reach remote agent");
+        $ret1 = $this->api->checkConnection('https://kraken.iaik.tugraz.at', 'could not reach remote agent');
         $this->assertTrue($ret1);
 
         // No agent at this URL
-        $ret2 = $this->api->checkConnection('https://krakenh2020.eu', "remote agent reached at URL where no remote agent is hosted");
+        $ret2 = $this->api->checkConnection('https://krakenh2020.eu', 'remote agent reached at URL where no remote agent is hosted');
         $this->assertFalse($ret2);
     }
-
 
     public function testBuildOfferRequestDiploma()
     {
@@ -133,8 +131,8 @@ class DidExternalApiTest extends TestCase
     {
         $studentAgentUrl = self::getStudentAgentUrl();
 
-        $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, "did:student");
-        $this->assertTrue($studentAgent->checkConnection(), "Could not connect to student agent ...");
+        $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, 'did:student');
+        $this->assertTrue($studentAgent->checkConnection(), 'Could not connect to student agent ...');
 
         // University: Create Invite
 
@@ -183,13 +181,15 @@ class DidExternalApiTest extends TestCase
         // University: Poll if invite accepted (yes)
 
         //  not sure if the problem is that the test is faster than the agent:
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $uniConnection = $this->api->getDidConnectionById($connection_id);
-            if ($uniConnection != null) break;
+            if ($uniConnection !== null) {
+                break;
+            }
             sleep(1);
         }
 
-        $this->assertNotNull($uniConnection, "Could not find accepted invite.");
+        $this->assertNotNull($uniConnection, 'Could not find accepted invite.');
         $this->assertNotEmpty($uniConnection);
         //print_r($uniConnection->getInvitation());
 
@@ -206,23 +206,22 @@ class DidExternalApiTest extends TestCase
     {
         //$this->markTestSkipped('something not working with DID connection on github actions ...');
 
-        $this->credFlow("/diplomas/bsc1");
+        $this->credFlow('/diplomas/bsc1');
     }
 
     public function testFullFlowGrade()
     {
         //$this->markTestSkipped('something not working with DID connection on github actions ...');
 
-        $this->credFlow("/course-grades/os");
+        $this->credFlow('/course-grades/os');
     }
 
     public function credFlow($credId)
     {
-
         $studentAgentUrl = self::getStudentAgentUrl();
 
-        $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, "did:student");
-        $this->assertTrue($studentAgent->checkConnection(), "Could not connect to student agent ...");
+        $studentAgent = new AriesAgentClient(new AgentMockLogger2('StudentAgent'), $studentAgentUrl, 'did:student');
+        $this->assertTrue($studentAgent->checkConnection(), 'Could not connect to student agent ...');
 
         // University: Create Invite
 
@@ -263,10 +262,12 @@ class DidExternalApiTest extends TestCase
         $studentConnectionId = $studentConnection->connection_id;
 
         // Student: Accept invite
-        // POST '/connections/' + connectionId + '/accept-invitation'        
-        for ($i = 0; $i < 10; $i++) {
+        // POST '/connections/' + connectionId + '/accept-invitation'
+        for ($i = 0; $i < 10; ++$i) {
             $inviteAcceptDetails = $studentAgent->acceptConnectionInvite($studentConnectionId);
-            if ($inviteAcceptDetails != null) break;
+            if ($inviteAcceptDetails !== null) {
+                break;
+            }
             sleep(1);
         }
 
@@ -274,9 +275,9 @@ class DidExternalApiTest extends TestCase
         $this->assertNotEmpty($inviteAcceptDetails);
 
         // University: Poll if invite accepted (yes)
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 20; ++$i) {
             $uniConnectionTmp = $this->api->getDidConnectionById($connection_id);
-            if ($uniConnectionTmp != null && json_decode($uniConnectionTmp->getInvitation())->State === "completed") {
+            if ($uniConnectionTmp !== null && json_decode($uniConnectionTmp->getInvitation())->State === 'completed') {
                 $uniConnection = $uniConnectionTmp;
                 //$s = json_decode($uniConnection->getInvitation())->State;
                 //self::log($s);
@@ -285,7 +286,7 @@ class DidExternalApiTest extends TestCase
             sleep(1);
         }
 
-        $this->assertNotNull($uniConnection, "Could not find accepted invite.");
+        $this->assertNotNull($uniConnection, 'Could not find accepted invite.');
         $this->assertNotEmpty($uniConnection);
         //print_r($uniConnection->getInvitation());
 
@@ -303,22 +304,22 @@ class DidExternalApiTest extends TestCase
 
         ///////////////////////////////////////////////////////////////////////
         // done, connection established!
-        $this->assertNotNull($uniAcceptedInvite, "Uni did not yet accept DID invite.");
+        $this->assertNotNull($uniAcceptedInvite, 'Uni did not yet accept DID invite.');
 
         // University: Send credential offer
 
         //$credId = "/diplomas/bsc1";
 
-        $cred = new Credential("", $uniAcceptedInvite->MyDID, $uniAcceptedInvite->TheirDID, $credId);
+        $cred = new Credential('', $uniAcceptedInvite->MyDID, $uniAcceptedInvite->TheirDID, $credId);
         $credofferResp = $this->api->sendOffer($cred);
 
-        $this->assertNotNull($credofferResp, "Failed to send credential offer.");
+        $this->assertNotNull($credofferResp, 'Failed to send credential offer.');
         //print_r($credofferResp); // contains PIID in myDID field → send back via myDID field to acceptRequest
 
         // University: Frontend polls if credential accepted (not yet)
 
         $credoffer_piid = json_decode($credofferResp->getMyDid())->piid;
-        $cred2 = new Credential("", $credoffer_piid, "", $credId);
+        $cred2 = new Credential('', $credoffer_piid, '', $credId);
         $credAcceptResp = $this->api->acceptRequest($cred2);
 
         $this->assertNull($credAcceptResp);
@@ -326,10 +327,12 @@ class DidExternalApiTest extends TestCase
         // Student: Accept cred offer
 
         $studentActions = $studentAgent->getIssuercredentialActions();
-        self::log("Handling " . count($studentActions) . " actions ...");
+        self::log('Handling '.count($studentActions).' actions ...');
         foreach ($studentActions as $action) {
-            self::log("offer-credential? " . $action->Msg->{"@type"} . "\n");
-            if (!str_contains($action->Msg->{"@type"}, "offer-credential")) continue;
+            self::log('offer-credential? '.$action->Msg->{'@type'}."\n");
+            if (!str_contains($action->Msg->{'@type'}, 'offer-credential')) {
+                continue;
+            }
             $action_piid = $action->PIID;
             self::log("student: accepting offer $action_piid ... \n");
             $acceptCredOffer = $studentAgent->acceptCredentialOffer($action_piid);
@@ -341,24 +344,25 @@ class DidExternalApiTest extends TestCase
         // → issue credential
         sleep(5);
 
-        $cred3 = new Credential("", $credoffer_piid, "", $credId);
+        $cred3 = new Credential('', $credoffer_piid, '', $credId);
         $credAcceptResp2 = $this->api->acceptRequest($cred3);
 
-        $this->assertNotNull($credAcceptResp2, "Tried to issue credential, but offer not yet accepted by student.");
+        $this->assertNotNull($credAcceptResp2, 'Tried to issue credential, but offer not yet accepted by student.');
         $this->assertEquals([], json_decode($credAcceptResp2->getMyDid(), true));
 
         // Student: Accept credential
         // (not sure why some only show up later, so do this twice)
 
-        for ($i = 0; $i < 2; $i++) {
-
+        for ($i = 0; $i < 2; ++$i) {
             $studentActions2 = $studentAgent->getIssuercredentialActions();
             foreach ($studentActions2 as $action) {
-                self::log("issue-credential? " . $action->Msg->{"@type"} . "\n");
-                if (!str_contains($action->Msg->{"@type"}, "issue-credential")) continue;
+                self::log('issue-credential? '.$action->Msg->{'@type'}."\n");
+                if (!str_contains($action->Msg->{'@type'}, 'issue-credential')) {
+                    continue;
+                }
                 $action_piid = $action->PIID;
                 self::log("student: accepting credential $action_piid ... \n");
-                $credname = "tug_cred_" . $action_piid;
+                $credname = 'tug_cred_'.$action_piid;
                 $acceptCred = $studentAgent->acceptCredential($action_piid, $credname);
                 $this->assertNotNull($acceptCred);
             }
@@ -370,8 +374,6 @@ class DidExternalApiTest extends TestCase
         self::log("done, credential $credId issued!\n");
         $this->assertTrue(true);
     }
-
-
 }
 
 class AgentMockLogger2
@@ -385,19 +387,18 @@ class AgentMockLogger2
 
     public function warning($text)
     {
-        $text = "Warning: " . $text . "\n";
+        $text = 'Warning: '.$text."\n";
         $this->writeItOut($text);
     }
 
     public function info($text)
     {
-        $text = "Info: " . $text . "\n";
+        $text = 'Info: '.$text."\n";
         $this->writeItOut($text);
     }
 
     private function writeItOut($text)
     {
-        fwrite(STDERR, "[$this->agentName] " . $text . "\n");
+        fwrite(STDERR, "[$this->agentName] ".$text."\n");
     }
 }
-
