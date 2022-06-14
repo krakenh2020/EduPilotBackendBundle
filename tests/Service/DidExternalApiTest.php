@@ -311,7 +311,7 @@ class DidExternalApiTest extends TestCase
 
         //$credId = "/diplomas/bsc1";
 
-        $cred = new Credential('', $uniAcceptedInvite->MyDID, $uniAcceptedInvite->TheirDID, $credId);
+        $cred = new Credential($uniAcceptedInvite->MyDID, $uniAcceptedInvite->TheirDID, $credId);
         $credofferResp = $this->api->sendOffer($cred);
 
         $this->assertNotNull($credofferResp, 'Failed to send credential offer.');
