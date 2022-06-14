@@ -50,23 +50,23 @@ jobs:
       - name: Test connection via localhost
         run: |
           curl http://localhost:8092/connections
+          docker logs "student-agent-container"
           curl http://localhost:8082/connections
+          docker logs "university-agent-container"
 
 
       - name: Test connection via 127.0.0.1
         run: |
           curl http://127.0.0.1:8092/connections
+          docker logs "student-agent-container"
           curl http://127.0.0.1:8082/connections
+          docker logs "university-agent-container"
 
 
       - name: Init Aries KMS
         run: |
-          echo "TODO: call aries_kms_init.py for both agents"
-
-      - name: Test connection
-        run: |
-          echo "TODO: use one of my python agents to test if agents work and talk to each other"
-      
+          pip3 install requests
+          python3 .github/helper/kms_init.py
 
       # -
       #   name: Test via hostname
