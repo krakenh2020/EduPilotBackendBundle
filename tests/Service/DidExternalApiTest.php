@@ -320,7 +320,7 @@ class DidExternalApiTest extends TestCase
         // University: Frontend polls if credential accepted (not yet)
 
         $credoffer_piid = json_decode($credofferResp->getMyDid())->piid;
-        $cred2 = new Credential('', $credoffer_piid, '', $credId);
+        $cred2 = new Credential($credoffer_piid, '', $credId);
         $credAcceptResp = $this->api->acceptRequest($cred2);
 
         $this->assertNull($credAcceptResp);
@@ -344,7 +344,7 @@ class DidExternalApiTest extends TestCase
         // → issue credential
         sleep(5);
 
-        $cred3 = new Credential('', $credoffer_piid, '', $credId);
+        $cred3 = new Credential($credoffer_piid, '', $credId);
         $credAcceptResp2 = $this->api->acceptRequest($cred3);
 
         $this->assertNotNull($credAcceptResp2, 'Tried to issue credential, but offer not yet accepted by student.');
