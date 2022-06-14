@@ -275,6 +275,7 @@ class DidExternalApiTest extends TestCase
         $this->assertNotEmpty($inviteAcceptDetails);
 
         // University: Poll if invite accepted (yes)
+        $uniConnection = null;
         for ($i = 0; $i < 20; ++$i) {
             $uniConnectionTmp = $this->api->getDidConnectionById($connection_id);
             if ($uniConnectionTmp !== null && json_decode($uniConnectionTmp->getInvitation())->State === 'completed') {

@@ -291,6 +291,9 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'value' => 'Credits',
                 ],
             ];
+        } else {
+            $this->logger->error('Unknown credential type: ' . $type);
+            return null;
         }
 
         $cred_preview = [

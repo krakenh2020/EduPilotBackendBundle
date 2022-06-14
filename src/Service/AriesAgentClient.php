@@ -160,9 +160,17 @@ class AriesAgentClient
 
     public function acceptCredential(string $credoffer_piid, string $cred_name): ?string
     {
-        $PATH_ACCEPT_CRED = '/issuecredential/'.$credoffer_piid.'/accept-credential';
-        $url = $this->agentUrl.$PATH_ACCEPT_CRED;
+        $PATH_ACCEPT_CRED = '/issuecredential/' . $credoffer_piid . '/accept-credential';
+        $url = $this->agentUrl . $PATH_ACCEPT_CRED;
 
         return $this->request('acceptCredential', 'POST', $url, ['names' => [$cred_name]]);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAgentUrl()
+    {
+        return $this->agentUrl;
     }
 }

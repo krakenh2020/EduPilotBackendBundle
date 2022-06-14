@@ -7,6 +7,7 @@ namespace VC4SM\Bundle\DataProvider;
 use ApiPlatform\Core\DataProvider\ItemDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use VC4SM\Bundle\Entity\Credential;
+use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Service\DidConnectionProviderInterface;
 
 final class CredentialItemDataProvider implements ItemDataProviderInterface, RestrictedDataProviderInterface
@@ -26,8 +27,8 @@ final class CredentialItemDataProvider implements ItemDataProviderInterface, Res
     /**
      * @param array|int|string $id
      */
-    public function getItem(string $resourceClass, $id, string $operationName = null, array $context = []): ?Credential
+    public function getItem(string $resourceClass, $id, string $operationName = null, array $context = []): ?DidConnection
     {
-        return $this->api->getCredentialById($id);
+        return $this->api->getDidConnectionById($id);
     }
 }
