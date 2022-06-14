@@ -140,7 +140,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                 $oneAccepted = true;
                 break;
 
-            } elseif ($invite->InvitationID === $identifier && $invite->State === 'responded') {
+            } elseif ($invite->InvitationID === $identifier && ($invite->State === 'responded' || $invite->State === 'completed')) {
                 $this->logger->info('Invitation found and state already accepted ... moving on.');
                 $connectionId = $invite->ConnectionID;
                 $oneAccepted = true;
