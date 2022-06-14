@@ -74,9 +74,9 @@ class Credential
     * @param string $theirDid
     * @param string $status
     */
-    public function __construct($identifier, string $myDid, string $theirDid, string $status)
+    public function __construct(string $myDid, string $theirDid, string $status)
     {
-        $this->identifier = $identifier;
+        $this->identifier = "new";
         $this->myDid = $myDid;
         $this->theirDid = $theirDid;
         $this->status = $status;
