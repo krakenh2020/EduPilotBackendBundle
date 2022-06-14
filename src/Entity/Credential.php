@@ -67,6 +67,13 @@ class Credential
      */
     private $status;
 
+
+    /**
+    * @param $identifier
+    * @param string $myDid
+    * @param string $theirDid
+    * @param string $status
+    */
     public function __construct($identifier, string $myDid, string $theirDid, string $status)
     {
         $this->identifier = $identifier;
