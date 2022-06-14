@@ -29,7 +29,7 @@ class DidExternalApiTest extends TestCase
 
         $kernel = new Kernel([
             'aries_agent_university' => self::getUniAgentUrl(),
-            'aries_agent_university2' => 'https://krakenh2020.eu',
+            'aries_agent_university2' => 'https://krakenh2020.eu' // this is not a valid agent on purpose
         ]);
 
         $kernel->boot();
@@ -299,7 +299,7 @@ class DidExternalApiTest extends TestCase
         $cred = new Credential("", $uniAcceptedInvite->MyDID, $uniAcceptedInvite->TheirDID, $credId);
         $credofferResp = $this->api->sendOffer($cred);
 
-        $this->assertNotNull($credofferResp);
+        $this->assertNotNull($credofferResp, "Failed to send credential offer.");
         //print_r($credofferResp); // contains PIID in myDID field → send back via myDID field to acceptRequest
 
         // University: Frontend polls if credential accepted (not yet)
@@ -354,6 +354,7 @@ class DidExternalApiTest extends TestCase
         }
 
         // done, credential issued!
+        self::log("done, credential $credId issued!\n");
         $this->assertTrue(true);
     }
 
