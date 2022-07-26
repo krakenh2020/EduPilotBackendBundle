@@ -202,6 +202,45 @@ class DidExternalApiTest extends TestCase
         $this->assertTrue(true);
     }
 
+    public function testExportCredential()
+    {
+        $signedCred = $this->api->buildCred('course-grades', 'os');
+        self::assertNotNull($signedCred);
+
+        //print_r($signedCred);
+
+        $c = json_encode($signedCred, JSON_UNESCAPED_SLASHES);
+        print($c);
+    }
+
+    public function exportSignedCredential($uri)
+    {
+        $type = explode('/', $uri)[1];
+        $id = explode('/', $uri)[2];
+
+        $signedCred = $this->api->buildAndSignCred($type, $id);
+        self::assertNotNull($signedCred);
+
+        //print_r($signedCred);
+
+        $c = json_encode($signedCred, JSON_UNESCAPED_SLASHES);
+        print($c);
+    }
+
+    public function testExportSignedDiplomaCredential()
+    {
+        //$this->markTestSkipped('something not working with DID connection on github actions ...');
+
+        $this->exportSignedCredential('/diplomas/bsc1');
+    }
+
+    public function testExportSignedGradeCredential()
+    {
+        //$this->markTestSkipped('something not working with DID connection on github actions ...');
+
+        $this->exportSignedCredential('/course-grades/os');
+    }
+
     public function testFullFlowDiploma()
     {
         //$this->markTestSkipped('something not working with DID connection on github actions ...');
