@@ -415,7 +415,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $data;
     }
 
-    private function buildCred($type, $id)
+    public function buildCred($type, $id)
     {
         if ($type === 'diplomas') {
             $diploma = $this->diplomaApi->getDiplomaById($id);
@@ -473,7 +473,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $cred;
     }
 
-    private function buildAndSignCred($type, $id)
+    public function buildAndSignCred($type, $id)
     {
         // STEP 1: Build credential (for signing) --> just the VC
         $this->logger->info("STEP 1: Build credential of type: $type");
