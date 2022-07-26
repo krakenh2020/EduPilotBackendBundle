@@ -382,78 +382,10 @@ class DidExternalApi implements DidConnectionProviderInterface
         $type = explode('/', $id)[1];
         $id = explode('/', $id)[2];
 
-        // STEP 1: Build credential (for signing) --> just the VC
-        $this->logger->info("STEP 1: Build credential of type: $type");
 
-        if ($type === 'diplomas') {
-            $diploma = $this->diplomaApi->getDiplomaById($id);
+        $signedCred = $this->buildAndSignCred($type, $id);
+        if ($signedCred === null) return null;
 
-            $cred = [
-                '@context' => [
-                    'https://www.w3.org/2018/credentials/v1',
-                    'https://www.w3.org/2018/credentials/examples/v1',
-                ],
-                'type' => [
-                    'VerifiableCredential',
-                    'UniversityDegreeCredential',
-                ],
-                'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/'.$diploma->getIdentifier(),
-                'credentialSubject' => [
-                    'id' => 'sample-student-id2',
-                    'name' => $diploma->getName(),
-                    // todo: fix typo
-                    'achievenmentDate' => $diploma->getAchievenmentDate(),
-                    'academicDegree' => $diploma->getAcademicDegree(),
-                ],
-                'issuanceDate' => '2021-01-01T19:23:24Z',
-                'issuer' => $this->uniAgentDID,
-            ];
-        } elseif ($type === 'course-grades') {
-            $courseGrade = $this->courseApi->getCourseGradeById($id);
-
-            $cred = [
-                '@context' => [
-                    'https://www.w3.org/2018/credentials/v1',
-                    'https://www.w3.org/2018/credentials/examples/v1',
-                ],
-                'type' => [
-                    'VerifiableCredential',
-                    'UniversityDegreeCredential',
-                ],
-                'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/'.$courseGrade->getIdentifier(),
-                'credentialSubject' => [
-                    'id' => 'sample-student-id2',
-                    'name' => $courseGrade->getName(),
-                    // todo: fix typo
-                    'achievenmentDate' => $courseGrade->getAchievenmentDate(),
-                    'grade' => $courseGrade->getGrade(),
-                    'credits' => $courseGrade->getCredits(),
-                ],
-                'issuanceDate' => '2021-01-01T19:23:24Z',
-                'issuer' => $this->uniAgentDID,
-            ];
-        } else {
-            $this->logger->error("Unknown credential type: $type");
-
-            return null;
-        }
-
-        // STEP 2: Sign credential using /verifiable/signcredential
-        $this->logger->info('STEP 2: Sign credential');
-
-        $signrequest = [
-            'created' => '2021-06-15T15:04:06Z',
-            'did' => $this->uniAgentDID,
-            'signatureType' => 'Ed25519Signature2018',
-            'credential' => $cred,
-        ];
-
-        $signedCred = $this->agent->signCredential($signrequest);
-        if ($signedCred === null) {
-            return null;
-        }
-
-        $signedCred = json_decode($signedCred)->verifiableCredential;
 
         // STEP 3: Build credential datastructure
         $this->logger->info('Build credential datastructure');
@@ -481,5 +413,88 @@ class DidExternalApi implements DidConnectionProviderInterface
         $data->setStatus('accept request!');
 
         return $data;
+    }
+
+    private function buildCred($type, $id)
+    {
+        if ($type === 'diplomas') {
+            $diploma = $this->diplomaApi->getDiplomaById($id);
+
+            $cred = [
+                '@context' => [
+                    'https://www.w3.org/2018/credentials/v1',
+                    'https://www.w3.org/2018/credentials/examples/v1',
+                ],
+                'type' => [
+                    'VerifiableCredential',
+                    'UniversityDegreeCredential',
+                ],
+                'id' => 'https://kraken-edu.iaik.tugraz.at/diploma/' . $diploma->getIdentifier(),
+                'credentialSubject' => [
+                    'id' => 'sample-student-id2',
+                    'name' => $diploma->getName(),
+                    // todo: fix typo
+                    'achievenmentDate' => $diploma->getAchievenmentDate(),
+                    'academicDegree' => $diploma->getAcademicDegree(),
+                ],
+                'issuanceDate' => '2021-01-01T19:23:24Z',
+                'issuer' => $this->uniAgentDID,
+            ];
+        } elseif ($type === 'course-grades') {
+            $courseGrade = $this->courseApi->getCourseGradeById($id);
+
+            $cred = [
+                '@context' => [
+                    'https://www.w3.org/2018/credentials/v1',
+                    'https://www.w3.org/2018/credentials/examples/v1',
+                ],
+                'type' => [
+                    'VerifiableCredential',
+                    'UniversityDegreeCredential',
+                ],
+                'id' => 'https://kraken-edu.iaik.tugraz.at/coursegrade/' . $courseGrade->getIdentifier(),
+                'credentialSubject' => [
+                    'id' => 'sample-student-id2',
+                    'name' => $courseGrade->getName(),
+                    // todo: fix typo
+                    'achievenmentDate' => $courseGrade->getAchievenmentDate(),
+                    'grade' => $courseGrade->getGrade(),
+                    'credits' => $courseGrade->getCredits(),
+                ],
+                'issuanceDate' => '2021-01-01T19:23:24Z',
+                'issuer' => $this->uniAgentDID,
+            ];
+        } else {
+            $this->logger->error("Unknown credential type: $type");
+
+            return null;
+        }
+
+        return $cred;
+    }
+
+    private function buildAndSignCred($type, $id)
+    {
+        // STEP 1: Build credential (for signing) --> just the VC
+        $this->logger->info("STEP 1: Build credential of type: $type");
+        $cred = $this->buildCred($type, $id);
+        if ($cred == null) return null;
+
+        // STEP 2: Sign credential using /verifiable/signcredential
+        $this->logger->info('STEP 2: Sign credential');
+
+        $signrequest = [
+            'created' => '2021-06-15T15:04:06Z',
+            'did' => $this->uniAgentDID,
+            'signatureType' => 'Ed25519Signature2018',
+            'credential' => $cred,
+        ];
+
+        $signedCred = $this->agent->signCredential($signrequest);
+        if ($signedCred === null) {
+            return null;
+        }
+
+        return json_decode($signedCred)->verifiableCredential;
     }
 }
