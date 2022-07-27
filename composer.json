@@ -8,7 +8,8 @@
         "dbp/relay-core-bundle": "^0.1.10",
         "dbp/relay-keycloak-bundle": "^0.1.1",
         "symfony/framework-bundle": "^5.2",
-        "symfony/http-client": "^5.4"
+        "symfony/http-client": "^5.4",
+        "mattbasta/itsdangerous-php": "dev-master"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
@@ -23,6 +24,10 @@
         {
             "type": "vcs",
             "url": "git@github.com:krakenh2020/EduPilotBackendBundle.git"
+        },
+         {
+            "type": "vcs",
+            "url": "git@github.com:mattbasta/itsdangerous-php.git"
         }
     ],
     "autoload": {
