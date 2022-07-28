@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VC4SM\Bundle\Service;
 
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class SimpleHttpClient
 {
@@ -30,7 +31,7 @@ class SimpleHttpClient
      * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
      */
-    public static function request(string $url, string $method = 'GET', array $data = [], array $httpParams = []): array
+    public static function request(string $url, string $method = 'GET', array $data = [], array $httpParams = [], bool $dataAsJson = true): array
     {
         //return self::requestInsecure($url, $method, $data);
 
@@ -39,7 +40,7 @@ class SimpleHttpClient
 
         $c = new SimpleHttpClient($certVerifyDisabled, $httpParams);
 
-        return $c->requestSymfony($url, $method, $data);
+        return $c->requestSymfony($url, $method, $data, $dataAsJson);
     }
 
     /**
@@ -48,12 +49,24 @@ class SimpleHttpClient
      * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
      */
-    public function requestSymfony(string $url, string $method = 'GET', array $data = []): array
+    public function requestSymfony(string $url, string $method = 'GET', array $data = [], bool $dataAsJson = true): array
     {
         // uses https://symfony.com/doc/current/http_client.html
 
         if ($data !== null && count($data) > 0) {
-            $response = $this->client->request($method, $url, ['json' => $data]);
+            if ($dataAsJson) {
+                $dataToSend = ['json' => $data];
+            } else {
+                // to get content-type multipart/form-data (= file upload)
+                $formData = new FormDataPart($data);
+                $dataToSend = [
+                    'headers' => $formData->getPreparedHeaders()->toArray(),
+                    'body' => $formData->bodyToIterable(),
+                ];
+            }
+            echo $method . "ing data: ";
+            print_r($dataToSend);
+            $response = $this->client->request($method, $url, $dataToSend);
         } else {
             $response = $this->client->request($method, $url);
         }
