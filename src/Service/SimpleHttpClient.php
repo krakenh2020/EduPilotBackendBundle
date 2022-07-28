@@ -12,12 +12,16 @@ class SimpleHttpClient
 
     private $client;
 
-    public function __construct($certVerifyDisabled = false)
+    public function __construct($certVerifyDisabled = false, array $httpParams = [])
     {
+
+        $tlsParam = $certVerifyDisabled ? ['verify_peer' => false] : [];
+        $params = array_merge($tlsParam, $httpParams);
+
         // in case of $certVerifyDisabled:
         //   disabled: https://symfony.com/doc/current/reference/configuration/framework.html#verify-peer
         //   still enabled: https://symfony.com/doc/current/reference/configuration/framework.html#verify-host
-        $this->client = HttpClient::create($certVerifyDisabled ? ['verify_peer' => false] : []);
+        $this->client = HttpClient::create($params);
     }
 
     /**
@@ -26,14 +30,14 @@ class SimpleHttpClient
      * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
      */
-    public static function request(string $url, string $method = 'GET', array $data = []): array
+    public static function request(string $url, string $method = 'GET', array $data = [], array $httpParams = []): array
     {
         //return self::requestInsecure($url, $method, $data);
 
         $isLocalhost = parse_url($url, PHP_URL_HOST) === 'localhost';
         $certVerifyDisabled = $isLocalhost === true;
 
-        $c = new SimpleHttpClient($certVerifyDisabled);
+        $c = new SimpleHttpClient($certVerifyDisabled, $httpParams);
 
         return $c->requestSymfony($url, $method, $data);
     }
