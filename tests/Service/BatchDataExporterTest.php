@@ -3,6 +3,7 @@
 namespace VC4SM\Bundle\Tests\Service;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use VC4SM\Bundle\Service\BatchDataExporter;
 
 class BatchDataExporterTest extends TestCase
@@ -37,6 +38,23 @@ class BatchDataExporterTest extends TestCase
 
         $this->assertFalse($online);
     }
+
+    public function testExport1()
+    {
+        $exporter = new BatchDataExporter($this->logger, $this->exporterURL);
+        $online = $exporter->checkConnection();
+        $this->assertTrue($online);
+
+        $dummyCred = "This is a test. No need to be JSON.";
+
+        try {
+            $status = $exporter->exportData($dummyCred, "testing", "asdf");
+        } catch (ExceptionInterface $e) {
+            $this->fail($e);
+        }
+        self::assertTrue($status);
+    }
+
 
 }
 
