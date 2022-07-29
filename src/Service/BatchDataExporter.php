@@ -38,7 +38,7 @@ class BatchDataExporter
         try {
             $res = SimpleHttpClient::request($url . "/upload", "GET", [], $this->authHeader);
         } catch (Exception $exception) {
-            $this->logger->error($exception);
+            $this->logger->warning($exception);
             return false;
         }
 
@@ -59,7 +59,7 @@ class BatchDataExporter
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function exportData(string $signedCredential, string $type, string $id): bool
+    public function exportData(string $signedCredential, string $type, string $id, bool $ignoreDuplicateCreds = true): bool
     {
         $this->logger->info("Credential type: " . gettype($signedCredential));
         $data = ['credential' => new DataPart($signedCredential, "credential.json")];
@@ -73,6 +73,8 @@ class BatchDataExporter
             $this->logger->info($res['contents']);
         }
         if ($res['status_code'] !== 200) {
+            if ($res['status_code'] == 406 && $ignoreDuplicateCreds) return true;
+
             $this->logger->warning("Failed exporting credential to $url, status code: " . $res['status_code']);
             return false;
         }
