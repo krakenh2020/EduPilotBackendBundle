@@ -12,6 +12,8 @@ class BatchDataExporterTest extends TestCase
     private $exporterURL = 'http://127.0.0.1:5000';
     private $logger;
 
+    private $disableCItests = true;  // disable tests that won't work in CI at the moment
+
     public function setUp(): void
     {
         parent::setUp();
@@ -25,6 +27,10 @@ class BatchDataExporterTest extends TestCase
 
     public function testExporterReachable()
     {
+        if ($this->disableCItests) {
+            $this->markTestSkipped("currently not supported in CI");
+        }
+
         $exporter = new BatchDataExporter($this->logger, $this->exporterURL);
         $online = $exporter->checkConnection();
 
@@ -33,6 +39,10 @@ class BatchDataExporterTest extends TestCase
 
     public function testExporterUnreachable()
     {
+        if ($this->disableCItests) {
+            $this->markTestSkipped("currently not supported in CI");
+        }
+
         $exporter = new BatchDataExporter($this->logger, "http://foo.bar");
         $online = $exporter->checkConnection();
 
@@ -41,6 +51,10 @@ class BatchDataExporterTest extends TestCase
 
     public function testExport1()
     {
+        if ($this->disableCItests) {
+            $this->markTestSkipped("currently not supported in CI");
+        }
+        
         $exporter = new BatchDataExporter($this->logger, $this->exporterURL);
         $online = $exporter->checkConnection();
         $this->assertTrue($online);
