@@ -64,8 +64,8 @@ class SimpleHttpClient
                     'body' => $formData->bodyToIterable(),
                 ];
             }
-            echo $method . "ing data: ";
-            print_r($dataToSend);
+            //echo $method . "ing data: ";
+            //print_r($dataToSend);
             $response = $this->client->request($method, $url, $dataToSend);
         } else {
             $response = $this->client->request($method, $url);

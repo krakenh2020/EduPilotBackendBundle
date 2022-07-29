@@ -19,13 +19,12 @@ class BatchDataExporter
     private $exporterUrl;
     private $authHeader;
 
-    public function __construct($logger, $exporterUrl)
+    public function __construct($logger, $exporterUrl, $secretKey = "fooKRAKENbar")
     {
         $logger->info("Initializing BatchDataExporter for exporter at $exporterUrl ...");
         $this->logger = $logger;
         $this->exporterUrl = $exporterUrl;
 
-        $secretKey = "fooKRAKENbar"; // TODO: load from config or env
         $this->authHeader = $this->initAuthHeader($secretKey);
 
         $this->checkConnection();
@@ -39,6 +38,7 @@ class BatchDataExporter
         try {
             $res = SimpleHttpClient::request($url . "/upload", "GET", [], $this->authHeader);
         } catch (Exception $exception) {
+            $this->logger->error($exception);
             return false;
         }
 
@@ -59,9 +59,10 @@ class BatchDataExporter
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
      */
-    public function exportData($signedCredential, $type, $id): bool
+    public function exportData(string $signedCredential, string $type, string $id): bool
     {
-        $data = ['credential' => new DataPart($signedCredential, "credential.json")]; // TODO: as file instead?
+        $this->logger->info("Credential type: " . gettype($signedCredential));
+        $data = ['credential' => new DataPart($signedCredential, "credential.json")];
         $url = $this->exporterUrl . "/upload?type=" . $type . "&id=" . $id;
 
         // - POST credential it to $exporterUrl/upload (as file or POST parameter?)

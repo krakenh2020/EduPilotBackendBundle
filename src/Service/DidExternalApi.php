@@ -7,6 +7,7 @@ namespace VC4SM\Bundle\Service;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
 
@@ -21,10 +22,9 @@ class DidExternalApi implements DidConnectionProviderInterface
     private $logger;
     private $uniAgentDID;
     private $agent;
+    private $exporterURL;
+    private $exporterSecretKey;
 
-    /**
-     * @throws Exception
-     */
     public function __construct(CourseGradeProviderInterface $courseApi, DiplomaProviderInterface $diplomaApi, ContainerInterface $container, LoggerInterface $logger)
     {
         $logger->info('Initializing DidExternalApi ...');
@@ -36,6 +36,9 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $agentUrl = $this->probeConfiguredAgents($container);
         $this->agent = new AriesAgentClient($this->logger, $agentUrl, $this->uniAgentDID);
+
+        $this->exporterURL = "http://127.0.0.1:5000"; //  TODO: $container->getParameter('vc4sm.batch_exporter_url');
+        $this->exporterSecretKey = "fooKRAKENbar"; // TODO: $container->getParameter('vc4sm.batch_exporter_secret');
 
         $this->courseApi = $courseApi;
         $this->diplomaApi = $diplomaApi;
@@ -427,14 +430,31 @@ class DidExternalApi implements DidConnectionProviderInterface
         $type = explode('/', $id)[1];
         $id = explode('/', $id)[2];
 
-        $signedCred = $this->buildAndSignCred($type, $id);
+        $signedCred = $this->buildAndSignCred($type, $id, true);
         if ($signedCred === null) return null;
 
-        // TODO: call to BatchDataExporter Here
+        $exporter = new BatchDataExporter($this->logger, $this->exporterURL, $this->exporterSecretKey);
+        if (!$exporter->checkConnection()) {
+            $this->logger->error("BatchExporter not reachable ...");
+            return null;
+        }
+
+        try {
+            $status = $exporter->exportData($signedCred, $type, $id);
+        } catch (ExceptionInterface $e) {
+            $this->logger->error("BatchExporter error: $e");
+            return null;
+        }
+
+        if ($status != true) {
+            return null;
+        }
 
         // todo: remove this temp thing.
         $data->setMyDid('OK');
         $data->setStatus('accept request!');
+
+        $this->logger->info('provideCredenitalToBatchExporter: DONE');
 
         return $data;
     }
@@ -497,7 +517,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $cred;
     }
 
-    public function buildAndSignCred($type, $id)
+    public function buildAndSignCred($type, $id, $asJson = false)
     {
         // STEP 1: Build credential (for signing) --> just the VC
         $this->logger->info("STEP 1: Build credential of type: $type");
@@ -519,6 +539,8 @@ class DidExternalApi implements DidConnectionProviderInterface
             return null;
         }
 
-        return json_decode($signedCred)->verifiableCredential;
+        $cred = json_decode($signedCred)->verifiableCredential;
+        if ($asJson) return json_encode($cred, JSON_UNESCAPED_SLASHES);
+        else return $cred;
     }
 }
