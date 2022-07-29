@@ -8,6 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use VC4SM\Bundle\Controller\AcceptRequest;
+use VC4SM\Bundle\Controller\ExportCred;
 use VC4SM\Bundle\Controller\SendOffer;
 
 // todo: schema
