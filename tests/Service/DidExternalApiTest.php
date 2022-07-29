@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use VC4SM\Bundle\Entity\Credential;
 use VC4SM\Bundle\Entity\DidConnection;
 use VC4SM\Bundle\Service\AriesAgentClient;
-use VC4SM\Bundle\Service\DidExternalApi;
 use VC4SM\Bundle\Service\ExternalApi;
 use VC4SM\Bundle\Service\SimpleHttpClient;
 use VC4SM\Bundle\Tests\Kernel;
@@ -50,7 +49,7 @@ class DidExternalApiTest extends TestCase
 
     public static function log(string $text)
     {
-        fwrite(STDERR, '[Test] '.$text."\n");
+        fwrite(STDERR, '[Test] ' . $text . "\n");
     }
 
     public function testLogger()
@@ -62,16 +61,16 @@ class DidExternalApiTest extends TestCase
 
     public function testStudentAgentReachable()
     {
-        $url = self::getStudentAgentUrl().'/connections';
+        $url = self::getStudentAgentUrl() . '/connections';
         $res = SimpleHttpClient::request($url);
-        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: ".$res['status_code']);
+        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: " . $res['status_code']);
     }
 
     public function testUniAgentReachable()
     {
-        $url = self::getUniAgentUrl().'/connections';
+        $url = self::getUniAgentUrl() . '/connections';
         $res = SimpleHttpClient::request($url);
-        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: ".$res['status_code']);
+        $this->assertEquals(200, $res['status_code'], "Cannot reach $url: " . $res['status_code']);
     }
 
     /*public function testHttpClientInsecure()
@@ -211,6 +210,8 @@ class DidExternalApiTest extends TestCase
 
         $c = json_encode($signedCred, JSON_UNESCAPED_SLASHES);
         print($c);
+
+        return $c;
     }
 
     public function exportSignedCredential($uri)
@@ -225,6 +226,8 @@ class DidExternalApiTest extends TestCase
 
         $c = json_encode($signedCred, JSON_UNESCAPED_SLASHES);
         print($c);
+
+        return $c;
     }
 
     public function testExportSignedDiplomaCredential()
@@ -239,6 +242,23 @@ class DidExternalApiTest extends TestCase
         //$this->markTestSkipped('something not working with DID connection on github actions ...');
 
         $this->exportSignedCredential('/course-grades/os');
+    }
+
+    public function testExportGradeToBatchexporter()
+    {
+        $cred = new Credential("", "", "/course-grades/os");
+        $res = $this->api->provideCredenitalToBatchExporter($cred);
+
+        self::assertNotNull($res);
+        self::assertEquals("OK", $res->getMyDid());
+    }
+
+    public function testExportDiplomaToBatchexporter()
+    {
+        $cred = new Credential("", "", "/diplomas/bsc1");
+        $res = $this->api->provideCredenitalToBatchExporter($cred);
+
+        self::assertEquals("OK", $res->getMyDid());
     }
 
     public function testFullFlowDiploma()
@@ -367,9 +387,9 @@ class DidExternalApiTest extends TestCase
         // Student: Accept cred offer
 
         $studentActions = $studentAgent->getIssuercredentialActions();
-        self::log('Handling '.count($studentActions).' actions ...');
+        self::log('Handling ' . count($studentActions) . ' actions ...');
         foreach ($studentActions as $action) {
-            self::log('offer-credential? '.$action->Msg->{'@type'}."\n");
+            self::log('offer-credential? ' . $action->Msg->{'@type'} . "\n");
             if (str_contains($action->Msg->{'@type'}, 'offer-credential')) {
                 $action_piid = $action->PIID;
                 self::log("student: accepting offer $action_piid ... \n");
@@ -395,13 +415,13 @@ class DidExternalApiTest extends TestCase
         for ($i = 0; $i < 2; ++$i) {
             $studentActions2 = $studentAgent->getIssuercredentialActions();
             foreach ($studentActions2 as $action) {
-                self::log('issue-credential? '.$action->Msg->{'@type'}."\n");
+                self::log('issue-credential? ' . $action->Msg->{'@type'} . "\n");
                 if (!str_contains($action->Msg->{'@type'}, 'issue-credential')) {
                     continue;
                 }
                 $action_piid = $action->PIID;
                 self::log("student: accepting credential $action_piid ... \n");
-                $credname = 'tug_cred_'.$action_piid;
+                $credname = 'tug_cred_' . $action_piid;
                 $acceptCred = $studentAgent->acceptCredential($action_piid, $credname);
                 $this->assertNotNull($acceptCred);
             }
@@ -426,18 +446,18 @@ class AgentMockLogger2
 
     public function warning($text)
     {
-        $text = 'Warning: '.$text."\n";
+        $text = 'Warning: ' . $text . "\n";
         $this->writeItOut($text);
     }
 
     public function info($text)
     {
-        $text = 'Info: '.$text."\n";
+        $text = 'Info: ' . $text . "\n";
         $this->writeItOut($text);
     }
 
     private function writeItOut($text)
     {
-        fwrite(STDERR, "[$this->agentName] ".$text."\n");
+        fwrite(STDERR, "[$this->agentName] " . $text . "\n");
     }
 }
