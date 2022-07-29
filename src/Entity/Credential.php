@@ -11,6 +11,7 @@ use VC4SM\Bundle\Controller\AcceptRequest;
 use VC4SM\Bundle\Controller\SendOffer;
 
 // todo: schema
+
 /**
  * @ApiResource(
  *     collectionOperations={
@@ -18,6 +19,11 @@ use VC4SM\Bundle\Controller\SendOffer;
  *         "method"="POST",
  *         "path"="/credential/send_offer",
  *         "controller"=SendOffer::class,
+ *       },
+ *       "export_cred"={
+ *         "method"="POST",
+ *         "path"="/credential/export_cred",
+ *         "controller"=ExportCred::class,
  *       },
  *       "accept_request"={
  *         "method"="POST",
@@ -69,10 +75,10 @@ class Credential
 
 
     /**
-    * @param string $myDid
-    * @param string $theirDid
-    * @param string $status
-    */
+     * @param string $myDid
+     * @param string $theirDid
+     * @param string $status
+     */
     public function __construct(string $myDid, string $theirDid, string $status)
     {
         $this->identifier = "new";

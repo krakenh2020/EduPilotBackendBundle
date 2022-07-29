@@ -17,5 +17,7 @@ interface DidConnectionProviderInterface
 
     public function sendOffer(Credential $data): ?Credential;
 
+    public function provideCredenitalToBatchExporter(Credential $data): ?Credential;
+
     public function acceptRequest(Credential $data): ?Credential;
 }

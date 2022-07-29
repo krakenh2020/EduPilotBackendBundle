@@ -1,58 +1,62 @@
 services:
- VC4SM\Bundle\Command\TestCommand:
+  VC4SM\Bundle\Command\TestCommand:
     autowire: true
     autoconfigure: true
 
- VC4SM\Bundle\DataProvider\DidConnectionCollectionDataProvider:
+  VC4SM\Bundle\DataProvider\DidConnectionCollectionDataProvider:
     tags: [ { name: 'api_platform.collection_data_provider' } ]
     autowire: true
 
- VC4SM\Bundle\Controller\SendOffer:
-   tags: [ 'controller.service_arguments' ]
-   autowire: true
+  VC4SM\Bundle\Controller\SendOffer:
+    tags: [ 'controller.service_arguments' ]
+    autowire: true
 
- VC4SM\Bundle\Controller\AcceptRequest:
-   tags: [ 'controller.service_arguments' ]
-   autowire: true
+  VC4SM\Bundle\Controller\ExportCred:
+    tags: [ 'controller.service_arguments' ]
+    autowire: true
 
- VC4SM\Bundle\DataProvider\CourseGradeCollectionDataProvider:
+  VC4SM\Bundle\Controller\AcceptRequest:
+    tags: [ 'controller.service_arguments' ]
+    autowire: true
+
+  VC4SM\Bundle\DataProvider\CourseGradeCollectionDataProvider:
     tags: [ { name: 'api_platform.collection_data_provider' } ]
     autowire: true
 
- VC4SM\Bundle\DataProvider\DiplomaCollectionDataProvider:
+  VC4SM\Bundle\DataProvider\DiplomaCollectionDataProvider:
     tags: [ { name: 'api_platform.collection_data_provider' } ]
     autowire: true
 
- VC4SM\Bundle\DataProvider\DidConnectionItemDataProvider:
-    tags: ['api_platform.item_data_provider']
-    autowire: true
-
- VC4SM\Bundle\DataProvider\CredentialItemDataProvider:
-   tags: ['api_platform.item_data_provider']
-   autowire: true
-
- VC4SM\Bundle\DataProvider\CourseGradeItemDataProvider:
+  VC4SM\Bundle\DataProvider\DidConnectionItemDataProvider:
     tags: [ 'api_platform.item_data_provider' ]
     autowire: true
 
- VC4SM\Bundle\DataProvider\DiplomaItemDataProvider:
-   tags: ['api_platform.item_data_provider']
-   autowire: true
+  VC4SM\Bundle\DataProvider\CredentialItemDataProvider:
+    tags: [ 'api_platform.item_data_provider' ]
+    autowire: true
 
- VC4SM\Bundle\Service\ExternalApi:
+  VC4SM\Bundle\DataProvider\CourseGradeItemDataProvider:
+    tags: [ 'api_platform.item_data_provider' ]
+    autowire: true
+
+  VC4SM\Bundle\DataProvider\DiplomaItemDataProvider:
+    tags: [ 'api_platform.item_data_provider' ]
+    autowire: true
+
+  VC4SM\Bundle\Service\ExternalApi:
     autowire: true
     autoconfigure: true
 
- VC4SM\Bundle\Service\CourseGradeProviderInterface:
+  VC4SM\Bundle\Service\CourseGradeProviderInterface:
     '@VC4SM\Bundle\Service\ExternalApi'
 
- VC4SM\Bundle\Service\DiplomaProviderInterface:
+  VC4SM\Bundle\Service\DiplomaProviderInterface:
     '@VC4SM\Bundle\Service\ExternalApi'
 
- VC4SM\Bundle\Service\DidExternalApi:
+  VC4SM\Bundle\Service\DidExternalApi:
     autowire: true
     autoconfigure: true
     public: true
 
- VC4SM\Bundle\Service\DidConnectionProviderInterface:
-   '@VC4SM\Bundle\Service\DidExternalApi'
+  VC4SM\Bundle\Service\DidConnectionProviderInterface:
+    '@VC4SM\Bundle\Service\DidExternalApi'
