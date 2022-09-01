@@ -194,7 +194,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $invitation = $this->agent->createInvitation();
         $invitation = json_decode($invitation, true);
-        $invitation['imageUrl'] = 'https://www.tugraz.at/typo3conf/ext/tugraztemplateinternal/Resources/Public/Img/OpenGraph/tu_graz_start.jpg';
+        $invitation['invitation']['imageUrl'] = 'https://www.tugraz.at/typo3conf/ext/tugraztemplateinternal/Resources/Public/Img/OpenGraph/tu_graz_start.jpg';
         $invitation = json_encode($invitation, JSON_UNESCAPED_SLASHES);
 
         if ($invitation) {
