@@ -146,6 +146,8 @@ class DidExternalApiTest extends TestCase
         $this->assertNotNull($invite);
         $this->assertNotEmpty($invite);
 
+        print_r($invite);
+        
         $invite = json_decode($invite);
 
         // University: Frontend polls if invite accepted (not yet)

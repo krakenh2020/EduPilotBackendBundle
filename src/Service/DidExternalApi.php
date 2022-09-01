@@ -190,9 +190,12 @@ class DidExternalApi implements DidConnectionProviderInterface
         $didConnection1 = new DidConnection();
 
         $didConnection1->setIdentifier('tug');
-        $didConnection1->setName('DID Connection to Graz University of Technology');
+        $didConnection1->setName('DID Connection to KAKEN Pilot at Graz University of Technology');
 
         $invitation = $this->agent->createInvitation();
+        $invitation = json_decode($invitation, true);
+        $invitation['imageUrl'] = 'https://www.tugraz.at/typo3conf/ext/tugraztemplateinternal/Resources/Public/Img/OpenGraph/tu_graz_start.jpg';
+        $invitation = json_encode($invitation, JSON_UNESCAPED_SLASHES);
 
         if ($invitation) {
             $didConnection1->setInvitation($invitation);
