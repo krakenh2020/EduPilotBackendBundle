@@ -486,7 +486,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'achievenmentDate' => $diploma->getAchievenmentDate(),
                     'academicDegree' => $diploma->getAcademicDegree(),
                 ],
-                'issuanceDate' => '2021-01-01T19:23:24Z',
+                'issuanceDate' => '2022-09-01T19:23:24Z',
                 'issuer' => $this->uniAgentDID,
             ];
         } elseif ($type === 'course-grades') {
@@ -510,7 +510,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'grade' => $courseGrade->getGrade(),
                     'credits' => $courseGrade->getCredits(),
                 ],
-                'issuanceDate' => '2021-01-01T19:23:24Z',
+                'issuanceDate' => '2022-09-01T19:23:24Z',
                 'issuer' => $this->uniAgentDID,
             ];
         } else {
@@ -536,7 +536,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $this->logger->info('STEP 2: Sign credential');
 
         $signrequest = [
-            'created' => '2021-06-15T15:04:06Z',
+            'created' => '2022-09-01T15:04:06Z',
             'did' => $this->uniAgentDID,
             'signatureType' => 'Ed25519Signature2018',
             'credential' => $cred,
