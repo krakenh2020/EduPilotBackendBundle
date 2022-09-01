@@ -451,7 +451,8 @@ class DidExternalApi implements DidConnectionProviderInterface
         }
 
         if ($status != true) {
-            return null;
+            $this->logger->error("BatchExporter error: exporter-status was not true");
+            throw new Exception('BatchExporter error: exporter-status was not true (see LOG of Exporter)');
         }
 
         // todo: remove this temp thing.
