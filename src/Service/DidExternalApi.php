@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VC4SM\Bundle\Service;
 
+use DateTime;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -486,7 +487,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'achievenmentDate' => $diploma->getAchievenmentDate(),
                     'academicDegree' => $diploma->getAcademicDegree(),
                 ],
-                'issuanceDate' => '2022-09-01T19:23:24Z',
+                'issuanceDate' => $this->getCurrentDateTime(),
                 'issuer' => $this->uniAgentDID,
             ];
         } elseif ($type === 'course-grades') {
@@ -510,7 +511,7 @@ class DidExternalApi implements DidConnectionProviderInterface
                     'grade' => $courseGrade->getGrade(),
                     'credits' => $courseGrade->getCredits(),
                 ],
-                'issuanceDate' => '2022-09-01T19:23:24Z',
+                'issuanceDate' => $this->getCurrentDateTime(),
                 'issuer' => $this->uniAgentDID,
             ];
         } else {
@@ -536,7 +537,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $this->logger->info('STEP 2: Sign credential');
 
         $signrequest = [
-            'created' => '2022-09-01T15:04:06Z',
+            'created' => $this->getCurrentDateTime(),
             'did' => $this->uniAgentDID,
             'signatureType' => 'Ed25519Signature2018',
             'credential' => $cred,
@@ -550,5 +551,11 @@ class DidExternalApi implements DidConnectionProviderInterface
         $cred = json_decode($signedCred)->verifiableCredential;
         if ($asJson) return json_encode($cred, JSON_UNESCAPED_SLASHES);
         else return $cred;
+    }
+
+    private function getCurrentDateTime()
+    {
+        $date = new DateTime();
+        return $date->format('Y-m-d\TH:i:s\Z');
     }
 }
