@@ -228,7 +228,7 @@ class DidExternalApi implements DidConnectionProviderInterface
     {
         if ($type === 'diplomas') {
             $diploma = $api->getDiplomaById($id);
-            $cred_type = 'Academic Diploma';
+            $cred_type = 'Academic Diploma (' . $diploma->getStudyName() . ')';
             $cred_attributes = [
                 // [
                 //     'name' => "Credential Type",
@@ -258,7 +258,7 @@ class DidExternalApi implements DidConnectionProviderInterface
             ];
         } elseif ($type === 'course-grades') {
             $courseGrade = $api->getCourseGradeById($id);
-            $cred_type = 'Academic Course Grade';
+            $cred_type = 'Academic Course Grade (' . $courseGrade->getCourseTitle() . ')';
             $cred_attributes = [
                 // [
                 //     'name' => "Credential Type",
@@ -306,7 +306,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $offer_credential = [
             '@type' => 'https://didcomm.org/issue-credential/1.0/offer-credential',
-            'comment' => $cred_type . ' offer',
+            'comment' => $cred_type,
             'credential_preview' => $cred_preview,
         ];
 
