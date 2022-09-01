@@ -190,7 +190,7 @@ class DidExternalApi implements DidConnectionProviderInterface
         $didConnection1 = new DidConnection();
 
         $didConnection1->setIdentifier('tug');
-        $didConnection1->setName('DID Connection to KAKEN Pilot at Graz University of Technology');
+        $didConnection1->setName('DID Connection to KRAKEN Pilot at Graz University of Technology');
 
         $invitation = $this->agent->createInvitation();
         $invitation = json_decode($invitation, true);
