@@ -440,14 +440,14 @@ class DidExternalApi implements DidConnectionProviderInterface
         $exporter = new BatchDataExporter($this->logger, $this->exporterURL, $this->exporterSecretKey);
         if (!$exporter->checkConnection()) {
             $this->logger->error("BatchExporter not reachable ...");
-            return null;
+            throw new Exception('BatchExporter not reachable ...');
         }
 
         try {
             $status = $exporter->exportData($signedCred, $type, $id);
         } catch (ExceptionInterface $e) {
             $this->logger->error("BatchExporter error: $e");
-            return null;
+            throw new Exception('BatchExporter error: $e');
         }
 
         if ($status != true) {
@@ -521,6 +521,9 @@ class DidExternalApi implements DidConnectionProviderInterface
         return $cred;
     }
 
+    /**
+     * @throws Exception
+     */
     public function buildAndSignCred($type, $id, $asJson = false)
     {
         // STEP 1: Build credential (for signing) --> just the VC
@@ -540,7 +543,7 @@ class DidExternalApi implements DidConnectionProviderInterface
 
         $signedCred = $this->agent->signCredential($signrequest);
         if ($signedCred === null) {
-            return null;
+            throw new Exception('ERROR: Could not sign credential (see log).');
         }
 
         $cred = json_decode($signedCred)->verifiableCredential;
