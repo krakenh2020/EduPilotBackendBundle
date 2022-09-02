@@ -524,6 +524,7 @@ class DidExternalApi implements DidConnectionProviderInterface
     }
 
     /**
+     * Build and sign a credential.
      * @throws Exception
      */
     public function buildAndSignCred($type, $id, $asJson = false)
@@ -553,6 +554,9 @@ class DidExternalApi implements DidConnectionProviderInterface
         else return $cred;
     }
 
+    /*
+     * Helper function to get the current date and time in the correct format.
+     */
     private function getCurrentDateTime()
     {
         $date = new DateTime();
