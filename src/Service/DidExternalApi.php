@@ -33,8 +33,8 @@ class DidExternalApi implements DidConnectionProviderInterface
         //DidExternalApi::$classLogger = $logger;
 
         // TODO: move to configuration (use variable from ansible)
-        $this->uniAgentDID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr';
-        //$this->uniAgentDID = 'did:ebsi:zqZ5txUaSG7c5K7wZsFweWo';
+        //$this->uniAgentDID = 'did:key:z6MkwZ9XcVLTNwkv8ELoxPu5q2dMkqLnE422ex69YMVX4hpr';
+        $this->uniAgentDID = 'did:ebsi:zqZ5txUaSG7c5K7wZsFweWo';
 
         $agentUrl = $this->probeConfiguredAgents($container);
         $this->agent = new AriesAgentClient($this->logger, $agentUrl, $this->uniAgentDID);
