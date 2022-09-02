@@ -1,12 +1,12 @@
 name: Build, Test
 
 on:
- push:
-   branches:
-     - master
- workflow_dispatch:
-   branches:
-     - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    branches:
+      - master
 
 
 jobs:
@@ -33,12 +33,12 @@ jobs:
 
       - name: Create student aries agent container
         run: |
-          docker create --name student-agent-container --label student-agent --network github_network_kraken --network-alias student-agent -p 8092:8092 -p 8091:8091  -e "ARIESD_API_HOST=0.0.0.0:8092" -e "ARIESD_INBOUND_HOST=http@0.0.0.0:8091" -e "ARIESD_INBOUND_HOST_EXTERNAL=http@http://student-agent:8091" -e "ARIESD_WEBHOOK_URL=https://enybebk8mydni.x.pipedream.net" -e "ARIESD_DEFAULT_LABEL=student-agent" -e "ARIESD_DATABASE_TYPE=leveldb" -e "ARIESD_DATABASE_PREFIX=data/student" -e "ARIESD_DATABASE_TIMEOUT=60" -e "ARIESD_HTTP_RESOLVER=web@https://resolver.prod.ari-bip.eu/1.0/identifiers,elem@https://resolver.prod.ari-bip.eu/1.0/identifiers,ebsi@https://resolver.prod.ari-bip.eu/1.0/identifiers" -e "ARIESD_CONTEXT_PROVIDER_URL=https://context.prod.ari-bip.eu/agent-startup-contexts.json" -e GITHUB_ACTIONS=true -e CI=true ghcr.io/hyperledger/aries-framework-go:0.1.8 start
+          docker create --name student-agent-container --label student-agent --network github_network_kraken --network-alias student-agent -p 8092:8092 -p 8091:8091  -e "ARIESD_API_HOST=0.0.0.0:8092" -e "ARIESD_INBOUND_HOST=http@0.0.0.0:8091" -e "ARIESD_INBOUND_HOST_EXTERNAL=http@http://student-agent:8091" -e "ARIESD_WEBHOOK_URL=https://enybebk8mydni.x.pipedream.net" -e "ARIESD_DEFAULT_LABEL=student-agent" -e "ARIESD_DATABASE_TYPE=leveldb" -e "ARIESD_DATABASE_PREFIX=data/student" -e "ARIESD_DATABASE_TIMEOUT=60" -e "ARIESD_HTTP_RESOLVER=ebsi@https://api.preprod.ebsi.eu/did-registry/v2/identifiers,web@https://resolver.prod.ari-bip.eu/1.0/identifiers,elem@https://resolver.prod.ari-bip.eu/1.0/identifiers" -e "ARIESD_CONTEXT_PROVIDER_URL=https://context.prod.ari-bip.eu/agent-startup-contexts.json" -e GITHUB_ACTIONS=true -e CI=true ghcr.io/hyperledger/aries-framework-go:0.1.8 start
           docker start student-agent-container
 
       - name: Create university aries agent container
         run: |
-          docker create --name university-agent-container --label university-agent --network github_network_kraken --network-alias university-agent -p 8082:8082 -p 8081:8081  -e "ARIESD_API_HOST=0.0.0.0:8082" -e "ARIESD_INBOUND_HOST=http@0.0.0.0:8081" -e "ARIESD_INBOUND_HOST_EXTERNAL=http@http://university-agent:8081" -e "ARIESD_WEBHOOK_URL=https://enybebk8mydni.x.pipedream.net" -e "ARIESD_DEFAULT_LABEL=university-agent" -e "ARIESD_DATABASE_TYPE=leveldb" -e "ARIESD_DATABASE_PREFIX=data/university" -e "ARIESD_DATABASE_TIMEOUT=60" -e "ARIESD_HTTP_RESOLVER=web@https://resolver.prod.ari-bip.eu/1.0/identifiers,elem@https://resolver.prod.ari-bip.eu/1.0/identifiers,ebsi@https://resolver.prod.ari-bip.eu/1.0/identifiers" -e "ARIESD_CONTEXT_PROVIDER_URL=https://context.prod.ari-bip.eu/agent-startup-contexts.json" -e GITHUB_ACTIONS=true -e CI=true ghcr.io/hyperledger/aries-framework-go:0.1.8 start
+          docker create --name university-agent-container --label university-agent --network github_network_kraken --network-alias university-agent -p 8082:8082 -p 8081:8081  -e "ARIESD_API_HOST=0.0.0.0:8082" -e "ARIESD_INBOUND_HOST=http@0.0.0.0:8081" -e "ARIESD_INBOUND_HOST_EXTERNAL=http@http://university-agent:8081" -e "ARIESD_WEBHOOK_URL=https://enybebk8mydni.x.pipedream.net" -e "ARIESD_DEFAULT_LABEL=university-agent" -e "ARIESD_DATABASE_TYPE=leveldb" -e "ARIESD_DATABASE_PREFIX=data/university" -e "ARIESD_DATABASE_TIMEOUT=60" -e "ARIESD_HTTP_RESOLVER=ebsi@https://api.preprod.ebsi.eu/did-registry/v2/identifiers,web@https://resolver.prod.ari-bip.eu/1.0/identifiers,elem@https://resolver.prod.ari-bip.eu/1.0/identifiers" -e "ARIESD_CONTEXT_PROVIDER_URL=https://context.prod.ari-bip.eu/agent-startup-contexts.json" -e GITHUB_ACTIONS=true -e CI=true ghcr.io/hyperledger/aries-framework-go:0.1.8 start
           docker start university-agent-container
 
       - name: Test connection via localhost
@@ -87,7 +87,7 @@ jobs:
           version: 2
           php_extensions: xdebug curl
 
-    
+
       - name: Run tests
         uses: php-actions/composer@v6
         with:
@@ -111,7 +111,7 @@ jobs:
         run: |
           echo ${GITHUB_WORKSPACE}
           cat build/clover.xml| grep "<file"
-      
+
       - name: Fix clover and junit results
         run: |
           sudo sed -i -e 's:/app/:/github/workspace/:g' build/clover.xml
